@@ -689,9 +689,19 @@ img { max-width: 100%; display: block; }
 .peek.is-dead iframe, .live-frame.is-dead iframe { visibility: hidden; }
 .peek.is-dead .wing-name, .live-frame.is-dead .wing-name, .wing-name.is-on { display: grid; }
 .peek .wing-name { position: absolute; inset: 0; background: linear-gradient(180deg, #102018, #071018); }
+.frame-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px 10px; }
+.frame-bar h3 { margin: 0; font-family: var(--display); font-size: 26px; letter-spacing: -0.03em; }
+.frame-bar p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.frame-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sheet-h .frame-actions { margin: 0; }
+.portal-stack { display: grid; gap: 16px; }
+.portal-live { padding: 0 0 12px; overflow: hidden; }
 .live-frame.full { position: relative; min-height: calc(100vh - 220px); }
 .live-frame.full iframe { width: 100%; height: calc(100vh - 220px); min-height: 560px; border: 0; border-radius: 16px; background: #fff; }
-.live-frame.full .wing-name { position: absolute; inset: 0; border-radius: 16px; background: #071018; }
+.live-frame.full .wing-name, .live-frame.page .wing-name { position: absolute; inset: 0; border-radius: 16px; background: #071018; }
+.live-frame.page { position: relative; background: #fff; }
+.live-frame.page iframe { width: 100%; height: 68vh; min-height: 460px; border: 0; background: #fff; display: block; }
+.shot-copy .btn { margin-top: 10px; }
 .sheet.is-wide { width: calc(100% - 8px); max-height: none; }
 .admin-wrap { width: min(1100px, calc(100% - 28px)); margin: 24px auto 60px; }
 .editor { display: grid; gap: 10px; margin-top: 12px; }

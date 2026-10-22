@@ -1,5 +1,5 @@
 let DATA = null;
-const state = { hub: "all", region: "all", open: "", kind: "all" };
+const state = { hub: "all", region: "all", open: "", kind: "all", frame: null, frameFrom: "" };
 let bookTask = null;
 let bookDoc = null;
 let bookPage = 1;
@@ -154,7 +154,7 @@ function home() {
     </div>
     <div id="modal" class="modal" role="dialog" aria-modal="true">
       <div class="sheet">
-        <div class="sheet-h"><h2 id="modal-title"></h2><button class="btn coral" type="button" data-close>Close</button></div>
+        <div class="sheet-h"><h2 id="modal-title"></h2><div class="frame-actions"><span id="modal-actions"></span><button class="btn coral" type="button" data-close>Close</button></div></div>
         <div id="modal-body"></div>
       </div>
     </div>`;
@@ -236,7 +236,8 @@ function sectionBody(id) {
     const face = (item) => `<img class="phone" src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
     const moving = faces.length ? `<div class="reel app-reel"><div class="reel-track">${faces.map(face).join("")}${faces.map(face).join("")}</div></div>` : "";
     const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
-    return `${href ? fullFrame(href, "Infra APP") : wingName(true)}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    const stage = href ? `<div class="frame-bar"><div><h3>Infra APP</h3></div><div class="frame-actions"><button class="btn" type="button" data-frame="${esc(href)}" data-title="Infra APP">Open</button>${frameTab(href)}</div></div>${frameStage(href, "Infra APP")}` : wingName(true);
+    return `${stage}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
@@ -256,7 +257,7 @@ function sectionBody(id) {
   }
   if (id === "advisories") return advisoryShelf();
   if (id === "portals") {
-    return `<div class="portal-row portals-open">${portalPeeks(DATA.portals)}</div>`;
+    return portalPages(DATA.portals);
   }
   return "";
 }
@@ -265,8 +266,19 @@ function wingName(show) {
   return `<div class="wing-name${show ? " is-on" : ""}"><img src="assets/ndma-logo.png" alt="" /><h2>INFRA WING</h2></div>`;
 }
 
-function fullFrame(url, title) {
-  return `<div class="live-frame full"><iframe data-live src="${esc(url)}" title="${esc(title || "Portal")}"></iframe>${wingName()}</div>`;
+function frameTab(url) {
+  const href = safeUrl(url);
+  if (!href) return "";
+  return `<a class="btn cyan" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer">Open in another tab</a>`;
+}
+
+function frameStage(url, title, kind) {
+  return `<div class="live-frame ${kind || "full"}"><iframe data-live src="${esc(url)}" title="${esc(title || "Portal")}"></iframe>${wingName()}</div>`;
+}
+
+function setFrameActions(url) {
+  const slot = document.getElementById("modal-actions");
+  if (slot) slot.innerHTML = url ? frameTab(url) : "";
 }
 
 function portalPeeks(list) {
@@ -275,8 +287,17 @@ function portalPeeks(list) {
     const peek = href
       ? `<div class="peek"><iframe data-live src="${esc(href)}" title="${esc(portal.title)}" tabindex="-1"></iframe>${wingName()}</div>`
       : `<div class="peek">${wingName(true)}</div>`;
-    return `<article class="card shot portal-peek" data-frame="${esc(href)}" data-title="${esc(portal.title)}" style="--accent:${portal.color || "#ff8a3d"}">${peek}<div class="shot-copy"><h3>${esc(portal.title)}</h3><p>${esc((portal.items || [])[0] || "")}</p><p>${esc((portal.items || [])[1] || "")}</p></div></article>`;
+    return `<article class="card shot portal-peek" data-frame="${esc(href)}" data-title="${esc(portal.title)}" style="--accent:${portal.color || "#ff8a3d"}">${peek}<div class="shot-copy"><h3>${esc(portal.title)}</h3><p>${esc((portal.items || [])[0] || "")}</p><p>${esc((portal.items || [])[1] || "")}</p>${frameTab(href)}</div></article>`;
   }).join("");
+}
+
+function portalPages(list) {
+  return `<div class="portal-stack">${(list || []).map((portal) => {
+    const href = safeUrl(portal.url);
+    const stage = href ? frameStage(href, portal.title, "page") : `<div class="live-frame page">${wingName(true)}</div>`;
+    const actions = href ? `<button class="btn" type="button" data-frame="${esc(href)}" data-title="${esc(portal.title)}">Open</button>${frameTab(href)}` : "";
+    return `<article class="card portal-live" style="--accent:${portal.color || "#ff8a3d"}"><div class="frame-bar"><div><h3>${esc(portal.title)}</h3><p>${esc((portal.items || [])[0] || "")}</p></div><div class="frame-actions">${actions}</div></div>${stage}</article>`;
+  }).join("")}</div>`;
 }
 
 function watchFrames(root) {
@@ -303,17 +324,27 @@ function watchFrames(root) {
 function openFrame(url, title) {
   const href = safeUrl(url);
   if (!href) return;
-  state.open = "portals";
+  if (!state.frame) state.frameFrom = state.open || "";
   state.frame = { url: href, title: title || "Portal" };
   const modal = document.getElementById("modal");
   const sheet = modal.querySelector(".sheet");
   document.getElementById("modal-title").textContent = state.frame.title;
-  document.getElementById("modal-body").innerHTML = fullFrame(href, state.frame.title);
+  setFrameActions(href);
+  document.getElementById("modal-body").innerHTML = frameStage(href, state.frame.title, "full");
   sheet.classList.add("is-wide");
   modal.classList.add("is-on");
   document.body.style.overflow = "hidden";
   watchFrames(document.getElementById("modal-body"));
   markNav();
+}
+
+function closeFrame() {
+  const back = state.frameFrom || "";
+  state.frame = null;
+  state.frameFrom = "";
+  state.open = back;
+  setFrameActions("");
+  paintModal();
 }
 
 function advisoryShelf() {
@@ -384,6 +415,7 @@ async function openBook(index) {
   if (!item || !window.pdfjsLib) return;
   releaseBook();
   state.book = index;
+  setFrameActions("");
   document.getElementById("modal-title").textContent = item.title;
   document.getElementById("modal-body").innerHTML = `<div class="bookbar"><button class="btn ghost" type="button" data-shelf>Shelf</button><button class="btn gold" type="button" data-turn="-1">Previous</button><span id="book-count">Opening</span><button class="btn gold" type="button" data-turn="1">Next</button></div><div class="bookstage"><div class="paper" id="paper"><canvas id="book-page"></canvas></div></div><input id="book-range" type="range" min="1" max="1" value="1" />`;
   const range = document.getElementById("book-range");
@@ -412,6 +444,7 @@ function markNav() {
 function paintModal() {
   const modal = document.getElementById("modal");
   const body = document.getElementById("modal-body");
+  setFrameActions("");
   if (!state.open) {
     modal.classList.remove("is-on");
     document.body.style.overflow = "";
@@ -449,6 +482,14 @@ function tickClock() {
 
 function bind() {
   document.body.addEventListener("click", (e) => {
+    const tab = e.target.closest("[data-tab]");
+    if (tab) {
+      e.preventDefault();
+      const href = safeUrl(tab.getAttribute("href"));
+      if (href) window.open(href, "_blank", "noopener,noreferrer");
+      if (state.frame) closeFrame();
+      return;
+    }
     const opener = e.target.closest("[data-open]");
     if (opener && opener.dataset.open) {
       openPanel(opener.dataset.open);
@@ -487,6 +528,10 @@ function bind() {
       return;
     }
     if (e.target.closest("[data-close]") || e.target.id === "modal") {
+      if (state.frame) {
+        closeFrame();
+        return;
+      }
       state.open = "";
       state.book = null;
       releaseBook();
@@ -524,6 +569,10 @@ function bind() {
     }
     if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && state.book != null) {
       turnPage(e.key === "ArrowRight" ? 1 : -1);
+      return;
+    }
+    if (e.key === "Escape" && state.frame) {
+      closeFrame();
       return;
     }
     if (e.key === "Escape" && state.open) {
