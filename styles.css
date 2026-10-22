@@ -940,8 +940,8 @@ img { max-width: 100%; display: block; }
 .map-pin b { padding: 3px 8px; border-radius: 999px; background: rgba(6,16,24,0.88); border: 1px solid var(--c); font-size: 12px; white-space: nowrap; }
 .map-pin.is-on i { box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 45%, transparent); }
 @keyframes pin-pulse { 70% { box-shadow: 0 0 0 10px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-.wing-strip { display: flex; gap: 10px; overflow: auto; padding-bottom: 4px; }
-.wing-strip img { width: 220px; height: 140px; object-fit: cover; border-radius: 14px; flex: none; }
+.wing-strip { display: flex; width: 100%; gap: 0; overflow: hidden; }
+.wing-strip img { flex: 1 1 0; width: 0; min-width: 0; height: 148px; object-fit: cover; border-radius: 0; display: block; }
 .wing-picks { display: flex; flex-wrap: wrap; gap: 8px; }
 .wing-link { margin: 26px 4px 8px; padding: 18px 18px 8px; border-radius: 28px; background: linear-gradient(180deg, #10202c, #0b1720); border: 1px solid rgba(255,255,255,0.08); }
 .wing-link h2 { margin: 6px 0 14px; font-size: 32px; }

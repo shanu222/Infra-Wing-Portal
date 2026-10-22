@@ -643,7 +643,7 @@ function filmTag(url) {
 }
 function wingStage(id) {
   const videos = mediaFor(id, "video");
-  const images = mediaFor(id, "image").filter((item) => !/\/still-\d/i.test(item.url) && !/\/field\/\d+\.jpg$/i.test(item.url));
+  const images = mediaFor(id, "image");
   if (!videos.length && !images.length) return "";
   const video = videos.length ? `<div class="wing-videos">${videos.map((item) => filmTag(item.url)).join("")}</div>` : "";
   const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="${esc(item.title)}">`).join("")}</div>` : "";
