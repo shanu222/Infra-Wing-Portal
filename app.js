@@ -704,7 +704,6 @@ function home() {
         <a class="side-admin" href="admin.html">Admin</a>
       </aside>
       <div class="stage main">
-        ${pageScene("home")}
         <header class="command">
           <label class="finder">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
@@ -737,7 +736,17 @@ function home() {
           ${portals ? homeCard(portals, true) : ""}
         </div>
         ${wingLink()}
-        <div class="skyline" aria-hidden="true"></div>
+        <div class="skyline" aria-hidden="true">
+          <svg viewBox="0 0 1200 90" preserveAspectRatio="none">
+            <path class="sky-bridge" d="M40 62 V38 H150 V62 M70 38 V24 H120 V38 M430 62 C500 28 620 28 690 62 M900 62 V34 H1080 V62 M940 34 V18 H1040 V34" />
+            <path class="sky-build" d="M180 62 V40 H210 V28 H240 V62z" />
+            <path class="sky-build b" d="M250 62 V32 H290 V62z" />
+            <path class="sky-build c" d="M760 62 V36 H800 V22 H830 V62z" />
+            <path class="sky-road" d="M0 70 H1200" />
+            <path class="sky-dash" d="M0 70 H1200" />
+          </svg>
+          <svg class="sky-run" viewBox="0 0 36 16" width="36" height="16"><rect class="sky-vehicle" x="2" y="4" width="32" height="10" rx="2"/><circle cx="10" cy="14" r="2" fill="#0b1720"/><circle cx="26" cy="14" r="2" fill="#0b1720"/></svg>
+        </div>
       </div>
       <button class="quick" type="button" data-quick>Quick Access</button>
     </div>
@@ -835,10 +844,13 @@ function sectionBody(id) {
       const media = src ? `<img src="${esc(src)}" alt="" />` : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
       return `<button class="hub-shot${active === hub.id ? " is-on" : ""}" type="button" data-hub="${esc(hub.id)}">${media}<span class="hub-shot-copy"><b>${esc(hub.name)}</b><em>${esc(hub.region)}</em><strong>${fmt(hubTotal(hub))} units</strong></span></button>`;
     }).join("");
-    const hero = chosen && photo(chosen) ? `<figure class="hub-hero"><img src="${esc(photo(chosen))}" alt="" /><figcaption><em>Material hub</em><strong>${esc(chosen.name)} Material Hub</strong><span>${esc(chosen.region)}</span></figcaption></figure>` : "";
-    const side = hero || `<div class="hub-row">${shots}</div>`;
-    const line = hero ? `<div class="hub-row hub-row-line">${shots}</div>` : "";
-    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div class="hub-top">${hubWhere(active)}<div class="hub-gallery">${side}</div></div>${line}<div class="hub-stats" id="hubViz">${hubViz(active)}</div>`;
+    const one = (hub) => {
+      const src = photo(hub);
+      const picture = src ? `<img src="${esc(src)}" alt="" />` : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
+      return `<figure class="hub-hero hub-one">${picture}<figcaption><em>${esc(hub.region)}</em><strong>${esc(hub.name)} Material Hub</strong><span>${fmt(hubTotal(hub))} units</span></figcaption></figure>`;
+    };
+    const side = chosen ? one(chosen) : `<div class="hub-row">${shots}</div>`;
+    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div class="hub-top">${hubWhere(active)}<div class="hub-gallery">${side}</div></div><div class="hub-stats" id="hubViz">${hubViz(active)}</div>`;
   }
   if (id === "app360") {
     const app = DATA.app360 || { link: "", cards: [], interfaces: [] };
@@ -1108,7 +1120,7 @@ function paintModal() {
   }
   const tile = (DATA.tiles || []).find((t) => t.id === state.open) || (DATA.nav || []).find((t) => t.id === state.open);
   document.getElementById("modal-title").textContent = tile ? tile.title || tile.label : state.open;
-  if (scene) scene.innerHTML = pageScene(state.open);
+  if (scene) scene.innerHTML = "";
   body.innerHTML = modalBody(state.open);
   body.classList.add("inview");
   modal.classList.add("is-on");
