@@ -744,6 +744,28 @@ img { max-width: 100%; display: block; }
 .reel-track img, .reel-track video { width: 280px; height: 168px; object-fit: cover; border-radius: 18px; box-shadow: 0 10px 0 rgba(0,0,0,.32); flex: none; }
 .reel-track img.phone { width: 168px; height: 320px; border-radius: 28px; border: 3px solid #1a1a1a; animation: bob 3.4s ease-in-out infinite; }
 .app-reel { margin-bottom: 8px; mask-image: none; }
+.phone-board { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr); gap: 16px; margin-top: 16px; align-items: stretch; }
+.phone-stage { position: relative; min-height: 520px; border-radius: 24px; overflow: hidden; background: radial-gradient(circle at 50% 36%, rgba(58,215,245,0.32), transparent 42%), radial-gradient(circle at 18% 82%, rgba(176,140,255,0.4), transparent 38%), radial-gradient(circle at 84% 16%, rgba(30,200,122,0.32), transparent 34%), #07131c; }
+.phone-hero { position: relative; z-index: 1; width: min(300px, 52%); aspect-ratio: 420 / 594; margin: 22px auto 168px; }
+.phone-hero::before { content: ""; position: absolute; inset: 10% 8%; border-radius: 46%; background: radial-gradient(circle, rgba(125,255,178,0.45), transparent 68%); animation: phone-glow 3.4s ease-in-out infinite; z-index: -1; }
+.phone-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; filter: drop-shadow(0 22px 24px rgba(0,0,0,0.55)); animation: phone-show 39s linear infinite; animation-delay: calc(var(--i) * 3s); }
+.phone-rail { position: absolute; left: 0; right: 0; bottom: 14px; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.phone-rail-track { display: flex; gap: 4px; width: max-content; animation: glide 46s linear infinite; }
+.phone-rail-track img { width: 112px; height: 158px; object-fit: contain; flex: none; opacity: 0.78; filter: drop-shadow(0 12px 14px rgba(0,0,0,0.4)); animation: bob 3.8s ease-in-out infinite; }
+.store-card { display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 28px 26px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.18); background: linear-gradient(145deg, #146b3a 0%, #0d6e86 34%, #24306e 68%, #6a1d6e 100%); box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+.store-card p { margin: 0; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #d8fff0; }
+.store-card h3 { margin: 0; max-width: 12ch; font-family: var(--display); font-size: clamp(30px, 3vw, 46px); line-height: 0.98; letter-spacing: -0.035em; }
+.play-word { color: #b6ff73; text-shadow: 0 0 18px rgba(182,255,115,0.45); }
+.apple-word { color: #9fd7ff; text-shadow: 0 0 18px rgba(159,215,255,0.45); }
+.store-badges { display: flex; flex-wrap: wrap; gap: 10px; }
+.store-badge { display: inline-flex; align-items: center; gap: 10px; min-width: 188px; padding: 10px 14px 10px 12px; border-radius: 14px; color: white; }
+.store-badge small { display: block; font-size: 11px; opacity: 0.82; }
+.store-badge b { font-size: 17px; letter-spacing: -0.02em; }
+.store-badge svg { width: 30px; height: 30px; flex: none; }
+.store-badge.play { background: linear-gradient(180deg, #34c759, #128a3e); }
+.store-badge.ios { background: linear-gradient(180deg, #3a3a42, #111114); }
+@keyframes phone-show { 0% { opacity: 0; transform: translateY(18px) scale(0.96); } 2% { opacity: 1; transform: none; } 6.2% { opacity: 1; transform: none; } 7.7% { opacity: 0; transform: translateY(-14px) scale(1.03); } 100% { opacity: 0; } }
+@keyframes phone-glow { 50% { transform: scale(1.08); opacity: 0.55; } }
 @keyframes glide { to { transform: translateX(-50%); } }
 @keyframes bob { 50% { transform: translateY(-8px); } }
 .shelf { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 14px; }
@@ -1084,10 +1106,16 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
   .cover-rail, .banner { margin-left: 12px; margin-right: 12px; }
   .home-grid { padding: 0 12px; }
   .home-reel .reel-track img { width: 120px; height: 164px; object-fit: cover; padding: 0; border-radius: 0; }
+  .phone-board { grid-template-columns: 1fr; }
+  .phone-stage { min-height: 460px; }
+  .phone-hero { width: min(240px, 70%); margin-bottom: 150px; }
   .quick { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .reel-track { animation: none; flex-wrap: wrap; width: auto; }
+  .phone-rail-track, .phone-rail-track img, .phone-hero::before { animation: none; }
+  .phone-hero img { animation: none; opacity: 0; }
+  .phone-hero img:first-child { opacity: 1; }
   .home-card .drim-play img { transition: none; animation: none; transform: none; }
   .drim-meter, .link-flow, .flow-line, .card-foot, .card-foot::before, .chain-join, .portal-open, .film::before, .portal-card::before, .lane-go::after, .map-pin i, .brand img, .sky-dash, .sky-run { animation: none; }
 }

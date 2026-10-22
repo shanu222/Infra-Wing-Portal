@@ -641,6 +641,28 @@ function homeCard(item, wide) {
 function filmTag(url) {
   return `<div class="film"><video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(url)}"></video></div>`;
 }
+function phoneBoard() {
+  const faces = Array.from({ length: 13 }, (_, index) => `assets/app360/screen-${String(index + 1).padStart(2, "0")}.png`);
+  const hero = faces.map((src, index) => `<img src="${src}" alt="Infra Resilience360 screen ${index + 1}" style="--i:${index}" />`).join("");
+  const rail = faces.map((src, index) => `<img src="${src}" alt="" style="animation-delay:${(index % 6) * 0.28}s" />`).join("");
+  const android = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.2 7.4 5.6 4.6a.6.6 0 0 1 1-.6l1.6 2.8a7 7 0 0 1 8.6 0l1.6-2.8a.6.6 0 1 1 1 .6l-1.6 2.8A6.4 6.4 0 0 1 19.5 13v4.2a1.3 1.3 0 0 1-1.3 1.3h-.7V21a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-1v-2.5h-6.6V21a1 1 0 0 1-1 1h-.2a1 1 0 0 1-1-1v-2.5h-.7a1.3 1.3 0 0 1-1.3-1.3V13a6.4 6.4 0 0 1 2.2-5.6zM9.2 11.2a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6zm5.6 0a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6z"/><path fill="currentColor" d="M4.2 12.2a1 1 0 0 0-1 1v3.2a1 1 0 0 0 2 0v-3.2a1 1 0 0 0-1-1zm15.6 0a1 1 0 0 0-1 1v3.2a1 1 0 0 0 2 0v-3.2a1 1 0 0 0-1-1z"/></svg>`;
+  const apple = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.7 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.8-.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.2.8 1.1 1.7 2.4 2.9 2.3 1.1 0 1.6-.7 3-.7s1.8.7 3 .7 2-1.1 2.8-2.3c.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.5-1-2.5-3.6zM14.8 6.3c.6-.8 1.1-1.8.9-2.8-1 .1-2.2.7-2.9 1.5-.6.7-1.2 1.8-1 2.7 1.1.1 2.2-.5 3-1.4z"/></svg>`;
+  return `<section class="phone-board">
+    <div class="phone-stage">
+      <div class="phone-hero">${hero}</div>
+      <div class="phone-rail"><div class="phone-rail-track">${rail}${rail}</div></div>
+    </div>
+    <aside class="store-card">
+      <p>Infra Resilience360</p>
+      <h3>Download from the <span class="play-word">Play Store</span> and the <span class="apple-word">App Store</span></h3>
+      <div class="store-badges">
+        <span class="store-badge play">${android}<span><small>Get it on</small><b>Google Play</b></span></span>
+        <span class="store-badge ios">${apple}<span><small>Download on the</small><b>App Store</b></span></span>
+      </div>
+    </aside>
+  </section>`;
+}
+
 function wingStage(id) {
   const videos = mediaFor(id, "video");
   const images = mediaFor(id, "image");
@@ -852,14 +874,11 @@ function sectionBody(id) {
     return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div class="hub-top">${hubWhere(active)}<div class="hub-gallery">${side}</div></div><div class="hub-stats" id="hubViz">${hubViz(active)}</div>`;
   }
   if (id === "app360") {
-    const app = DATA.app360 || { link: "", cards: [], interfaces: [] };
+    const app = DATA.app360 || { link: "", cards: [] };
     const href = safeUrl(app.link);
-    const faces = app.interfaces || [];
-    const face = (item) => `<img class="phone" src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
-    const moving = faces.length ? `<div class="reel app-reel"><div class="reel-track">${faces.map(face).join("")}${faces.map(face).join("")}</div></div>` : "";
     const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
     const open = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer" style="--accent:#6aa4ff">Open Infra APP</a>` : "";
-    return `${wingStage("app360")}<div class="portal-actions">${open}</div>${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    return `${wingStage("app360")}<div class="portal-actions">${open}</div>${phoneBoard()}${cards ? `<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div>` : ""}<div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
