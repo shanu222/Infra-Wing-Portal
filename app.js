@@ -132,25 +132,88 @@ function clipReel(items) {
   return reel + (players ? `<div class="media-grid">${players}</div>` : "");
 }
 
+const HOME_ART = {
+  mandate: "assets/home/card-mandate.jpg",
+  audit: "assets/home/card-iap.jpg",
+  drim: "assets/home/card-drim.jpg",
+  hubs: "assets/home/card-hub.jpg",
+  app360: "assets/home/card-app.jpg",
+  field: "assets/home/card-field.jpg",
+  advisories: "assets/home/card-advisories.jpg",
+  seminars: "assets/home/card-seminars.jpg",
+  portals: "assets/home/card-portals.jpg"
+};
+
+function navIcon(id) {
+  const paths = {
+    wing: '<path d="M4 11 12 4l8 7"/><path d="M6 10.5V20h12v-9.5"/>',
+    mandate: '<path d="M7 3.5h8l4 4V20H7z"/><path d="M15 3.5V8h4.2"/><path d="M9 12h6M9 16h6"/>',
+    audit: '<path d="M4 20V9.5L12 4l8 5.5V20"/><path d="M9 20v-6h6v6"/>',
+    drim: '<path d="M4 16c2.2-4 3.8-4 6 0s3.8 4 6 0 3.8-4 4 0"/><path d="M4 20h16"/>',
+    hubs: '<path d="M3 8h18v11H3z"/><path d="M3 12.5h18M12 8v11"/>',
+    app360: '<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M11 18h2"/>',
+    field: '<path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.2"/>',
+    advisories: '<path d="M5 5h9l4 4v11H5z"/><path d="M14 5v4h4"/><path d="M8 12h7M8 16h5"/>',
+    seminars: '<circle cx="8" cy="9" r="2.4"/><circle cx="16" cy="9" r="2.4"/><path d="M3.5 19c.6-2.6 2.4-4 4.5-4s3.9 1.4 4.5 4M11.5 19c.6-2.6 2.4-4 4.5-4s3.9 1.4 4.5 4"/>',
+    portals: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.2 2.4 2.2 13.6 0 16M12 4c-2.2 2.4-2.2 13.6 0 16"/>'
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[id] || paths.wing}</svg>`;
+}
+
+function homeCard(item, wide) {
+  const art = HOME_ART[item.id] || item.image;
+  return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}"><img src="${esc(art)}" alt="" /><div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
+}
+
 function home() {
+  const portals = (DATA.tiles || []).find((item) => item.id === "portals");
+  const cards = (DATA.tiles || []).filter((item) => item.id !== "portals");
+  const provinces = (DATA.regions || []).length || 7;
   return `
-    <header class="topbar">
-      <div class="brand">
-        <img src="assets/ndma-logo.png" alt="National Disaster Management Authority" />
-        <div><h1>${esc(DATA.brand.title)}</h1><p>${esc(DATA.brand.line)}</p></div>
-      </div>
-      <div class="clockbox"><b id="clock">--:--:--</b><span>Islamabad</span></div>
-    </header>
-    <div class="shell">
-      <nav class="nav">${DATA.nav.map((item) => `<button type="button" data-open="${esc(item.id)}" style="--dot:${item.color}"><i></i>${esc(item.label)}</button>`).join("")}</nav>
-      <main class="main">
-        <div class="shot-grid">
-          ${DATA.tiles.map((item) => `<article class="card tilt shine shot" data-open="${esc(item.id)}" style="--accent:${item.color}"><img src="${esc(item.image)}" alt="" /><div class="shot-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div></article>`).join("")}
+    <div class="desk">
+      <aside class="side">
+        <div class="brand">
+          <img src="assets/ndma-logo.png" alt="National Disaster Management Authority" />
+          <div><h1>${esc(DATA.brand.title)}</h1><p>${esc(DATA.brand.line)}</p></div>
         </div>
-        <div class="portal-row">${portalPeeks(DATA.portals)}</div>
-        ${pictureRail()}
-        <p class="foot"><a href="admin.html">Admin</a><span>15 Oct 2026</span></p>
-      </main>
+        <nav class="nav">${DATA.nav.map((item) => `<button type="button" data-open="${esc(item.id)}">${navIcon(item.id)}<span>${esc(item.id === "wing" ? "Home" : item.label)}</span></button>`).join("")}</nav>
+        <div class="side-promo"><img src="assets/home/pakistan-map.jpg" alt="" /><b>Building a Resilient Pakistan</b></div>
+        <a class="side-admin" href="admin.html">Admin</a>
+      </aside>
+      <div class="stage main">
+        <header class="command">
+          <label class="finder">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+            <input id="finder" type="search" placeholder="Search modules, resources, districts, infrastructure..." autocomplete="off" />
+            <kbd>Ctrl + K</kbd>
+          </label>
+          <span class="bell" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2H4.5z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></span>
+          <div class="clockbox"><i></i><div><b id="clock">--:--:--</b><span>Islamabad</span></div></div>
+        </header>
+        <section class="banner">
+          <img class="banner-bg" src="assets/home/hero-landscape.jpg" alt="" />
+          <div class="banner-copy">
+            <h2>Infrastructure for a <span>Resilient Pakistan</span></h2>
+            <p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p>
+            <div class="banner-pills">
+              <span>${navIcon("audit")}${provinces} Provinces</span>
+              <span>${navIcon("mandate")}Integrated Planning</span>
+              <span>${navIcon("drim")}Disaster Resilience</span>
+              <span>${navIcon("portals")}Sustainable Development</span>
+            </div>
+          </div>
+          <figure class="banner-map">
+            <img src="assets/home/pakistan-map.jpg" alt="Map of Pakistan" />
+            <figcaption>Safe Infrastructure<br>Stronger Communities<br>Resilient Pakistan.</figcaption>
+          </figure>
+        </section>
+        <div class="home-grid" id="home-grid">
+          ${cards.map((item) => homeCard(item, false)).join("")}
+          ${portals ? homeCard(portals, true) : ""}
+        </div>
+        <div class="skyline" aria-hidden="true"></div>
+      </div>
+      <button class="quick" type="button" data-quick>Quick Access</button>
     </div>
     <div id="modal" class="modal" role="dialog" aria-modal="true">
       <div class="sheet">
@@ -481,7 +544,21 @@ function tickClock() {
 }
 
 function bind() {
+  const finder = document.getElementById("finder");
+  if (finder) {
+    finder.addEventListener("input", () => {
+      const q = finder.value.trim().toLowerCase();
+      document.querySelectorAll("[data-home-card]").forEach((card) => {
+        card.hidden = Boolean(q) && !String(card.dataset.find || "").includes(q);
+      });
+    });
+  }
   document.body.addEventListener("click", (e) => {
+    if (e.target.closest("[data-quick]")) {
+      const grid = document.getElementById("home-grid");
+      if (grid) grid.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      return;
+    }
     const tab = e.target.closest("[data-tab]");
     if (tab) {
       e.preventDefault();
@@ -561,6 +638,13 @@ function bind() {
     }
   });
   document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      const box = document.getElementById("finder");
+      if (box) {
+        e.preventDefault();
+        box.focus();
+      }
+    }
     if (e.key === "Escape" && state.book != null) {
       state.book = null;
       releaseBook();
@@ -582,6 +666,7 @@ function bind() {
     }
   });
   const main = document.querySelector(".main");
+  if (!main) return;
   main.addEventListener("pointermove", (e) => {
     const card = e.target.closest(".tilt");
     if (!card || reduce) return;
