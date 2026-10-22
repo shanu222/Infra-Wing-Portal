@@ -786,13 +786,13 @@ function hubViz(id) {
   if (id === "all") {
     const slices = DATA.hubs.map((h) => ({ name: h.name, value: hubTotal(h), color: h.color }));
     const rows = DATA.items.map((name, i) => ({ name, value: DATA.hubs.reduce((a, h) => a + Number(h.stock[i] || 0), 0), color: "#1ec87a" })).filter((r) => r.value > 0);
-    return `${donut(slices, fmt(totalUnits()), "Units")}<div style="margin-top:16px">${hBars(rows)}</div>`;
+    return `<article class="card pad hub-panel"><div class="k">Share of stock</div><h3>Units by hub</h3>${donut(slices, fmt(totalUnits()), "Units")}</article><article class="card pad hub-panel"><div class="k">On hand</div><h3>Stock by item</h3>${hBars(rows)}</article>`;
   }
   const hub = DATA.hubs.find((h) => h.id === id) || DATA.hubs[0];
   const slices = DATA.families.map((f) => ({ name: f.name, value: f.idx.reduce((a, i) => a + Number(hub.stock[i] || 0), 0), color: f.color }));
   const rows = DATA.items.map((name, i) => ({ name, value: Number(hub.stock[i] || 0), color: hub.color })).filter((r) => r.value > 0);
   const issue = hub.issue ? `<div class="pill" style="margin:12px 0">${esc(hub.issue)}</div>${chips(hub.issueItems)}` : "";
-  return `${donut(slices, fmt(hubTotal(hub)), hub.name)}${issue}<div style="margin-top:16px">${hBars(rows)}</div>`;
+  return `<article class="card pad hub-panel"><div class="k">Share of stock</div><h3>${esc(hub.name)}</h3>${donut(slices, fmt(hubTotal(hub)), hub.name)}${issue}</article><article class="card pad hub-panel"><div class="k">On hand</div><h3>Stock by item</h3>${hBars(rows)}</article>`;
 }
 
 function gbBlock() {
@@ -829,9 +829,15 @@ function sectionBody(id) {
     const active = state.hub;
     const photo = (hub) => HUB_PHOTO[hub.id] ? hubMedia(HUB_PHOTO[hub.id]) : "";
     const chosen = DATA.hubs.find((hub) => hub.id === active);
-    const shots = DATA.hubs.filter((hub) => photo(hub)).map((hub) => `<button class="hub-shot${active === hub.id ? " is-on" : ""}" type="button" data-hub="${esc(hub.id)}"><img src="${esc(photo(hub))}" alt="" /><b>${esc(hub.name)}</b><span>${esc(hub.region)}</span></button>`).join("");
-    const hero = chosen && photo(chosen) ? `<figure class="hub-hero"><img src="${esc(photo(chosen))}" alt="" /><figcaption><em>Material hub</em><strong>${esc(chosen.name)} Material Hub</strong><span>${esc(chosen.region)}</span></figcaption></figure>` : `<div class="hub-row">${shots}</div>`;
-    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div>${hubWhere(active)}${hero}${chosen ? `<div class="hub-row">${shots}</div>` : ""}<div id="hubViz">${hubViz(active)}</div>`;
+    const shots = DATA.hubs.map((hub) => {
+      const src = photo(hub);
+      const media = src ? `<img src="${esc(src)}" alt="" />` : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
+      return `<button class="hub-shot${active === hub.id ? " is-on" : ""}" type="button" data-hub="${esc(hub.id)}">${media}<span class="hub-shot-copy"><b>${esc(hub.name)}</b><em>${esc(hub.region)}</em><strong>${fmt(hubTotal(hub))} units</strong></span></button>`;
+    }).join("");
+    const hero = chosen && photo(chosen) ? `<figure class="hub-hero"><img src="${esc(photo(chosen))}" alt="" /><figcaption><em>Material hub</em><strong>${esc(chosen.name)} Material Hub</strong><span>${esc(chosen.region)}</span></figcaption></figure>` : "";
+    const side = hero || `<div class="hub-row">${shots}</div>`;
+    const line = hero ? `<div class="hub-row hub-row-line">${shots}</div>` : "";
+    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div class="hub-top">${hubWhere(active)}<div class="hub-gallery">${side}</div></div>${line}<div class="hub-stats" id="hubViz">${hubViz(active)}</div>`;
   }
   if (id === "app360") {
     const app = DATA.app360 || { link: "", cards: [], interfaces: [] };
