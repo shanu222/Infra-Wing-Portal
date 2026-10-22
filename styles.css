@@ -550,11 +550,51 @@ img { max-width: 100%; display: block; }
   left: var(--a);
   width: 0;
   border-radius: 999px;
+  overflow: hidden;
   background: linear-gradient(180deg, white, var(--c, var(--green)));
   box-shadow: 0 3px 0 rgba(0,0,0,0.35), 0 0 16px color-mix(in srgb, var(--c, var(--green)) 55%, transparent);
   transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+.range-track i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent);
+  transform: translateX(-120%);
+  animation: heat-sweep 2.6s linear infinite;
+}
 .inview .range-track i { width: calc(var(--b) - var(--a)); }
+.tint {
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--accent, #1ec87a) 46%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent, #1ec87a) 28%, #121a22), #0c141c 70%);
+  border-color: color-mix(in srgb, var(--accent, #1ec87a) 55%, transparent);
+  animation: card-float 5.2s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+.tint.mix {
+  background:
+    radial-gradient(80% 90% at 0% 0%, rgba(30,200,122,0.38), transparent 58%),
+    radial-gradient(80% 90% at 100% 100%, rgba(240,193,75,0.34), transparent 55%),
+    #0c141c;
+}
+.tint::before { width: 6px; }
+.tint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 34%, rgba(255,255,255,0.2) 50%, transparent 66%);
+  transform: translateX(-140%);
+  animation: heat-sweep 6.4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  pointer-events: none;
+}
+.tint .chip {
+  background: color-mix(in srgb, var(--accent, #1ec87a) 32%, #071018);
+  border: 1px solid color-mix(in srgb, var(--accent, #1ec87a) 55%, transparent);
+  color: #f7fffb;
+}
+@keyframes card-float { 50% { transform: translateY(-6px); } }
 
 .flow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
 .flow article, .step {
@@ -1139,5 +1179,5 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
   .phone-hero img { animation: none; opacity: 0; }
   .phone-hero img:first-child { opacity: 1; }
   .home-card .drim-play img { transition: none; animation: none; transform: none; }
-  .drim-meter, .link-flow, .flow-line, .card-foot, .card-foot::before, .chain-join, .portal-open, .film::before, .portal-card::before, .lane-go::after, .map-pin i, .brand img, .sky-dash, .sky-run, .cell::after, .scale i::after { animation: none; }
+  .drim-meter, .link-flow, .flow-line, .card-foot, .card-foot::before, .chain-join, .portal-open, .film::before, .portal-card::before, .lane-go::after, .map-pin i, .brand img, .sky-dash, .sky-run, .cell::after, .scale i::after, .tint, .tint::after, .range-track i::after { animation: none; }
 }

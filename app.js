@@ -849,12 +849,12 @@ function sectionBody(id) {
   }
   if (id === "drim") {
     const d = DATA.drim;
-    return `<div class="stats cols-4"><article class="card stat" style="--accent:#ff9f43"><strong>${d.count}</strong><em>DRIM</em></article><article class="card stat" style="--accent:#1ec87a"><strong>${d.time[0]}–${d.time[1]}%</strong><em>Faster</em></article><article class="card stat" style="--accent:#f0c14b"><strong>${d.cost[0]}–${d.cost[1]}%</strong><em>Cost saved</em></article><article class="card stat" style="--accent:#3ad7f5"><strong>All</strong><em>${esc(d.coverage)}</em></article></div>
-      <article class="card pad" style="margin-top:14px">${chips(d.hazards)}<div class="range"><div class="range-lab"><span>Time saved</span><b>${d.time[0]}–${d.time[1]}%</b></div><div class="range-track"><i style="--a:${d.time[0]}%;--b:${d.time[1]}%;--c:#1ec87a"></i></div></div><div class="range"><div class="range-lab"><span>Cost saved</span><b>${d.cost[0]}–${d.cost[1]}%</b></div><div class="range-track"><i style="--a:${d.cost[0]}%;--b:${d.cost[1]}%;--c:#f0c14b"></i></div></div></article>
+    return `<div class="stats cols-4"><article class="card stat tint" style="--accent:#ff9f43;--d:0s"><strong>${d.count}</strong><em>DRIM</em></article><article class="card stat tint" style="--accent:#1ec87a;--d:0.2s"><strong>${d.time[0]}–${d.time[1]}%</strong><em>Faster</em></article><article class="card stat tint" style="--accent:#f0c14b;--d:0.4s"><strong>${d.cost[0]}–${d.cost[1]}%</strong><em>Cost saved</em></article><article class="card stat tint" style="--accent:#3ad7f5;--d:0.6s"><strong>All</strong><em>${esc(d.coverage)}</em></article></div>
+      <article class="card pad tint mix" style="--d:0.15s">${chips(d.hazards)}<div class="range"><div class="range-lab"><span>Time saved</span><b>${d.time[0]}–${d.time[1]}%</b></div><div class="range-track"><i style="--a:${d.time[0]}%;--b:${d.time[1]}%;--c:#1ec87a"></i></div></div><div class="range"><div class="range-lab"><span>Cost saved</span><b>${d.cost[0]}–${d.cost[1]}%</b></div><div class="range-track"><i style="--a:${d.cost[0]}%;--b:${d.cost[1]}%;--c:#f0c14b"></i></div></div></article>
       ${drimShowcase()}
       ${wingStage("drim")}
-      <div class="models" style="margin-top:14px">${d.zones.map((z) => `<article class="card model" style="--accent:${z.color}"><h3>${esc(z.name)}</h3>${chips(z.models)}</article>`).join("")}</div>
-      <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#b08cff"><div class="k">Publications</div>${chips(d.publications)}</article><article class="card pad" style="--accent:#6aa4ff"><div class="k">Building Code of Pakistan</div>${chips(d.codes)}</article></div>`;
+      <div class="models" style="margin-top:14px">${d.zones.map((z, i) => `<article class="card model tint" style="--accent:${z.color};--d:${i * 0.18}s"><h3>${esc(z.name)}</h3>${chips(z.models)}</article>`).join("")}</div>
+      <div class="grid-2" style="margin-top:14px"><article class="card pad tint" style="--accent:#b08cff;--d:0.1s"><div class="k">Publications</div>${chips(d.publications)}</article><article class="card pad tint" style="--accent:#6aa4ff;--d:0.28s"><div class="k">Building Code of Pakistan</div>${chips(d.codes)}</article></div>`;
   }
   if (id === "hubs") {
     const active = state.hub;
