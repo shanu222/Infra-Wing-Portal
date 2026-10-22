@@ -271,11 +271,108 @@ function drimShowcase() {
   return stage + books;
 }
 
+const HUB_MEDIA = "https://pub-e38210c9c2ff4bf3a45338616cd43df2.r2.dev/content/material-hubs";
+const HUB_PHOTO = {
+  gilgit: "images/gilgit-hub.jpg",
+  muzaffargarh: "images/muzaffargarh-hub.jpg",
+  sukkur: "images/sukkur-hub.jpg"
+};
+const HUB_VIDEOS = [
+  "Installation videos for material/Bamboo_disaster-resilient_house_…_202607211139.mp4",
+  "Installation videos for material/CGI_sheet_roofing_installation_d…_202607211148.mp4",
+  "Installation videos for material/EPS_Panel_Construction_Disaster-…_202607211316.mp4",
+  "Installation videos for material/Pallets.mp4",
+  "Installation videos for material/Polythene_sheet_installation_dis…_202607211216.mp4",
+  "Installation videos for material/Rope.mp4",
+  "Installation videos for material/Steel_girder_construction_disast…_202607211205.mp4",
+  "Installation videos for material/Wooden_plank_construction_disast…_202607211228.mp4",
+  "Installation videos for material/Wooden_stick_chick_mat_construction_202607211159.mp4"
+];
+function hubMedia(rel) {
+  return HUB_MEDIA + "/" + String(rel || "").split("/").map((part) => encodeURIComponent(part)).join("/");
+}
+function glyph(kind) {
+  const paths = {
+    target: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>',
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M8 14a5 5 0 1 1 8 0c-.8.8-1.4 1.7-1.6 2.7H9.6C9.4 15.7 8.8 14.8 8 14z"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5V20.5M4.9 6.8l1.5 1.5M17.6 15.7l1.5 1.5M3.5 12h2M18.5 12h2M4.9 17.2l1.5-1.5M17.6 8.3l1.5-1.5"/>',
+    road: '<path d="M7 20 10 4h2l3 16M16 20l1.5-6H20"/>',
+    public: '<path d="M4 20V10l8-5 8 5v10"/><path d="M9 20v-6h6v6"/>',
+    factory: '<path d="M3 20V11l5 3V9l5 3V8l8 4v8z"/>',
+    water: '<path d="M3 14c2-3 3-3 5 0s3 3 5 0 3-3 5 0"/><path d="M3 18c2-3 3-3 5 0s3 3 5 0 3-3 5 0"/>',
+    home: '<path d="M4 12 12 5l8 7"/><path d="M6 11v8h12v-8"/>',
+    shop: '<path d="M4 10h16l-1 10H5z"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    shield: '<path d="M12 3 5 6v6c0 4.4 3 6.8 7 8.5 4-1.7 7-4.1 7-8.5V6z"/>',
+    alert: '<path d="m12 4 9 16H3z"/><path d="M12 10v4M12 17h.01"/>'
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[kind] || ""}</svg>`;
+}
+function goMark() {
+  return `<span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span>`;
+}
+function startHubCard() {
+  const video = document.querySelector("#hub-play video");
+  if (!video || !HUB_VIDEOS.length) return;
+  let n = 0;
+  let fails = 0;
+  const next = () => {
+    video.src = hubMedia(HUB_VIDEOS[n]);
+    const play = video.play();
+    if (play && play.catch) play.catch(() => {});
+  };
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.addEventListener("ended", () => {
+    n = (n + 1) % HUB_VIDEOS.length;
+    next();
+  });
+  video.addEventListener("error", () => {
+    fails += 1;
+    if (fails > HUB_VIDEOS.length) return;
+    n = (n + 1) % HUB_VIDEOS.length;
+    next();
+  });
+  next();
+}
+function mandatePage() {
+  const art = {
+    strengthen: "assets/home/mandate-strengthen.jpg",
+    innovate: "assets/home/mandate-innovate.jpg",
+    localise: "assets/home/mandate-localise.jpg",
+    communication: "assets/home/mandate-communication.jpg",
+    public: "assets/home/mandate-public.jpg",
+    industrial: "assets/home/mandate-industrial.jpg",
+    hydraulic: "assets/home/mandate-hydraulic.jpg",
+    residential: "assets/home/mandate-residential.jpg",
+    commercial: "assets/home/mandate-commercial.jpg"
+  };
+  const icons = ["target", "bulb", "gear"];
+  const classIcon = { communication: "road", public: "public", industrial: "factory", hydraulic: "water", residential: "home", commercial: "shop" };
+  const pillars = DATA.mandate.map((item, i) => `<article class="m-card" style="--accent:${item.color}"><img src="${art[item.title.toLowerCase()] || ""}" alt="" /><div class="m-copy"><span class="m-ico">${glyph(icons[i] || "target")}</span><div><b>0${i + 1}</b><h3>${esc(item.title)}</h3></div></div>${goMark()}</article>`).join("");
+  const classes = DATA.classes.map((item) => `<article class="m-tile" style="--accent:${item.color}"><img src="${art[item.title.toLowerCase()] || ""}" alt="" /><div class="m-copy"><span class="m-ico">${glyph(classIcon[item.title.toLowerCase()] || "public")}</span><div><b>${esc(item.title)}</b><p>${esc(item.line)}</p></div></div>${goMark()}</article>`).join("");
+  return `<section class="mandate">
+    <div class="m-hero"><img src="assets/home/mandate-hero.jpg" alt="" /><div><h2>Mandate</h2><p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p></div></div>
+    <div class="m-three">${pillars}</div>
+    <div class="m-six">${classes}</div>
+    <div class="m-split">
+      <article class="m-panel pre"><img src="assets/home/mandate-pre.jpg" alt="" /><div><h3>${glyph("shield")} Pre-disaster</h3>${chips(DATA.pre)}</div></article>
+      <article class="m-panel post"><img src="assets/home/mandate-post.jpg" alt="" /><div><h3>${glyph("gear")} Post-disaster</h3>${chips(DATA.post)}</div></article>
+    </div>
+    <div class="m-split">
+      <article class="m-panel exposed"><img src="assets/home/mandate-exposed.jpg" alt="" /><div><h3>${glyph("alert")} Exposed</h3>${chips(DATA.exposed)}</div></article>
+      <article class="m-panel survive"><img src="assets/home/mandate-survive.jpg" alt="" /><div><h3>${glyph("shield")} Built to survive</h3>${chips(DATA.resilient)}</div></article>
+    </div>
+  </section>`;
+}
+
 function homeCard(item, wide) {
   const art = HOME_ART[item.id] || item.image;
   const media = item.id === "drim"
     ? `<div class="drim-play" id="drim-play"><img src="${esc(art)}" alt="" class="is-on" /><img alt="" /></div>`
-    : `<img src="${esc(art)}" alt="" />`;
+    : item.id === "hubs"
+      ? `<div class="hub-play" id="hub-play"><video muted autoplay playsinline poster="${esc(art)}"></video></div>`
+      : `<img src="${esc(art)}" alt="" />`;
   return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${media}<div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
 }
 
@@ -382,12 +479,7 @@ function modalBody(id) {
 }
 
 function sectionBody(id) {
-  if (id === "mandate") {
-    return `<div class="grid-3">${DATA.mandate.map((item, i) => `<article class="card pad" style="--accent:${item.color}"><div class="k">0${i + 1}</div><h3>${esc(item.title)}</h3></article>`).join("")}</div>
-      <div class="grid-6" style="margin-top:14px">${DATA.classes.map((item) => `<article class="card pad" style="--accent:${item.color}"><div class="k">${esc(item.title)}</div><h3>${esc(item.line)}</h3></article>`).join("")}</div>
-      <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#3ad7f5"><div class="k">Pre-disaster</div>${chips(DATA.pre)}</article><article class="card pad" style="--accent:#ff6d6d"><div class="k">Post-disaster</div>${chips(DATA.post)}</article></div>
-      <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#ff6d6d"><div class="k">Exposed</div>${chips(DATA.exposed)}</article><article class="card pad" style="--accent:#1ec87a"><div class="k">Built to survive</div>${chips(DATA.resilient)}</article></div>`;
-  }
+  if (id === "mandate") return mandatePage();
   if (id === "audit") {
     return `<div class="badges">${DATA.badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")}</div>
       <article class="card pad"><div class="k">Net valuation</div>${provinceBars()}</article>
@@ -405,7 +497,11 @@ function sectionBody(id) {
   }
   if (id === "hubs") {
     const active = state.hub;
-    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div id="hubViz">${hubViz(active)}</div>`;
+    const photo = (hub) => HUB_PHOTO[hub.id] ? hubMedia(HUB_PHOTO[hub.id]) : "";
+    const chosen = DATA.hubs.find((hub) => hub.id === active);
+    const shots = DATA.hubs.filter((hub) => photo(hub)).map((hub) => `<button class="hub-shot${active === hub.id ? " is-on" : ""}" type="button" data-hub="${esc(hub.id)}"><img src="${esc(photo(hub))}" alt="" /><b>${esc(hub.name)}</b><span>${esc(hub.region)}</span></button>`).join("");
+    const hero = chosen && photo(chosen) ? `<figure class="hub-hero"><img src="${esc(photo(chosen))}" alt="" /><figcaption><em>Material hub</em><strong>${esc(chosen.name)} Material Hub</strong><span>${esc(chosen.region)}</span></figcaption></figure>` : `<div class="hub-row">${shots}</div>`;
+    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div>${hero}${chosen ? `<div class="hub-row">${shots}</div>` : ""}<div id="hubViz">${hubViz(active)}</div>`;
   }
   if (id === "app360") {
     const app = DATA.app360 || { link: "", cards: [], interfaces: [] };
@@ -644,7 +740,7 @@ function paintModal() {
   modal.classList.add("is-on");
   document.body.style.overflow = "hidden";
   const sheet = modal.querySelector(".sheet");
-  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals" || state.open === "drim");
+  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals" || state.open === "drim" || state.open === "mandate" || state.open === "hubs");
   playDonuts(body);
   runCounters(body);
   watchFrames(body);
@@ -840,6 +936,7 @@ async function boot() {
   setInterval(tickClock, 1000);
   markNav();
   startDrimCard();
+  startHubCard();
 }
 
 boot();
