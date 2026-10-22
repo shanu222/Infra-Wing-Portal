@@ -510,7 +510,33 @@ function mandatePage() {
   </section>`;
 }
 
-let wingMedia = [];
+const WING_FILES = [
+  { id: "mandate", title: "Pre and post disaster work", kind: "video", url: "media/portal/mandate/pre-post.mp4" },
+  { id: "audit", title: "Infra Audit Program", kind: "video", url: "media/portal/audit/program.mp4" },
+  { id: "audit", title: "Audit portal", kind: "video", url: "media/portal/audit/portal.mp4" },
+  { id: "drim", title: "DRIM", kind: "video", url: "media/portal/drim/promo.mp4" },
+  { id: "seminars", title: "Seminar, 23 September 2024", kind: "video", url: "media/portal/seminars/23-sep-2024.mp4" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/01.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/02.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/03.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/04.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/05.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/06.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/07.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/08.jpg" },
+  { id: "portals", title: "PRIA", kind: "video", url: "media/portal/portals/pria.mp4" },
+  { id: "portals", title: "Structural health monitoring", kind: "video", url: "media/portal/portals/shm.mp4" },
+  { id: "app360", title: "Resilience 360", kind: "video", url: "media/portal/app/r360.mp4" },
+  { id: "advisories", title: "Infrastructure publications", kind: "video", url: "media/portal/advisories/books.mp4" },
+  { id: "field", title: "Gilgit-Baltistan field visit", kind: "video", url: "media/portal/field/visit.mp4" },
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/01.jpg" },
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/02.jpg" },
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/03.jpg" },
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/04.jpg" },
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/05.jpg" },
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/06.jpg" }
+];
+let wingMedia = WING_FILES;
 function mediaFor(id, kind) {
   return wingMedia.filter((item) => item.id === id && (!kind || item.kind === kind));
 }
@@ -1177,17 +1203,7 @@ function startWingCards() {
   });
 }
 async function loadWingMedia() {
-  const base = apiBase();
-  if (!base) return;
-  try {
-    const res = await fetch(base + "/api/wing-media");
-    if (res.ok) {
-      const body = await res.json();
-      if (Array.isArray(body)) wingMedia = body;
-    }
-  } catch (error) {
-    wingMedia = [];
-  }
+  wingMedia = WING_FILES;
 }
 async function boot() {
   const [content] = await Promise.all([loadContent(), loadModels(), loadWingMedia()]);
