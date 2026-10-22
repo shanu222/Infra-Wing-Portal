@@ -781,7 +781,7 @@ function home() {
 }
 
 function provinceBars() {
-  return `<div class="vwrap"><div class="vbars"><div class="yaxis"><span>100</span><span>50</span><span>0</span></div>${DATA.regions.map((r) => `<div class="vbar"><div class="vn" style="color:${r.color}">${r.net}</div><div class="vtrack"><i class="vfill" style="--h:${r.net}%;--c:${r.color}"></i></div><div class="vl">${esc(r.name)}</div></div>`).join("")}</div></div>`;
+  return `<div class="vwrap"><div class="vbars"><div class="yaxis"><span>100</span><span>50</span><span>0</span></div>${DATA.regions.map((r, i) => `<div class="vbar" style="--c:${r.color};--d:${i * 0.14}s"><div class="vn">${r.net}</div><div class="vtrack"><i class="vfill" style="--h:${r.net}%"></i></div><div class="vl">${esc(r.name)}</div></div>`).join("")}</div></div>`;
 }
 
 function heatmap() {
