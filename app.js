@@ -690,7 +690,6 @@ function pageScene(id) {
 function home() {
   const portals = (DATA.tiles || []).find((item) => item.id === "portals");
   const cards = (DATA.tiles || []).filter((item) => item.id !== "portals");
-  const provinces = (DATA.regions || []).length || 7;
   return `
     <div class="desk">
       <aside class="side">
@@ -717,12 +716,12 @@ function home() {
           <img class="banner-bg" src="assets/home/hero-landscape.jpg" alt="" />
           <div class="banner-copy">
             <h2>Infrastructure for a <span>Resilient Pakistan</span></h2>
-            <p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p>
+            <p class="banner-line">Every <b>$1</b> put into stronger roads, bridges, and buildings saves <b>$6</b> when disaster hits.</p>
             <div class="banner-pills">
-              <span>${navIcon("audit")}${provinces} Provinces</span>
-              <span>${navIcon("mandate")}Integrated Planning</span>
-              <span>${navIcon("drim")}Disaster Resilience</span>
-              <span>${navIcon("portals")}Sustainable Development</span>
+              <span>${navIcon("audit")}Roads &amp; bridges</span>
+              <span>${navIcon("mandate")}Schools &amp; housing</span>
+              <span>${navIcon("hubs")}Stocked hubs</span>
+              <span>${navIcon("drim")}Ready before impact</span>
             </div>
           </div>
           <figure class="banner-map">

@@ -842,7 +842,8 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .banner-copy { padding: 28px 8px 26px 28px; }
 .banner-copy h2 { margin: 0; max-width: 680px; font-family: var(--display); font-size: clamp(32px, 3.5vw, 54px); line-height: 0.98; letter-spacing: -0.035em; }
 .banner-copy h2 span { background: linear-gradient(90deg, #8dffe4, #3ad7f5); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.banner-copy p { max-width: 540px; margin: 12px 0 0; color: #d5e6ef; font-size: 15px; }
+.banner-copy p { max-width: 560px; margin: 14px 0 0; color: #e7f4fb; font-size: 18px; line-height: 1.45; }
+.banner-line b { color: #ffd36a; font-size: 1.35em; letter-spacing: -0.03em; text-shadow: 0 2px 12px rgba(0,0,0,0.45); }
 .banner-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .banner-pills span { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; background: rgba(6,16,24,0.55); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; font-weight: 600; }
 .banner-pills svg { width: 15px; height: 15px; }
