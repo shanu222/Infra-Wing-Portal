@@ -115,11 +115,11 @@ function tileValue(id) {
 }
 
 function pictureRail() {
-  const pics = (DATA.library || []).filter((item) => item.type !== "video");
+  const pics = (DATA.library || []).filter((item) => item.type !== "video" && /brief-/i.test(item.url));
   if (!pics.length) return "";
   const frame = (item) => `<img src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
   const row = pics.map(frame).join("");
-  return `<div class="reel home-reel">${`<div class="reel-track">${row}${row}</div>`}</div>`;
+  return `<section class="cover-rail"><div class="reel home-reel"><div class="reel-track">${row}${row}</div></div></section>`;
 }
 
 function clipReel(items) {
@@ -560,7 +560,7 @@ function wingStage(id) {
   const images = mediaFor(id, "image");
   if (!videos.length && !images.length) return "";
   const picks = videos.length > 1 ? `<div class="wing-picks">${videos.map((item, index) => `<button class="btn ${index ? "ghost" : "gold"}" type="button" data-clip="${esc(item.url)}">${esc(item.title)}</button>`).join("")}</div>` : "";
-  const video = videos.length ? `<video class="wing-video" controls playsinline autoplay muted src="${esc(videos[0].url)}"></video>${picks}` : "";
+  const video = videos.length ? `<video class="wing-video" controls playsinline preload="metadata" src="${esc(videos[0].url)}"></video>${picks}` : "";
   const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="${esc(item.title)}">`).join("")}</div>` : "";
   return `<div class="wing-stage">${video}${strip}</div>`;
 }
@@ -595,7 +595,7 @@ function home() {
           <div><h1>${esc(DATA.brand.title)}</h1><p>${esc(DATA.brand.line)}</p></div>
         </div>
         <nav class="nav">${DATA.nav.map((item) => `<button type="button" data-open="${esc(item.id)}">${navIcon(item.id)}<span>${esc(item.id === "wing" ? "Home" : item.label)}</span></button>`).join("")}</nav>
-        <div class="side-promo"><img src="assets/home/pakistan-map.jpg" alt="" /><b>Building a Resilient Pakistan</b></div>
+        <div class="side-promo"><b>Building a Resilient Pakistan</b></div>
         <a class="side-admin" href="admin.html">Admin</a>
       </aside>
       <div class="stage main">
@@ -621,16 +621,16 @@ function home() {
             </div>
           </div>
           <figure class="banner-map">
-            <img src="assets/home/pakistan-map.jpg" alt="Map of Pakistan" />
+            ${window.pakistanMap ? window.pakistanMap(null, false) : ""}
             <figcaption>Safe Infrastructure<br>Stronger Communities<br>Resilient Pakistan.</figcaption>
           </figure>
         </section>
+        ${pictureRail()}
         <div class="home-grid" id="home-grid">
           ${cards.map((item) => homeCard(item, false)).join("")}
           ${portals ? homeCard(portals, true) : ""}
         </div>
         ${wingLink()}
-        ${pakistanFooter()}
         <div class="skyline" aria-hidden="true"></div>
       </div>
       <button class="quick" type="button" data-quick>Quick Access</button>
@@ -682,9 +682,7 @@ function gbBlock() {
 }
 
 function modalBody(id) {
-  const clips = (DATA.library || []).filter((item) => item.place === id);
-  const strip = clips.length ? clipReel(clips) : "";
-  return strip + sectionBody(id);
+  return sectionBody(id);
 }
 
 function sectionBody(id) {

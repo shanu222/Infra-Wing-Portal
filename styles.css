@@ -754,9 +754,8 @@ img { max-width: 100%; display: block; }
 .side .nav button.active { color: #042015; background: linear-gradient(180deg, #5dffb0, #14b86a); box-shadow: 0 8px 20px rgba(20,184,106,0.28); }
 .side .nav button.active:hover { color: #042015; }
 .side .nav svg, .banner-pills svg, .finder svg, .bell svg, .home-go svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.side-promo { position: relative; min-height: 96px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
-.side-promo img { width: 100%; height: 96px; object-fit: cover; object-position: center 30%; }
-.side-promo b { position: absolute; left: 12px; right: 12px; bottom: 10px; font-size: 13px; line-height: 1.25; text-shadow: 0 2px 8px #000; }
+.side-promo { position: relative; min-height: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); padding: 14px 12px; background: linear-gradient(160deg, #143044, #0c1c28); }
+.side-promo b { position: static; font-size: 13px; line-height: 1.35; }
 .side-admin { color: var(--muted); font-size: 12px; text-decoration: none; padding: 6px 4px 0; }
 .side-admin:hover { color: white; }
 .stage { position: relative; min-width: 0; padding-bottom: 24px; }
@@ -782,8 +781,11 @@ img { max-width: 100%; display: block; }
 .banner-pills span { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; background: rgba(6,16,24,0.55); border: 1px solid rgba(255,255,255,0.12); font-size: 13px; font-weight: 600; }
 .banner-pills svg { width: 15px; height: 15px; }
 .banner-map { margin: 0; justify-self: end; text-align: right; padding: 0 22px 18px 0; }
-.banner-map img { width: min(300px, 32vw); height: auto; mix-blend-mode: screen; filter: saturate(1.15) contrast(1.05); }
-.banner-map figcaption { margin-top: -8px; color: #f3fff9; font-weight: 650; font-size: 14px; line-height: 1.35; text-shadow: 0 2px 10px #000; }
+.banner-map .pk-svg { width: min(250px, 30vw); height: auto; display: block; margin-left: auto; }
+.banner-map figcaption { margin-top: 8px; color: #f3fff9; font-weight: 650; font-size: 14px; line-height: 1.35; text-shadow: 0 2px 10px #000; }
+.cover-rail { margin: 2px 22px 18px; }
+.home-reel .reel-track { animation-duration: 48s; }
+.home-reel .reel-track img { width: 188px; height: 250px; object-fit: contain; background: linear-gradient(180deg, #f8f6f1, #e7eef2); border-radius: 18px; padding: 12px; box-shadow: 0 18px 28px rgba(0,0,0,0.38); }
 .home-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding: 0 22px; }
 .home-card { position: relative; min-height: 188px; border-radius: 18px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 16px 30px rgba(0,0,0,0.28); }
 .home-card.wide { grid-column: span 2; min-height: 168px; }
@@ -906,6 +908,8 @@ img { max-width: 100%; display: block; }
   .home-card.wide { grid-column: auto; }
   .banner { grid-template-columns: 1fr; min-height: 0; }
   .banner-map { justify-self: center; text-align: center; padding: 0 16px 20px; }
+  .banner-map .pk-svg { margin: 0 auto; }
+  .home-reel .reel-track img { width: 140px; height: 186px; }
   .quick { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
