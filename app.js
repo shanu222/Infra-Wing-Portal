@@ -1414,6 +1414,15 @@ function startCardShows() {
       const showImg = frames[flip % 2];
       const hideImg = frames[(flip + 1) % 2];
       flip += 1;
+      showImg.onerror = () => {
+        const next = diskMedia(showImg.src);
+        if (next && showImg.dataset.disk !== next) {
+          showImg.dataset.disk = next;
+          showImg.src = next;
+          return;
+        }
+        if (mine === token) advance();
+      };
       showImg.src = item.url;
       showImg.classList.add("is-on");
       hideImg.classList.remove("is-on");
@@ -1423,19 +1432,33 @@ function startCardShows() {
   });
 }
 async function loadWingMedia() {
+  const diskFor = (item) => {
+    if (item.key) {
+      const disk = "media/" + item.key;
+      if (WING_FILES.some((file) => file.url === disk)) return disk;
+    }
+    return WING_FILES.find((file) => file.id === item.id && file.kind === item.kind && file.title === item.title);
+  };
   try {
     const res = await fetch(apiBase() + "/api/wing-media");
     if (!res.ok) return;
     const items = await res.json();
     if (!Array.isArray(items) || !items.length) return;
     const base = apiBase();
-    wingMedia = items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      kind: item.kind,
-      key: item.key || "",
-      url: item.key ? `${base}/api/media/${item.key}` : item.url
-    }));
+    const merged = [];
+    const seen = new Set();
+    items.forEach((item) => {
+      const known = diskFor(item);
+      const url = known ? (known.url || known) : (item.key ? `${base}/api/media/${item.key}` : "");
+      const mark = item.key || url;
+      if (!url || seen.has(mark)) return;
+      seen.add(mark);
+      merged.push({ id: item.id, title: item.title, kind: item.kind, key: item.key || "", url });
+    });
+    WING_FILES.forEach((file) => {
+      if (!merged.some((item) => item.url === file.url)) merged.push(file);
+    });
+    if (merged.length) wingMedia = merged;
   } catch (error) {
     wingMedia = WING_FILES;
   }
