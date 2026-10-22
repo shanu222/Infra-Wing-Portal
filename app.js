@@ -510,14 +510,51 @@ function mandatePage() {
   </section>`;
 }
 
-function homeCard(item, wide) {
+let wingMedia = [];
+function mediaFor(id, kind) {
+  return wingMedia.filter((item) => item.id === id && (!kind || item.kind === kind));
+}
+function cardMedia(item) {
   const art = HOME_ART[item.id] || item.image;
-  const media = item.id === "drim"
-    ? `<div class="drim-play" id="drim-play"><img src="${esc(art)}" alt="" class="is-on" /><img alt="" /></div>`
-    : item.id === "hubs"
-      ? `<div class="hub-play" id="hub-play"><video muted autoplay playsinline poster="${esc(art)}"></video></div>`
-      : `<img src="${esc(art)}" alt="" />`;
-  return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${media}<div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
+  if (item.id === "drim") return `<div class="drim-play" id="drim-play"><img src="${esc(art)}" alt="" class="is-on" /><img alt="" /></div>`;
+  if (item.id === "hubs") return `<div class="hub-play" id="hub-play"><video muted autoplay playsinline poster="${esc(art)}"></video></div>`;
+  const slides = item.id === "seminars" ? mediaFor(item.id, "image") : [];
+  if (slides.length) {
+    return `<div class="drim-play" data-card-slides="${esc(item.id)}"><img src="${esc(slides[0].url)}" alt="" class="is-on" /><img src="${esc((slides[1] || slides[0]).url)}" alt="" /></div>`;
+  }
+  const clips = mediaFor(item.id, "video");
+  if (clips.length) return `<div class="hub-play" data-card-video="${esc(item.id)}"><img src="${esc(art)}" alt="" /><video muted autoplay playsinline poster="${esc(art)}"></video></div>`;
+  return `<img src="${esc(art)}" alt="" />`;
+}
+function homeCard(item, wide) {
+  return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${cardMedia(item)}<div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
+}
+function wingStage(id) {
+  const videos = mediaFor(id, "video");
+  const images = mediaFor(id, "image");
+  if (!videos.length && !images.length) return "";
+  const picks = videos.length > 1 ? `<div class="wing-picks">${videos.map((item, index) => `<button class="btn ${index ? "ghost" : "gold"}" type="button" data-clip="${esc(item.url)}">${esc(item.title)}</button>`).join("")}</div>` : "";
+  const video = videos.length ? `<video class="wing-video" controls playsinline autoplay muted src="${esc(videos[0].url)}"></video>${picks}` : "";
+  const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="${esc(item.title)}">`).join("")}</div>` : "";
+  return `<div class="wing-stage">${video}${strip}</div>`;
+}
+function wingLink() {
+  const nodes = [
+    ["mandate", "Mandate", 12, 22],
+    ["audit", "IAP", 31, 22],
+    ["field", "Field visits", 50, 22],
+    ["seminars", "Seminars", 69, 22],
+    ["portals", "Portals", 88, 22],
+    ["drim", "DRIM", 12, 74],
+    ["hubs", "Material hubs", 31, 74],
+    ["advisories", "Advisories", 56, 74],
+    ["app360", "360 App", 82, 74]
+  ];
+  const lines = [[12, 22, 31, 22], [31, 22, 50, 22], [50, 22, 69, 22], [69, 22, 88, 22], [12, 22, 12, 74], [12, 74, 31, 74], [31, 74, 56, 74], [56, 74, 82, 74], [31, 22, 31, 74], [50, 22, 56, 74], [69, 22, 82, 74]];
+  const paths = lines.map(([x1, y1, x2, y2], index) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="link-flow" style="animation-delay:${index * 0.2}s" />`).join("");
+  const dots = lines.slice(0, 6).map(([x1, y1, x2, y2], index) => `<circle r="0.7" fill="#8dffe4"><animateMotion dur="${5 + index}s" repeatCount="indefinite" path="M${x1},${y1} L${x2},${y2}" /></circle>`).join("");
+  const buttons = nodes.map(([id, label, x, y]) => `<button class="link-node" type="button" data-open="${id}" style="left:${x}%;top:${y}%"><b>${esc(label)}</b></button>`).join("");
+  return `<section class="wing-link"><span class="k">Connected work</span><h2>How the wing fits together</h2><div class="link-board"><svg class="link-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}${dots}</svg>${buttons}</div></section>`;
 }
 
 function home() {
@@ -566,6 +603,7 @@ function home() {
           ${cards.map((item) => homeCard(item, false)).join("")}
           ${portals ? homeCard(portals, true) : ""}
         </div>
+        ${wingLink()}
         ${pakistanFooter()}
         <div class="skyline" aria-hidden="true"></div>
       </div>
@@ -624,9 +662,9 @@ function modalBody(id) {
 }
 
 function sectionBody(id) {
-  if (id === "mandate") return mandatePage();
+  if (id === "mandate") return wingStage("mandate") + mandatePage();
   if (id === "audit") {
-    return `<div class="badges">${DATA.badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")}</div>
+    return `${wingStage("audit")}<div class="badges">${DATA.badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")}</div>
       <article class="card pad"><div class="k">Net valuation</div>${provinceBars()}</article>
       <article class="card pad" style="margin-top:14px"><div class="switch" id="regSwitch"><button class="btn cyan is-on" type="button" data-region="all">All regions</button>${DATA.regions.map((r) => `<button class="btn ghost" type="button" data-region="${r.id}">${esc(r.name)}</button>`).join("")}</div>${heatmap()}</article>
       <div class="flow" style="margin-top:14px">${DATA.process.map((t, i) => `<article class="card"><div class="n">${String(i + 1).padStart(2, "0")}</div><b>${esc(t)}</b></article>`).join("")}</div>
@@ -637,6 +675,7 @@ function sectionBody(id) {
     return `<div class="stats cols-4"><article class="card stat" style="--accent:#ff9f43"><strong>${d.count}</strong><em>DRIM</em></article><article class="card stat" style="--accent:#1ec87a"><strong>${d.time[0]}–${d.time[1]}%</strong><em>Faster</em></article><article class="card stat" style="--accent:#f0c14b"><strong>${d.cost[0]}–${d.cost[1]}%</strong><em>Cost saved</em></article><article class="card stat" style="--accent:#3ad7f5"><strong>All</strong><em>${esc(d.coverage)}</em></article></div>
       <article class="card pad" style="margin-top:14px">${chips(d.hazards)}<div class="range"><div class="range-lab"><span>Time saved</span><b>${d.time[0]}–${d.time[1]}%</b></div><div class="range-track"><i style="--a:${d.time[0]}%;--b:${d.time[1]}%;--c:#1ec87a"></i></div></div><div class="range"><div class="range-lab"><span>Cost saved</span><b>${d.cost[0]}–${d.cost[1]}%</b></div><div class="range-track"><i style="--a:${d.cost[0]}%;--b:${d.cost[1]}%;--c:#f0c14b"></i></div></div></article>
       ${drimShowcase()}
+      ${wingStage("drim")}
       <div class="models" style="margin-top:14px">${d.zones.map((z) => `<article class="card model" style="--accent:${z.color}"><h3>${esc(z.name)}</h3>${chips(z.models)}</article>`).join("")}</div>
       <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#b08cff"><div class="k">Publications</div>${chips(d.publications)}</article><article class="card pad" style="--accent:#6aa4ff"><div class="k">Building Code of Pakistan</div>${chips(d.codes)}</article></div>`;
   }
@@ -656,11 +695,11 @@ function sectionBody(id) {
     const moving = faces.length ? `<div class="reel app-reel"><div class="reel-track">${faces.map(face).join("")}${faces.map(face).join("")}</div></div>` : "";
     const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
     const stage = href ? `<div class="frame-bar"><div><h3>Infra APP</h3></div><div class="frame-actions"><button class="btn" type="button" data-frame="${esc(href)}" data-title="Infra APP">Open</button>${frameTab(href)}</div></div>${frameStage(href, "Infra APP")}` : wingName(true);
-    return `${stage}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    return `${wingStage("app360")}${stage}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
-    return `<div class="grid-2"><article class="card pad"><div class="k">Monsoon damage</div><h3>2025 and 2026</h3>${gbBlock()}</article><article class="card pad"><div class="k">Districts visited</div><ul class="list">${f.districts.map((d) => `<li><b>${esc(d.name)}</b>${d.detail ? `<span>${esc(d.detail)}</span>` : ""}</li>`).join("")}</ul></article></div>
+    return `${wingStage("field")}<div class="grid-2"><article class="card pad"><div class="k">Monsoon damage</div><h3>2025 and 2026</h3>${gbBlock()}</article><article class="card pad"><div class="k">Districts visited</div><ul class="list">${f.districts.map((d) => `<li><b>${esc(d.name)}</b>${d.detail ? `<span>${esc(d.detail)}</span>` : ""}</li>`).join("")}</ul></article></div>
       <article class="card pad" style="margin-top:14px"><div class="k">Recommended measures</div>${chips(f.measures)}</article>
       <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#6aa4ff"><div class="k">Vision 2027</div><h3>Urban flood resilience</h3>${chips(f.vision)}</article><article class="card pad" style="--accent:#f0c14b"><div class="k">Verification chain</div><ul class="list">${f.chain.map((t) => `<li><b>${esc(t)}</b></li>`).join("")}</ul></article></div>
       <div class="cause" style="margin-top:14px"><article class="card pad" style="--accent:#ff6d6d"><div class="k">Residential</div><div class="stack">${f.residential.causes.map((t) => `<div>${esc(t)}</div>`).join("")}</div><div class="k" style="margin-top:12px">Recommendations</div><div class="stack">${f.residential.recommendations.map((t) => `<div>${esc(t)}</div>`).join("")}</div></article><article class="card pad" style="--accent:#ff9f43"><div class="k">Communication</div><div class="stack">${f.communication.causes.map((t) => `<div>${esc(t)}</div>`).join("")}</div><div class="k" style="margin-top:12px">Recommendations</div><div class="stack">${f.communication.recommendations.map((t) => `<div>${esc(t)}</div>`).join("")}</div></article></div>`;
@@ -669,14 +708,14 @@ function sectionBody(id) {
     const max = Math.max(...DATA.seminars.map((s) => Number(s.n)), 1);
     const colors = { 2024: "#f0c14b", 2025: "#3ad7f5", 2026: "#1ec87a" };
     const years = [2024, 2025, 2026].map((y) => ({ name: String(y), value: DATA.seminars.filter((s) => Number(s.y) === y).reduce((a, s) => a + Number(s.n), 0), color: colors[y] }));
-    return `<div class="grid-2"><article class="card pad"><div class="k">Participants</div><h3>${fmt(seminarTotal())}</h3>${DATA.seminars.map((s) => `<div class="sem-row"><span>${esc(s.d)}</span><div class="meta"><strong>${esc(s.t)}</strong><span>${esc(s.loc)}</span><div class="track" style="margin-top:4px"><i class="fill" style="--w:${(s.n / max) * 100}%;--c:${colors[s.y] || "#1ec87a"}"></i></div></div><em class="delta">${s.n}</em></div>`).join("")}</article><article class="card pad"><div class="k">By year</div>${donut(years, fmt(seminarTotal()), "People")}</article></div>`;
+    return `${wingStage("seminars")}<div class="grid-2"><article class="card pad"><div class="k">Participants</div><h3>${fmt(seminarTotal())}</h3>${DATA.seminars.map((s) => `<div class="sem-row"><span>${esc(s.d)}</span><div class="meta"><strong>${esc(s.t)}</strong><span>${esc(s.loc)}</span><div class="track" style="margin-top:4px"><i class="fill" style="--w:${(s.n / max) * 100}%;--c:${colors[s.y] || "#1ec87a"}"></i></div></div><em class="delta">${s.n}</em></div>`).join("")}</article><article class="card pad"><div class="k">By year</div>${donut(years, fmt(seminarTotal()), "People")}</article></div>`;
   }
   if (id === "response") {
     return `<div class="grid-6 steps-grid">${DATA.response.map((item, i) => `<article class="card step" style="--accent:${item.color}"><b class="n">${String(i + 1).padStart(2, "0")}</b><div>${esc(item.title)}</div></article>`).join("")}</div>`;
   }
-  if (id === "advisories") return advisoryShelf();
+  if (id === "advisories") return wingStage("advisories") + advisoryShelf();
   if (id === "portals") {
-    return portalPages(DATA.portals);
+    return wingStage("portals") + portalPages(DATA.portals);
   }
   return "";
 }
@@ -935,6 +974,20 @@ function bind() {
       if (state.frame) closeFrame();
       return;
     }
+    const clip = e.target.closest("[data-clip]");
+    if (clip && clip.dataset.clip) {
+      const video = clip.closest(".wing-stage") && clip.closest(".wing-stage").querySelector("video");
+      if (video) {
+        video.src = clip.dataset.clip;
+        const play = video.play();
+        if (play && play.catch) play.catch(() => {});
+      }
+      clip.parentElement.querySelectorAll("[data-clip]").forEach((button) => {
+        button.classList.toggle("gold", button === clip);
+        button.classList.toggle("ghost", button !== clip);
+      });
+      return;
+    }
     const opener = e.target.closest("[data-open]");
     if (opener && opener.dataset.open) {
       openPanel(opener.dataset.open);
@@ -1073,8 +1126,71 @@ async function loadContent() {
   return file.json();
 }
 
+function startPhotoPlay(box, urls) {
+  if (!box || !urls.length) return;
+  const frames = [...box.querySelectorAll("img")];
+  if (frames.length < 2 || urls.length < 2 || reduce) {
+    if (frames[0]) frames[0].src = urls[0];
+    return;
+  }
+  let n = 0;
+  frames[0].src = urls[0];
+  frames[0].classList.add("is-on");
+  frames[1].src = urls[1];
+  setInterval(() => {
+    if (!box.isConnected) return;
+    n = (n + 1) % urls.length;
+    const show = frames[n % 2];
+    const hide = frames[(n + 1) % 2];
+    show.src = urls[n];
+    show.classList.add("is-on");
+    hide.classList.remove("is-on");
+    setTimeout(() => {
+      if (hide.isConnected) hide.src = urls[(n + 1) % urls.length];
+    }, 1200);
+  }, 3400);
+}
+function startWingCards() {
+  document.querySelectorAll("[data-card-video]").forEach((box) => {
+    const clips = mediaFor(box.dataset.cardVideo, "video");
+    const video = box.querySelector("video");
+    if (!video || !clips.length) return;
+    let n = 0;
+    const next = () => {
+      video.src = clips[n].url;
+      const play = video.play();
+      if (play && play.catch) play.catch(() => {});
+    };
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    if (clips.length === 1) video.loop = true;
+    else video.addEventListener("ended", () => {
+      n = (n + 1) % clips.length;
+      next();
+    });
+    video.addEventListener("error", () => { video.remove(); });
+    next();
+  });
+  document.querySelectorAll("[data-card-slides]").forEach((box) => {
+    startPhotoPlay(box, mediaFor(box.dataset.cardSlides, "image").map((item) => item.url));
+  });
+}
+async function loadWingMedia() {
+  const base = apiBase();
+  if (!base) return;
+  try {
+    const res = await fetch(base + "/api/wing-media");
+    if (res.ok) {
+      const body = await res.json();
+      if (Array.isArray(body)) wingMedia = body;
+    }
+  } catch (error) {
+    wingMedia = [];
+  }
+}
 async function boot() {
-  const [content] = await Promise.all([loadContent(), loadModels()]);
+  const [content] = await Promise.all([loadContent(), loadModels(), loadWingMedia()]);
   DATA = content;
   document.getElementById("app").innerHTML = home();
   watchFrames(document);
@@ -1085,6 +1201,7 @@ async function boot() {
   markNav();
   startDrimCard();
   startHubCard();
+  startWingCards();
 }
 
 boot();

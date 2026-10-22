@@ -4,6 +4,8 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const https = require("https");
+const { presignGet, signPut } = require("./r2");
 
 function loadEnv() {
   const file = path.join(__dirname, ".env");
@@ -111,6 +113,92 @@ app.get("/api/models/file", async (req, res) => {
   } catch (error) {
     if (!res.headersSent) res.status(502).end();
   }
+});
+
+const WING_MEDIA = [
+  { id: "mandate", title: "Pre and post disaster work", kind: "video", key: "portal/mandate/pre-post.mp4" },
+  { id: "audit", title: "Infra Audit Program", kind: "video", key: "portal/audit/program.mp4" },
+  { id: "audit", title: "Audit portal", kind: "video", key: "portal/audit/portal.mp4" },
+  { id: "drim", title: "DRIM", kind: "video", key: "portal/drim/promo.mp4" },
+  { id: "seminars", title: "Seminar, 23 September 2024", kind: "video", key: "portal/seminars/23-sep-2024.mp4" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/01.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/02.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/03.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/04.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/05.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/06.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/07.jpg" },
+  { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/08.jpg" },
+  { id: "portals", title: "PRIA", kind: "video", key: "portal/portals/pria.mp4" },
+  { id: "portals", title: "Structural health monitoring", kind: "video", key: "portal/portals/shm.mp4" },
+  { id: "app360", title: "Resilience 360", kind: "video", key: "portal/app/r360.mp4" },
+  { id: "advisories", title: "Infrastructure publications", kind: "video", key: "portal/advisories/books.mp4" },
+  { id: "field", title: "Gilgit-Baltistan field visit", kind: "video", key: "portal/field/visit.mp4" },
+  { id: "field", title: "Field visit", kind: "image", key: "portal/field/01.jpg" },
+  { id: "field", title: "Field visit", kind: "image", key: "portal/field/02.jpg" },
+  { id: "field", title: "Field visit", kind: "image", key: "portal/field/03.jpg" },
+  { id: "field", title: "Field visit", kind: "image", key: "portal/field/04.jpg" },
+  { id: "field", title: "Field visit", kind: "image", key: "portal/field/05.jpg" },
+  { id: "field", title: "Field visit", kind: "image", key: "portal/field/06.jpg" }
+];
+
+app.get("/api/wing-media", (req, res) => {
+  const accessKey = process.env.R2_ACCESS_KEY_ID;
+  const secret = process.env.R2_SECRET_ACCESS_KEY;
+  const endpoint = process.env.R2_ENDPOINT || "https://38fa030ebec51c33ffeec13cdf1233.r2.cloudflarestorage.com";
+  if (!accessKey || !secret) return res.json([]);
+  let host = "";
+  try { host = new URL(endpoint).host; } catch (error) { return res.json([]); }
+  const bucket = process.env.R2_BUCKET || "infra-wing-portal";
+  const items = WING_MEDIA.map((item) => ({
+    id: item.id,
+    title: item.title,
+    kind: item.kind,
+    url: presignGet({ host, bucket, key: item.key, accessKey, secret, expires: 86400 })
+  }));
+  res.setHeader("Cache-Control", "public, max-age=600");
+  res.json(items);
+});
+
+const wingUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 40 * 1024 * 1024 } });
+
+function storeWingObject(key, contentType, body) {
+  const accessKey = process.env.R2_ACCESS_KEY_ID;
+  const secret = process.env.R2_SECRET_ACCESS_KEY;
+  const endpoint = process.env.R2_ENDPOINT || "https://38fa030ebec51c33ffeec13cdf1233.r2.cloudflarestorage.com";
+  if (!accessKey || !secret) return Promise.reject(new Error("storage is not configured"));
+  const host = new URL(endpoint).host;
+  const bucket = process.env.R2_BUCKET || "infra-wing-portal";
+  const payloadHash = crypto.createHash("sha256").update(body).digest("hex");
+  const signed = signPut({ host, bucket, key, accessKey, secret, contentType, payloadHash });
+  return new Promise((resolve, reject) => {
+    const req = https.request(signed.url, {
+      method: "PUT",
+      headers: { ...signed.headers, "content-length": body.length }
+    }, (upstream) => {
+      upstream.resume();
+      upstream.on("end", () => resolve(upstream.statusCode || 502));
+    });
+    req.on("error", reject);
+    req.end(body);
+  });
+}
+
+app.post("/api/wing-media", auth, (req, res) => {
+  wingUpload.single("file")(req, res, async (error) => {
+    if (error) return res.status(400).json({ error: error.message });
+    const key = String((req.body && req.body.key) || "");
+    if (!WING_MEDIA.some((item) => item.key === key)) return res.status(400).json({ error: "unknown key" });
+    if (!req.file) return res.status(400).json({ error: "file required" });
+    const contentType = key.endsWith(".mp4") ? "video/mp4" : "image/jpeg";
+    try {
+      const status = await storeWingObject(key, contentType, req.file.buffer);
+      if (status !== 200) return res.status(502).json({ error: "store failed", status });
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(502).json({ error: "store failed" });
+    }
+  });
 });
 
 app.get("/api/content", (req, res) => {
