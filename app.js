@@ -27,8 +27,10 @@ function absUrl(url) {
   return url;
 }
 function safeUrl(url) {
+  const raw = String(url || "").trim();
+  if (!raw) return "";
   try {
-    const parsed = new URL(url, location.origin);
+    const parsed = new URL(raw, location.origin);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href;
   } catch (error) {
     return "";
@@ -170,7 +172,7 @@ function clipReel(items) {
   const vids = items.filter((item) => item.type === "video");
   const frames = pics.map((item) => `<img src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`).join("");
   const reel = pics.length ? `<div class="reel"><div class="reel-track">${frames}${frames}</div></div>` : "";
-  const players = vids.map((item) => `<video controls preload="metadata" src="${esc(absUrl(item.url))}"></video>`).join("");
+  const players = vids.map((item) => `<video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(absUrl(item.url))}"></video>`).join("");
   return reel + (players ? `<div class="media-grid">${players}</div>` : "");
 }
 
@@ -623,8 +625,7 @@ function wingStage(id) {
   const videos = mediaFor(id, "video");
   const images = mediaFor(id, "image");
   if (!videos.length && !images.length) return "";
-  const picks = videos.length > 1 ? `<div class="wing-picks">${videos.map((item, index) => `<button class="btn ${index ? "ghost" : "gold"}" type="button" data-clip="${esc(item.url)}">${esc(item.title)}</button>`).join("")}</div>` : "";
-  const video = videos.length ? `<video class="wing-video" controls playsinline preload="metadata" src="${esc(videos[0].url)}"></video>${picks}` : "";
+  const video = videos.length ? `<div class="wing-videos">${videos.map((item) => `<video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(item.url)}"></video>`).join("")}</div>` : "";
   const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="${esc(item.title)}">`).join("")}</div>` : "";
   return `<div class="wing-stage">${video}${strip}</div>`;
 }
@@ -783,8 +784,8 @@ function sectionBody(id) {
     const face = (item) => `<img class="phone" src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
     const moving = faces.length ? `<div class="reel app-reel"><div class="reel-track">${faces.map(face).join("")}${faces.map(face).join("")}</div></div>` : "";
     const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
-    const stage = href ? `<div class="frame-bar"><div><h3>Infra APP</h3></div><div class="frame-actions"><button class="btn" type="button" data-frame="${esc(href)}" data-title="Infra APP">Open</button>${frameTab(href)}</div></div>${frameStage(href, "Infra APP")}` : wingName(true);
-    return `${wingStage("app360")}${stage}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    const open = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer" style="--accent:#6aa4ff">Open Infra APP</a>` : "";
+    return `${wingStage("app360")}<div class="portal-actions">${open}</div>${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
@@ -805,9 +806,7 @@ function sectionBody(id) {
     return `<div class="grid-6 steps-grid">${DATA.response.map((item, i) => `<article class="card step" style="--accent:${item.color}"><b class="n">${String(i + 1).padStart(2, "0")}</b><div>${esc(item.title)}</div></article>`).join("")}</div>`;
   }
   if (id === "advisories") return wingStage("advisories") + advisoryShelf();
-  if (id === "portals") {
-    return wingStage("portals") + portalPages(DATA.portals);
-  }
+  if (id === "portals") return portalPages(DATA.portals);
   return "";
 }
 
@@ -821,61 +820,60 @@ function frameTab(url) {
   return `<a class="btn cyan" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer">Open in another tab</a>`;
 }
 
-function frameStage(url, title, kind) {
-  return `<div class="live-frame ${kind || "full"}"><iframe data-live src="${esc(url)}" title="${esc(title || "Portal")}"></iframe>${wingName()}</div>`;
+function frameStage() {
+  return "";
 }
-
 function setFrameActions(url) {
   const slot = document.getElementById("modal-actions");
   if (slot) slot.innerHTML = url ? frameTab(url) : "";
 }
-
-function portalPeeks(list) {
-  return (list || []).map((portal) => {
-    const href = safeUrl(portal.url);
-    const peek = href
-      ? `<div class="peek"><iframe data-live src="${esc(href)}" title="${esc(portal.title)}" tabindex="-1"></iframe>${wingName()}</div>`
-      : `<div class="peek">${wingName(true)}</div>`;
-    return `<article class="card shot portal-peek" data-frame="${esc(href)}" data-title="${esc(portal.title)}" style="--accent:${portal.color || "#ff8a3d"}">${peek}<div class="shot-copy"><h3>${esc(portal.title)}</h3><p>${esc((portal.items || [])[0] || "")}</p><p>${esc((portal.items || [])[1] || "")}</p>${frameTab(href)}</div></article>`;
-  }).join("");
+const PORTAL_VIDEO = {
+  "PRIA Portal": "media/portal/portals/pria.mp4",
+  "Infra APP": "media/portal/app/r360.mp4",
+  "Structural health monitoring": "media/portal/portals/shm.mp4"
+};
+function portalCard(portal) {
+  const href = safeUrl(portal.url);
+  const film = PORTAL_VIDEO[portal.title] || "";
+  const intro = (portal.items || []).filter(Boolean).join(". ");
+  const media = film
+    ? `<video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(film)}"></video>`
+    : `<div class="portal-miss"><b>Not available</b><span>No film for this portal is on the disk or in the buckets.</span></div>`;
+  const button = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer">Open in another page</a>` : "";
+  return `<article class="portal-card" style="--accent:${esc(portal.color || "#ff8a3d")}"><div class="portal-media">${media}</div><div class="portal-copy"><h3>${esc(portal.title)}</h3><p>${esc(intro)}</p>${button}</div></article>`;
 }
-
 function portalPages(list) {
-  return `<div class="portal-stack">${(list || []).map((portal) => {
-    const href = safeUrl(portal.url);
-    const stage = href ? frameStage(href, portal.title, "page") : `<div class="live-frame page">${wingName(true)}</div>`;
-    const actions = href ? `<button class="btn" type="button" data-frame="${esc(href)}" data-title="${esc(portal.title)}">Open</button>${frameTab(href)}` : "";
-    return `<article class="card portal-live" style="--accent:${portal.color || "#ff8a3d"}"><div class="frame-bar"><div><h3>${esc(portal.title)}</h3><p>${esc((portal.items || [])[0] || "")}</p></div><div class="frame-actions">${actions}</div></div>${stage}</article>`;
-  }).join("")}</div>`;
+  const rows = (list || []).slice();
+  if (!rows.some((item) => /structural health/i.test(item.title))) {
+    rows.push({
+      title: "Structural health monitoring",
+      color: "#ff8a3d",
+      url: "",
+      items: ["Structural health of buildings and bridges", "Screen tour saved from the wing drive"]
+    });
+  }
+  return `<div class="portal-stack">${rows.map(portalCard).join("")}</div>`;
 }
 
 function watchFrames(root) {
-  (root || document).querySelectorAll("iframe[data-live]").forEach((frame) => {
-    if (frame.dataset.watched) return;
-    frame.dataset.watched = "1";
-    const box = frame.closest(".live-frame, .peek");
-    const fail = () => { if (box) box.classList.add("is-dead"); };
-    let loaded = false;
-    frame.addEventListener("error", fail);
-    frame.addEventListener("load", () => {
-      loaded = true;
-      try {
-        const doc = frame.contentDocument;
-        if (!doc || doc.URL === "about:blank" || !(doc.body && doc.body.childNodes.length)) fail();
-      } catch (error) {
-        /* A cross-origin portal loaded inside the frame. */
-      }
-    });
-    setTimeout(() => { if (!loaded) fail(); }, 9000);
-  });
-  (root || document).querySelectorAll("video.wing-video").forEach((video) => {
+  (root || document).querySelectorAll("video").forEach((video) => {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    if (video.closest("[data-card-play]")) return;
+    video.loop = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    const play = video.play();
+    if (play && play.catch) play.catch(() => {});
     if (video.dataset.watched) return;
     video.dataset.watched = "1";
     video.addEventListener("error", () => {
-      if (video.nextElementSibling && video.nextElementSibling.classList.contains("video-miss")) return;
+      const miss = video.parentElement && video.parentElement.querySelector(".portal-miss");
+      if (miss || (video.nextElementSibling && video.nextElementSibling.classList.contains("video-miss"))) return;
       const note = document.createElement("p");
       note.className = "video-miss";
-      note.textContent = "This video did not load. Hard-refresh the page. If it stays black, the site host has not published the media folder yet.";
+      note.textContent = "This video did not load.";
       video.insertAdjacentElement("afterend", note);
     });
   });
@@ -1098,7 +1096,8 @@ function bind() {
     }
     const frameBtn = e.target.closest("[data-frame]");
     if (frameBtn && frameBtn.dataset.frame) {
-      openFrame(frameBtn.dataset.frame, frameBtn.dataset.title);
+      const href = safeUrl(frameBtn.dataset.frame);
+      if (href) window.open(href, "_blank", "noopener,noreferrer");
       return;
     }
     const docBtn = e.target.closest("[data-doc]");
@@ -1280,6 +1279,8 @@ function startCardShows() {
         frames.forEach((img) => img.classList.remove("is-on"));
         video.classList.add("is-on");
         video.muted = true;
+        video.defaultMuted = true;
+        video.volume = 0;
         video.playsInline = true;
         video.onended = advance;
         video.onerror = advance;
