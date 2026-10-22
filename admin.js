@@ -47,7 +47,7 @@ function stringRows(list, key) {
 
 function editors() {
   const colors = ["#1ec87a", "#f0c14b", "#3ad7f5", "#ff9f43", "#b08cff", "#ff6d6d", "#6aa4ff", "#ff6fa8", "#ff8a3d", "#8dffc8"];
-  const menus = [["brand", "Brand", colors[0]], ["stats", "Stats", colors[1]], ["mandate", "Mandate", colors[2]], ["drim", "DRIM", colors[3]], ["portals", "Portals", colors[4]], ["media", "Media", colors[5]], ["seminars", "Seminars", colors[6]], ["hubs", "Hubs", colors[7]], ["json", "All data", colors[8]]];
+  const menus = [["brand", "Brand", colors[0]], ["mandate", "Mandate", colors[1]], ["drim", "DRIM", colors[2]], ["portals", "Portals", colors[3]], ["app360", "360 App", colors[4]], ["seminars", "Seminars", colors[5]], ["hubs", "Material Hub", colors[6]], ["json", "All data", colors[7]]];
   let body = "";
   if (panel === "brand") {
     body = `<div class="editor"><label>Title<input id="brand-title" value="${esc(draft.brand.title)}" /></label><label>Line<input id="brand-line" value="${esc(draft.brand.line)}" /></label></div>`;
@@ -59,8 +59,12 @@ function editors() {
     body = `<div class="editor" id="zones">${draft.drim.zones.map((z, i) => `<div class="card pad" style="--accent:${z.color}"><div class="row-edit"><input data-k="name" data-i="${i}" value="${esc(z.name)}" /><input data-k="color" data-i="${i}" value="${esc(z.color)}" /><button class="btn coral" type="button" data-del="${i}">Remove</button></div><label>Models<textarea data-k="models" data-i="${i}">${esc(z.models.join("\n"))}</textarea></label></div>`).join("")}<button class="btn gold" type="button" data-add>Add zone</button></div>`;
   } else if (panel === "portals") {
     body = `<div class="editor" id="portals">${draft.portals.map((p, i) => `<div class="card pad" style="--accent:${p.color || "#ff8a3d"}"><div class="row-edit"><input data-k="title" data-i="${i}" value="${esc(p.title)}" /><input data-k="url" data-i="${i}" value="${esc(p.url)}" placeholder="https://" /><input data-k="color" data-i="${i}" value="${esc(p.color || "#ff8a3d")}" /><button class="btn coral" type="button" data-del="${i}">Remove</button></div><label>Items<textarea data-k="items" data-i="${i}">${esc((p.items || []).join("\n"))}</textarea></label></div>`).join("")}<button class="btn amber" type="button" data-add>Add portal</button></div>`;
-  } else if (panel === "media") {
-    body = `<form class="editor" id="upload"><label>Title<input name="title" /></label><label>File<input name="file" type="file" accept="image/*,video/*" /></label><label>Or video URL<input name="url" placeholder="https://" /></label><button class="btn cyan" type="submit">Add media</button></form><div class="media-grid" style="margin-top:14px">${draft.media.map((m, i) => `<article class="card pad" style="--accent:#7ee0c6"><b>${esc(m.type)}</b><h3>${esc(m.title)}</h3><button class="btn coral" type="button" data-del-media="${i}">Remove</button></article>`).join("")}</div>`;
+  } else if (panel === "app360") {
+    const app = draft.app360 || (draft.app360 = { link: "", cards: [], interfaces: [] });
+    body = `<div class="editor" id="app360"><label>App link<input id="app-link" value="${esc(app.link || "")}" placeholder="https://" /></label></div>
+      <div class="editor" id="app-cards">${(app.cards || []).map((c, i) => `<div class="row-edit"><input data-k="title" data-i="${i}" value="${esc(c.title)}" placeholder="Name" /><input data-k="line" data-i="${i}" value="${esc(c.line || "")}" placeholder="Line" /><input data-k="color" data-i="${i}" value="${esc(c.color || "#6aa4ff")}" /><button class="btn coral" type="button" data-del="${i}">Remove</button></div>`).join("")}<button class="btn blue" type="button" data-add>Add card</button></div>
+      <form class="editor" id="upload"><label>Interface name<input name="title" placeholder="Home screen" /></label><label>App screen<input name="file" type="file" accept="image/*" /></label><button class="btn cyan" type="submit">Add interface</button></form>
+      <div class="media-grid" style="margin-top:14px">${(app.interfaces || []).map((m, i) => `<article class="card pad" style="--accent:#6aa4ff"><img src="${esc(m.url)}" alt="" /><h3>${esc(m.title)}</h3><button class="btn coral" type="button" data-del-face="${i}">Remove</button></article>`).join("")}</div>`;
   } else if (panel === "seminars") {
     body = `<div class="editor" id="seminars">${draft.seminars.map((s, i) => `<div class="row-edit"><input data-k="t" data-i="${i}" value="${esc(s.t)}" /><input data-k="d" data-i="${i}" value="${esc(s.d)}" /><input data-k="n" data-i="${i}" value="${esc(s.n)}" /><button class="btn coral" type="button" data-del="${i}">Remove</button><input data-k="loc" data-i="${i}" value="${esc(s.loc)}" /><input data-k="y" data-i="${i}" value="${esc(s.y)}" /></div>`).join("")}<button class="btn pink" type="button" data-add>Add seminar</button></div>`;
   } else if (panel === "hubs") {
@@ -113,6 +117,14 @@ function readPanel() {
       if (!row) return;
       row[el.dataset.k] = el.dataset.k === "n" || el.dataset.k === "y" ? Number(el.value) : el.value;
     });
+  } else if (panel === "app360") {
+    draft.app360 = draft.app360 || { link: "", cards: [], interfaces: [] };
+    const link = document.getElementById("app-link");
+    if (link) draft.app360.link = link.value.trim();
+    document.querySelectorAll("#app-cards [data-k]").forEach((el) => {
+      const row = draft.app360.cards[Number(el.dataset.i)];
+      if (row) row[el.dataset.k] = el.value;
+    });
   } else if (panel === "hubs") {
     document.querySelectorAll("#hubs input").forEach((el) => {
       const row = draft.hubs[Number(el.dataset.i)];
@@ -164,6 +176,10 @@ function bind() {
     if (panel === "mandate") draft.mandate.push({ title: "New", color: "#f0c14b" });
     if (panel === "drim") draft.drim.zones.push({ name: "Zone", color: "#ff9f43", models: [] });
     if (panel === "portals") draft.portals.push({ title: "Portal", url: "", color: "#ff8a3d", items: [] });
+    if (panel === "app360") {
+      draft.app360 = draft.app360 || { link: "", cards: [], interfaces: [] };
+      draft.app360.cards.push({ title: "New", line: "", color: "#6aa4ff" });
+    }
     if (panel === "seminars") draft.seminars.push({ t: "Seminar", d: "", y: 2026, loc: "", n: 0 });
     render();
   };
@@ -176,34 +192,36 @@ function bind() {
       if (panel === "mandate") draft.mandate.splice(i, 1);
       if (panel === "drim") draft.drim.zones.splice(i, 1);
       if (panel === "portals") draft.portals.splice(i, 1);
+      if (panel === "app360") draft.app360.cards.splice(i, 1);
       if (panel === "seminars") draft.seminars.splice(i, 1);
       if (key) void key;
       render();
     };
   });
-  document.querySelectorAll("[data-del-media]").forEach((btn) => {
+  document.querySelectorAll("[data-del-face]").forEach((btn) => {
     btn.onclick = () => {
-      draft.media.splice(Number(btn.dataset.delMedia), 1);
+      draft.app360.interfaces.splice(Number(btn.dataset.delFace), 1);
       render();
     };
   });
   const upload = document.getElementById("upload");
   if (upload) upload.onsubmit = async (e) => {
     e.preventDefault();
+    readPanel();
     const data = new FormData(upload);
-    const title = String(data.get("title") || "Media");
-    const url = String(data.get("url") || "").trim();
+    const title = String(data.get("title") || "App screen");
     const file = upload.querySelector("input[type=file]").files[0];
-    if (file) {
-      const body = new FormData();
-      body.append("file", file);
-      body.append("title", title);
-      const res = await api("/api/upload", { method: "POST", body });
-      draft.media.push(await res.json());
-    } else if (url) {
-      draft.media.push({ id: String(Date.now()), type: "video", title, url });
-    }
+    if (!file) return;
+    const body = new FormData();
+    body.append("file", file);
+    body.append("title", title);
+    const res = await api("/api/upload", { method: "POST", body });
+    if (!res.ok) return;
+    draft.app360 = draft.app360 || { link: "", cards: [], interfaces: [] };
+    draft.app360.interfaces.push(await res.json());
     await save();
+    render();
+    note("Saved");
   };
   const apply = document.getElementById("apply-json");
   if (apply) apply.onclick = () => {

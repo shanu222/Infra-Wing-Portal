@@ -686,11 +686,29 @@ img { max-width: 100%; display: block; }
 .editor input, .editor textarea, .editor select { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: #071018; color: var(--ink); padding: 10px 12px; font: inherit; box-shadow: inset 0 2px 6px rgba(0,0,0,0.35); }
 .row-edit { display: grid; grid-template-columns: 1.4fr 0.6fr 90px auto; gap: 8px; align-items: center; }
 .login-card { width: min(420px, calc(100% - 28px)); margin: 12vh auto; padding: 22px; }
+.shot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.shot { padding: 0 0 14px; cursor: pointer; display: flex; flex-direction: column; background:
+  linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, #101820), #0c141c 42%); }
+.shot img { width: 100%; height: 148px; object-fit: cover; display: block; }
+.shot-copy { padding: 12px 14px 2px 16px; }
+.shot-copy h3 { margin: 0 0 6px; font-family: var(--display); font-size: 26px; letter-spacing: -0.03em; }
+.shot-copy p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.35; }
+.reel { overflow: hidden; margin: 16px 0 4px; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.reel-track { display: flex; gap: 14px; width: max-content; animation: glide 36s linear infinite; }
+.reel:hover .reel-track { animation-play-state: paused; }
+.reel-track img, .reel-track video { width: 280px; height: 168px; object-fit: cover; border-radius: 18px; box-shadow: 0 10px 0 rgba(0,0,0,.32); flex: none; }
+.reel-track img.phone { width: 168px; height: 320px; border-radius: 28px; border: 3px solid #1a1a1a; animation: bob 3.4s ease-in-out infinite; }
+.app-reel { margin-bottom: 8px; }
+@keyframes glide { to { transform: translateX(-50%); } }
+@keyframes bob { 50% { transform: translateY(-8px); } }
 @media (max-width: 1100px) {
-  .mandate-row, .tiles, .media-grid { grid-template-columns: 1fr 1fr; }
+  .mandate-row, .tiles, .media-grid, .shot-grid { grid-template-columns: 1fr 1fr; }
   .row-edit { grid-template-columns: 1fr; }
 }
 @media (max-width: 860px) {
-  .mandate-row, .tiles, .media-grid { grid-template-columns: 1fr; }
+  .mandate-row, .tiles, .media-grid, .shot-grid { grid-template-columns: 1fr; }
   .modal { left: 0; top: 132px; padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reel-track { animation: none; flex-wrap: wrap; width: auto; }
 }

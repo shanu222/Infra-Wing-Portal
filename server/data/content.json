@@ -15,29 +15,25 @@
     { "n": 39, "label": "Shelters issued", "color": "#f0c14b" }
   ],
   "tiles": [
-    { "id": "audit", "title": "Audit", "color": "#3ad7f5" },
-    { "id": "drim", "title": "DRIM", "color": "#ff9f43" },
-    { "id": "hubs", "title": "Hubs", "color": "#b08cff" },
-    { "id": "app360", "title": "360", "color": "#6aa4ff" },
-    { "id": "field", "title": "Field", "color": "#ff6d6d" },
-    { "id": "seminars", "title": "Seminars", "color": "#ff6fa8" },
-    { "id": "response", "title": "Response", "color": "#8dffc8" },
-    { "id": "portals", "title": "Portals", "color": "#ff8a3d" },
-    { "id": "media", "title": "Media", "color": "#3ad7f5" },
-    { "id": "mandate", "title": "Mandate", "color": "#f0c14b" }
+    { "id": "mandate", "title": "Mandate", "line": "Strengthen, innovate, localise", "line2": "Local skills, materials, and cost-effective design", "color": "#f0c14b", "image": "assets/cards/mandate.jpg" },
+    { "id": "audit", "title": "IAP", "line": "Infra Audit Program", "line2": "Provincial resilience across Pakistan", "color": "#3ad7f5", "image": "assets/cards/iap.jpg" },
+    { "id": "drim", "title": "DRIM", "line": "Disaster resilient infrastructure models", "line2": "Flood, earthquake, landslide, and water", "color": "#ff9f43", "image": "assets/cards/drim.jpg" },
+    { "id": "hubs", "title": "Material Hub", "line": "Stock beside vulnerable communities", "line2": "Sukkur, Muzaffargarh, Gilgit, Jallozai", "color": "#b08cff", "image": "assets/cards/hub.jpg" },
+    { "id": "app360", "title": "360 App", "line": "Infra Resilience 360", "line2": "Guides, codes, and readiness tools", "color": "#6aa4ff", "image": "assets/cards/app.jpg" },
+    { "id": "field", "title": "Field Visits", "line": "Community outreach on safe rebuilds", "line2": "Gilgit-Baltistan districts and FCNA", "color": "#ff6d6d", "image": "assets/cards/field.jpg" },
+    { "id": "seminars", "title": "Seminars", "line": "National infrastructure seminars", "line2": "Experts, academia, and departments", "color": "#ff6fa8", "image": "assets/cards/seminars.jpg" },
+    { "id": "portals", "title": "Portals", "line": "Wing portal systems", "line2": "Risk layers, growth outlook, and the atlas", "color": "#ff8a3d", "image": "assets/cards/portals.jpg" }
   ],
   "nav": [
     { "id": "wing", "label": "Wing", "color": "#1ec87a" },
     { "id": "mandate", "label": "Mandate", "color": "#f0c14b" },
-    { "id": "audit", "label": "Audit", "color": "#3ad7f5" },
+    { "id": "audit", "label": "IAP", "color": "#3ad7f5" },
     { "id": "drim", "label": "DRIM", "color": "#ff9f43" },
-    { "id": "hubs", "label": "Hubs", "color": "#b08cff" },
-    { "id": "app360", "label": "360", "color": "#6aa4ff" },
-    { "id": "field", "label": "Field", "color": "#ff6d6d" },
+    { "id": "hubs", "label": "Material Hub", "color": "#b08cff" },
+    { "id": "app360", "label": "360 App", "color": "#6aa4ff" },
+    { "id": "field", "label": "Field Visits", "color": "#ff6d6d" },
     { "id": "seminars", "label": "Seminars", "color": "#ff6fa8" },
-    { "id": "response", "label": "Response", "color": "#8dffc8" },
-    { "id": "portals", "label": "Portals", "color": "#ff8a3d" },
-    { "id": "media", "label": "Media", "color": "#7ee0c6" }
+    { "id": "portals", "label": "Portals", "color": "#ff8a3d" }
   ],
   "classes": [
     { "title": "Communication", "line": "Roads, bridges, culverts", "color": "#3ad7f5" },
@@ -95,6 +91,20 @@
     { "id": "gilgit", "name": "Gilgit", "region": "Gilgit-Baltistan", "color": "#1ec87a", "x": 58, "y": 18, "stock": [1080, 2540, 1070, 1750, 141, 13, 35, 400, 171, 168, 345, 0, 0, 0], "issue": "39 shelters · Diamer · July 2026", "issueItems": ["Sandwich panels", "Wooden planks", "CGI sheets", "Pre-engineered components", "Light gauge", "Bamboo"] },
     { "id": "jallozai", "name": "Jallozai", "region": "Khyber Pakhtunkhwa", "color": "#b08cff", "x": 32, "y": 34, "stock": [1227, 2914, 1227, 7360, 154, 0, 39, 230, 192, 192, 39, 50, 100, 100] }
   ],
+  "app360": {
+    "link": "",
+    "cards": [
+      { "title": "Retrofit guide", "line": "Strengthen buildings already standing", "color": "#6aa4ff" },
+      { "title": "DRIM", "line": "Resilient models by terrain", "color": "#1ec87a" },
+      { "title": "Building codes", "line": "Pakistan code checks in the field", "color": "#f0c14b" },
+      { "title": "Smart construction", "line": "Faster, lighter building methods", "color": "#3ad7f5" },
+      { "title": "Design toolkit", "line": "Drawings matched to the site", "color": "#ff9f43" },
+      { "title": "Disaster dashboard", "line": "Hazard picture for planners", "color": "#ff6d6d" },
+      { "title": "Learn and train", "line": "Short lessons for builders", "color": "#b08cff" },
+      { "title": "Readiness calculator", "line": "See how ready a structure is", "color": "#8dffc8" }
+    ],
+    "interfaces": []
+  },
   "modules": [
     { "title": "Retrofit guide", "color": "#6aa4ff" },
     { "title": "DRIM", "color": "#1ec87a" },
@@ -159,5 +169,31 @@
     { "title": "Built-up growth to 2047", "color": "#f0c14b", "url": "", "items": ["Long-range projection", "Growth concentration", "Land conversion"] },
     { "title": "Resilient infrastructure atlas", "color": "#1ec87a", "url": "", "items": ["Needs analysis", "AI hazard identifier", "Engineering solutions", "Policy directives"] }
   ],
-  "media": []
+  "library": [
+    { "type": "image", "title": "Classification of national assets", "url": "assets/gallery/brief-1.png", "place": "audit" },
+    { "type": "image", "title": "Infrastructure Audit Guidelines", "url": "assets/gallery/brief-2.png", "place": "audit" },
+    { "type": "image", "title": "National Infrastructure Audit Program 2026", "url": "assets/gallery/brief-3.png", "place": "audit" },
+    { "type": "image", "title": "Sindh riverine flood hazard", "url": "assets/gallery/sindh-flood.jpg", "place": "audit" },
+    { "type": "image", "title": "Punjab riverine flood hazard", "url": "assets/gallery/imp-3.jpeg", "place": "audit" },
+    { "type": "image", "title": "Flood hazard briefing", "url": "assets/gallery/imp-4.jpeg", "place": "audit" },
+    { "type": "image", "title": "Flood hazard briefing", "url": "assets/gallery/imp-5.jpeg", "place": "audit" },
+    { "type": "image", "title": "Flood hazard briefing", "url": "assets/gallery/imp-6.jpeg", "place": "audit" },
+    { "type": "image", "title": "Flood loss map", "url": "assets/gallery/loss-map.png", "place": "audit" },
+    { "type": "video", "title": "Audit portal", "url": "/uploads/audit-portal.mp4", "place": "audit" },
+    { "type": "image", "title": "Templates for disaster resilient infrastructure", "url": "assets/gallery/brief-4.png", "place": "drim" },
+    { "type": "image", "title": "Monsoon infrastructure guideline", "url": "assets/gallery/brief-5.png", "place": "drim" },
+    { "type": "image", "title": "Standard brief", "url": "assets/gallery/brief-6.png", "place": "mandate" },
+    { "type": "image", "title": "Standard brief", "url": "assets/gallery/brief-7.jpg", "place": "mandate" },
+    { "type": "image", "title": "Standard brief", "url": "assets/gallery/brief-8.jpg", "place": "mandate" },
+    { "type": "image", "title": "Green Building Code of Pakistan 2023", "url": "assets/gallery/brief-9.jpg", "place": "drim" },
+    { "type": "image", "title": "Energy Conservation Building Code 2023", "url": "assets/gallery/brief-10.jpg", "place": "drim" },
+    { "type": "image", "title": "Flood risk management seminar", "url": "assets/gallery/seminar-flood.jpg", "place": "seminars" },
+    { "type": "image", "title": "School roof collapse", "url": "assets/gallery/school-roof.jpg", "place": "field" },
+    { "type": "image", "title": "Rescue at the school", "url": "assets/gallery/school-rescue.jpg", "place": "field" },
+    { "type": "image", "title": "Debris inside the classroom", "url": "assets/gallery/pic-2.jpg", "place": "field" },
+    { "type": "image", "title": "Rescue at the site", "url": "assets/gallery/pic-3.jpg", "place": "field" },
+    { "type": "image", "title": "Field photograph", "url": "assets/gallery/pic-4.jpg", "place": "field" },
+    { "type": "image", "title": "Field photograph", "url": "assets/gallery/pic-5.jpg", "place": "field" },
+    { "type": "video", "title": "Peshawar school roof", "url": "/uploads/peshawar-school.mp4", "place": "field" }
+  ]
 }

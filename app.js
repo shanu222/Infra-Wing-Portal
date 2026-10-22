@@ -20,7 +20,8 @@ function apiBase() {
 function absUrl(url) {
   if (!url) return "";
   if (/^https?:\/\//i.test(url)) return url;
-  return apiBase() + url;
+  if (String(url).startsWith("/uploads")) return apiBase() + url;
+  return url;
 }
 function safeUrl(url) {
   try {
@@ -110,8 +111,25 @@ function tileValue(id) {
   return "";
 }
 
+function pictureRail() {
+  const pics = (DATA.library || []).filter((item) => item.type !== "video");
+  if (!pics.length) return "";
+  const frame = (item) => `<img src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
+  const row = pics.map(frame).join("");
+  return `<div class="reel home-reel">${`<div class="reel-track">${row}${row}</div>`}</div>`;
+}
+
+function clipReel(items) {
+  if (!items.length) return "";
+  const pics = items.filter((item) => item.type !== "video");
+  const vids = items.filter((item) => item.type === "video");
+  const frames = pics.map((item) => `<img src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`).join("");
+  const reel = pics.length ? `<div class="reel"><div class="reel-track">${frames}${frames}</div></div>` : "";
+  const players = vids.map((item) => `<video controls preload="metadata" src="${esc(absUrl(item.url))}"></video>`).join("");
+  return reel + (players ? `<div class="media-grid">${players}</div>` : "");
+}
+
 function home() {
-  const ratio = DATA.ratio;
   return `
     <header class="topbar">
       <div class="brand">
@@ -123,23 +141,10 @@ function home() {
     <div class="shell">
       <nav class="nav">${DATA.nav.map((item) => `<button type="button" data-open="${esc(item.id)}" style="--dot:${item.color}"><i></i>${esc(item.label)}</button>`).join("")}</nav>
       <main class="main">
-        <div class="mandate-row">
-          <article class="card tilt shine ratio" data-open="mandate" style="cursor:pointer">
-            <div class="tag">${esc(ratio.tag)}</div>
-            <div class="pair">
-              <div class="numblock" style="--c:#3ad7f5"><b>${esc(ratio.left)}</b><span>${esc(ratio.leftLabel)}</span></div>
-              <div class="arrow">→</div>
-              <div class="numblock" style="--c:#f0c14b"><b>${esc(ratio.right)}</b><span>${esc(ratio.rightLabel)}</span></div>
-            </div>
-          </article>
-          ${DATA.mandate.map((item, i) => `<article class="card tilt shine mega" data-open="mandate" style="--accent:${item.color}"><div class="k">0${i + 1}</div><h3>${esc(item.title)}</h3></article>`).join("")}
+        <div class="shot-grid">
+          ${DATA.tiles.map((item) => `<article class="card tilt shine shot" data-open="${esc(item.id)}" style="--accent:${item.color}"><img src="${esc(item.image)}" alt="" /><div class="shot-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div></article>`).join("")}
         </div>
-        <div class="stats reveal inview">
-          ${DATA.stats.map((item) => `<article class="card tilt shine stat" style="--accent:${item.color}"><strong data-count="${Number(item.n)}">${fmt(item.n)}</strong><em>${esc(item.label)}</em></article>`).join("")}
-        </div>
-        <div class="tiles" style="margin-top:14px">
-          ${DATA.tiles.map((item) => `<article class="card tilt shine tile" data-open="${esc(item.id)}" style="--accent:${item.color}"><b>${fmt(tileValue(item.id))}</b><span>${esc(item.title)}</span></article>`).join("")}
-        </div>
+        ${pictureRail()}
         <p class="foot"><a href="admin.html">Admin</a><span>15 Oct 2026</span></p>
       </main>
     </div>
@@ -190,6 +195,12 @@ function gbBlock() {
 }
 
 function modalBody(id) {
+  const clips = (DATA.library || []).filter((item) => item.place === id);
+  const strip = clips.length ? clipReel(clips) : "";
+  return strip + sectionBody(id);
+}
+
+function sectionBody(id) {
   if (id === "mandate") {
     return `<div class="grid-3">${DATA.mandate.map((item, i) => `<article class="card pad" style="--accent:${item.color}"><div class="k">0${i + 1}</div><h3>${esc(item.title)}</h3></article>`).join("")}</div>
       <div class="grid-6" style="margin-top:14px">${DATA.classes.map((item) => `<article class="card pad" style="--accent:${item.color}"><div class="k">${esc(item.title)}</div><h3>${esc(item.line)}</h3></article>`).join("")}</div>
@@ -215,7 +226,13 @@ function modalBody(id) {
     return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div id="hubViz">${hubViz(active)}</div>`;
   }
   if (id === "app360") {
-    return `<div class="grid-6 mod-grid">${DATA.modules.map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3></article>`).join("")}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    const app = DATA.app360 || { link: "", cards: [], interfaces: [] };
+    const href = safeUrl(app.link);
+    const faces = app.interfaces || [];
+    const face = (item) => `<img class="phone" src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
+    const moving = faces.length ? `<div class="reel app-reel"><div class="reel-track">${faces.map(face).join("")}${faces.map(face).join("")}</div></div>` : "";
+    const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
+    return `${href ? `<a class="btn blue" href="${esc(href)}" target="_blank" rel="noopener">Open 360 App</a>` : ""}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
@@ -237,15 +254,6 @@ function modalBody(id) {
     return `<div class="grid-3">${DATA.portals.map((p) => {
       const href = safeUrl(p.url);
       return `<article class="card pad portal-card" style="--accent:${p.color || "#ff8a3d"}"><h3>${esc(p.title)}</h3>${chips(p.items)}${href ? `<a class="btn amber" style="margin-top:12px" href="${esc(href)}" target="_blank" rel="noopener">Open</a>` : ""}</article>`;
-    }).join("")}</div>`;
-  }
-  if (id === "media") {
-    if (!DATA.media.length) return `<div class="tiles"><article class="card tile" style="--accent:#7ee0c6"><b>0</b><span>Media</span></article></div>`;
-    return `<div class="media-grid">${DATA.media.map((m) => {
-      const src = esc(absUrl(m.url));
-      const yt = String(m.url || "").match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/);
-      const view = m.type === "video" && yt ? `<iframe src="https://www.youtube.com/embed/${yt[1]}" allowfullscreen></iframe>` : m.type === "video" ? `<video controls src="${src}"></video>` : `<img src="${src}" alt="${esc(m.title)}" />`;
-      return `<article class="card pad" style="--accent:#7ee0c6">${view}<h3 style="margin-top:8px">${esc(m.title)}</h3></article>`;
     }).join("")}</div>`;
   }
   return "";
