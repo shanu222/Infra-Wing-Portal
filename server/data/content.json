@@ -1,199 +1,1557 @@
 {
-  "brand": { "title": "INFRA WING", "line": "NDMA" },
-  "ratio": { "tag": "UNDRR", "left": "1", "right": "6", "leftLabel": "US$ invested", "rightLabel": "US$ saved" },
+  "brand": {
+    "title": "INFRA WING",
+    "line": "NDMA"
+  },
+  "ratio": {
+    "tag": "UNDRR",
+    "left": "1",
+    "right": "6",
+    "leftLabel": "US$ invested",
+    "rightLabel": "US$ saved"
+  },
   "mandate": [
-    { "title": "Strengthen", "color": "#f0c14b" },
-    { "title": "Innovate", "color": "#ff9f43" },
-    { "title": "Localise", "color": "#1ec87a" }
+    {
+      "title": "Strengthen",
+      "color": "#f0c14b"
+    },
+    {
+      "title": "Innovate",
+      "color": "#ff9f43"
+    },
+    {
+      "title": "Localise",
+      "color": "#1ec87a"
+    }
   ],
   "stats": [
-    { "n": 7, "label": "Regions indexed", "color": "#3ad7f5" },
-    { "n": 17, "label": "DRIM", "color": "#ff9f43" },
-    { "n": 4, "label": "Material hubs", "color": "#b08cff" },
-    { "n": 36188, "label": "Units stocked", "color": "#1ec87a" },
-    { "n": 1132, "label": "Seminar participants", "color": "#ff6fa8" },
-    { "n": 39, "label": "Shelters issued", "color": "#f0c14b" }
+    {
+      "n": 7,
+      "label": "Regions indexed",
+      "color": "#3ad7f5"
+    },
+    {
+      "n": 17,
+      "label": "DRIM",
+      "color": "#ff9f43"
+    },
+    {
+      "n": 4,
+      "label": "Material hubs",
+      "color": "#b08cff"
+    },
+    {
+      "n": 36188,
+      "label": "Units stocked",
+      "color": "#1ec87a"
+    },
+    {
+      "n": 1132,
+      "label": "Seminar participants",
+      "color": "#ff6fa8"
+    },
+    {
+      "n": 39,
+      "label": "Shelters issued",
+      "color": "#f0c14b"
+    }
   ],
   "tiles": [
-    { "id": "mandate", "title": "Mandate", "line": "Strengthen, innovate, localise", "line2": "Local skills, materials, and cost-effective design", "color": "#f0c14b", "image": "assets/cards/mandate.jpg" },
-    { "id": "audit", "title": "IAP", "line": "Infra Audit Program", "line2": "Provincial resilience across Pakistan", "color": "#3ad7f5", "image": "assets/cards/iap.jpg" },
-    { "id": "drim", "title": "DRIM", "line": "Disaster resilient infrastructure models", "line2": "Flood, earthquake, landslide, and water", "color": "#ff9f43", "image": "assets/cards/drim.jpg" },
-    { "id": "hubs", "title": "Material Hub", "line": "Stock beside vulnerable communities", "line2": "Sukkur, Muzaffargarh, Gilgit, Jallozai", "color": "#b08cff", "image": "assets/cards/hub.jpg" },
-    { "id": "app360", "title": "360 App", "line": "Infra Resilience 360", "line2": "Guides, codes, and readiness tools", "color": "#6aa4ff", "image": "assets/cards/app.jpg" },
-    { "id": "field", "title": "Field Visits", "line": "Community outreach on safe rebuilds", "line2": "Gilgit-Baltistan districts and FCNA", "color": "#ff6d6d", "image": "assets/cards/field.jpg" },
-    { "id": "seminars", "title": "Seminars", "line": "National infrastructure seminars", "line2": "Experts, academia, and departments", "color": "#ff6fa8", "image": "assets/cards/seminars.jpg" },
-    { "id": "portals", "title": "Portals", "line": "Wing portal systems", "line2": "Risk layers, growth outlook, and the atlas", "color": "#ff8a3d", "image": "assets/cards/portals.jpg" }
+    {
+      "id": "mandate",
+      "title": "Mandate",
+      "line": "Strengthen, innovate, localise",
+      "line2": "Local skills, materials, and cost-effective design",
+      "color": "#f0c14b",
+      "image": "assets/cards/mandate.jpg"
+    },
+    {
+      "id": "audit",
+      "title": "IAP",
+      "line": "Infra Audit Program",
+      "line2": "Provincial resilience across Pakistan",
+      "color": "#3ad7f5",
+      "image": "assets/cards/iap.jpg"
+    },
+    {
+      "id": "drim",
+      "title": "DRIM",
+      "line": "Disaster resilient infrastructure models",
+      "line2": "Flood, earthquake, landslide, and water",
+      "color": "#ff9f43",
+      "image": "assets/cards/drim.jpg"
+    },
+    {
+      "id": "hubs",
+      "title": "Material Hub",
+      "line": "Stock beside vulnerable communities",
+      "line2": "Sukkur, Muzaffargarh, Gilgit, Jallozai",
+      "color": "#b08cff",
+      "image": "assets/cards/hub.jpg"
+    },
+    {
+      "id": "app360",
+      "title": "360 App",
+      "line": "Infra Resilience 360",
+      "line2": "Guides, codes, and readiness tools",
+      "color": "#6aa4ff",
+      "image": "assets/cards/app.jpg"
+    },
+    {
+      "id": "field",
+      "title": "Field Visits",
+      "line": "Community outreach on safe rebuilds",
+      "line2": "Gilgit-Baltistan districts and FCNA",
+      "color": "#ff6d6d",
+      "image": "assets/cards/field.jpg"
+    },
+    {
+      "id": "advisories",
+      "title": "Advisories",
+      "line": "Pictorial infrastructure advisories",
+      "line2": "Open each front page as a full book",
+      "color": "#f0a202",
+      "image": "assets/advisories/covers/01.webp"
+    },
+    {
+      "id": "seminars",
+      "title": "Seminars",
+      "line": "National infrastructure seminars",
+      "line2": "Experts, academia, and departments",
+      "color": "#ff6fa8",
+      "image": "assets/cards/seminars.jpg"
+    },
+    {
+      "id": "portals",
+      "title": "Portals",
+      "line": "Wing portal systems",
+      "line2": "Risk layers, growth outlook, and the atlas",
+      "color": "#ff8a3d",
+      "image": "assets/cards/portals.jpg"
+    }
   ],
   "nav": [
-    { "id": "wing", "label": "Wing", "color": "#1ec87a" },
-    { "id": "mandate", "label": "Mandate", "color": "#f0c14b" },
-    { "id": "audit", "label": "IAP", "color": "#3ad7f5" },
-    { "id": "drim", "label": "DRIM", "color": "#ff9f43" },
-    { "id": "hubs", "label": "Material Hub", "color": "#b08cff" },
-    { "id": "app360", "label": "360 App", "color": "#6aa4ff" },
-    { "id": "field", "label": "Field Visits", "color": "#ff6d6d" },
-    { "id": "seminars", "label": "Seminars", "color": "#ff6fa8" },
-    { "id": "portals", "label": "Portals", "color": "#ff8a3d" }
+    {
+      "id": "wing",
+      "label": "Wing",
+      "color": "#1ec87a"
+    },
+    {
+      "id": "mandate",
+      "label": "Mandate",
+      "color": "#f0c14b"
+    },
+    {
+      "id": "audit",
+      "label": "IAP",
+      "color": "#3ad7f5"
+    },
+    {
+      "id": "drim",
+      "label": "DRIM",
+      "color": "#ff9f43"
+    },
+    {
+      "id": "hubs",
+      "label": "Material Hub",
+      "color": "#b08cff"
+    },
+    {
+      "id": "app360",
+      "label": "360 App",
+      "color": "#6aa4ff"
+    },
+    {
+      "id": "field",
+      "label": "Field Visits",
+      "color": "#ff6d6d"
+    },
+    {
+      "id": "advisories",
+      "label": "Advisories",
+      "color": "#f0a202"
+    },
+    {
+      "id": "seminars",
+      "label": "Seminars",
+      "color": "#ff6fa8"
+    },
+    {
+      "id": "portals",
+      "label": "Portals",
+      "color": "#ff8a3d"
+    }
   ],
   "classes": [
-    { "title": "Communication", "line": "Roads, bridges, culverts", "color": "#3ad7f5" },
-    { "title": "Public", "line": "Schools, hospitals, offices", "color": "#6aa4ff" },
-    { "title": "Industrial", "line": "Factories, plants, warehouses", "color": "#ff9f43" },
-    { "title": "Hydraulic", "line": "Dams, barrages, channels", "color": "#1ec87a" },
-    { "title": "Residential", "line": "Urban and rural housing", "color": "#ff6fa8" },
-    { "title": "Commercial", "line": "Malls and plazas", "color": "#f0c14b" }
+    {
+      "title": "Communication",
+      "line": "Roads, bridges, culverts",
+      "color": "#3ad7f5"
+    },
+    {
+      "title": "Public",
+      "line": "Schools, hospitals, offices",
+      "color": "#6aa4ff"
+    },
+    {
+      "title": "Industrial",
+      "line": "Factories, plants, warehouses",
+      "color": "#ff9f43"
+    },
+    {
+      "title": "Hydraulic",
+      "line": "Dams, barrages, channels",
+      "color": "#1ec87a"
+    },
+    {
+      "title": "Residential",
+      "line": "Urban and rural housing",
+      "color": "#ff6fa8"
+    },
+    {
+      "title": "Commercial",
+      "line": "Malls and plazas",
+      "color": "#f0c14b"
+    }
   ],
-  "pre": ["Infrastructure awareness advisories", "Infrastructure audit mechanism", "Material hubs", "National seminars", "Global practice for Pakistan", "Region-wise designs", "Cost of exposed infrastructure", "Pre-disaster damage projection"],
-  "post": ["Damage verification", "Reconstruction through material hubs", "Temporary camp support", "Temporary infrastructure", "Strengthening and retrofitting"],
-  "exposed": ["Infrastructure damage", "Lives disrupted", "Services halt", "Recovery delayed"],
-  "resilient": ["Survive the hazard", "Save lives", "Reduce losses"],
+  "pre": [
+    "Infrastructure awareness advisories",
+    "Infrastructure audit mechanism",
+    "Material hubs",
+    "National seminars",
+    "Global practice for Pakistan",
+    "Region-wise designs",
+    "Cost of exposed infrastructure",
+    "Pre-disaster damage projection"
+  ],
+  "post": [
+    "Damage verification",
+    "Reconstruction through material hubs",
+    "Temporary camp support",
+    "Temporary infrastructure",
+    "Strengthening and retrofitting"
+  ],
+  "exposed": [
+    "Infrastructure damage",
+    "Lives disrupted",
+    "Services halt",
+    "Recovery delayed"
+  ],
+  "resilient": [
+    "Survive the hazard",
+    "Save lives",
+    "Reduce losses"
+  ],
   "regions": [
-    { "id": "ict", "name": "ICT", "net": 64, "color": "#3ad7f5" },
-    { "id": "gb", "name": "GB", "net": 53, "color": "#1ec87a" },
-    { "id": "ajk", "name": "AJK", "net": 61, "color": "#f0c14b" },
-    { "id": "punjab", "name": "Punjab", "net": 52, "color": "#6aa4ff" },
-    { "id": "sindh", "name": "Sindh", "net": 46, "color": "#ff6d6d" },
-    { "id": "kp", "name": "KP", "net": 62, "color": "#b08cff" },
-    { "id": "bln", "name": "Balochistan", "net": 44, "color": "#ff9f43" }
+    {
+      "id": "ict",
+      "name": "ICT",
+      "net": 64,
+      "color": "#3ad7f5"
+    },
+    {
+      "id": "gb",
+      "name": "GB",
+      "net": 53,
+      "color": "#1ec87a"
+    },
+    {
+      "id": "ajk",
+      "name": "AJK",
+      "net": 61,
+      "color": "#f0c14b"
+    },
+    {
+      "id": "punjab",
+      "name": "Punjab",
+      "net": 52,
+      "color": "#6aa4ff"
+    },
+    {
+      "id": "sindh",
+      "name": "Sindh",
+      "net": 46,
+      "color": "#ff6d6d"
+    },
+    {
+      "id": "kp",
+      "name": "KP",
+      "net": 62,
+      "color": "#b08cff"
+    },
+    {
+      "id": "bln",
+      "name": "Balochistan",
+      "net": 44,
+      "color": "#ff9f43"
+    }
   ],
-  "attrs": ["Building codes", "Land-use planning", "Resilience value", "Local materials", "Eco designs", "Climate friendly", "Stability index", "Site parameters", "Build back better", "Work environment"],
-  "matrix": [[8, 4, 6, 6, 4, 7, 4.3], [7, 4, 5, 5, 3, 5, 4.4], [6, 7, 6, 5, 4, 8, 3.9], [3, 8, 8, 4, 7, 6, 6.2], [4, 5, 8, 5, 7, 7, 5], [7, 8, 5, 5, 5, 6, 5.3], [8, 5, 7, 5, 3, 6, 4], [8, 3, 4, 6, 4, 5, 4.5], [6, 5, 8, 5, 4, 7, 4.3], [7, 4, 4, 6, 5, 5, 4.4]],
-  "badges": ["PMO approved", "First in Pakistan"],
-  "process": ["Policy & governance", "Pilot infrastructure audits", "IRI rating & digital platform", "Engagement and monitoring", "Retrofit demonstrations", "Capacity development"],
-  "objectives": ["Vulnerable regions and structures", "Safety in extreme conditions", "Upgrades and retrofitting", "Early damage detection", "Preparedness decisions", "Post-disaster safe reuse"],
+  "attrs": [
+    "Building codes",
+    "Land-use planning",
+    "Resilience value",
+    "Local materials",
+    "Eco designs",
+    "Climate friendly",
+    "Stability index",
+    "Site parameters",
+    "Build back better",
+    "Work environment"
+  ],
+  "matrix": [
+    [
+      8,
+      4,
+      6,
+      6,
+      4,
+      7,
+      4.3
+    ],
+    [
+      7,
+      4,
+      5,
+      5,
+      3,
+      5,
+      4.4
+    ],
+    [
+      6,
+      7,
+      6,
+      5,
+      4,
+      8,
+      3.9
+    ],
+    [
+      3,
+      8,
+      8,
+      4,
+      7,
+      6,
+      6.2
+    ],
+    [
+      4,
+      5,
+      8,
+      5,
+      7,
+      7,
+      5
+    ],
+    [
+      7,
+      8,
+      5,
+      5,
+      5,
+      6,
+      5.3
+    ],
+    [
+      8,
+      5,
+      7,
+      5,
+      3,
+      6,
+      4
+    ],
+    [
+      8,
+      3,
+      4,
+      6,
+      4,
+      5,
+      4.5
+    ],
+    [
+      6,
+      5,
+      8,
+      5,
+      4,
+      7,
+      4.3
+    ],
+    [
+      7,
+      4,
+      4,
+      6,
+      5,
+      5,
+      4.4
+    ]
+  ],
+  "badges": [
+    "PMO approved",
+    "First in Pakistan"
+  ],
+  "process": [
+    "Policy & governance",
+    "Pilot infrastructure audits",
+    "IRI rating & digital platform",
+    "Engagement and monitoring",
+    "Retrofit demonstrations",
+    "Capacity development"
+  ],
+  "objectives": [
+    "Vulnerable regions and structures",
+    "Safety in extreme conditions",
+    "Upgrades and retrofitting",
+    "Early damage detection",
+    "Preparedness decisions",
+    "Post-disaster safe reuse"
+  ],
   "drim": {
     "count": 17,
-    "time": [40, 60],
-    "cost": [15, 45],
-    "coverage": "All Pakistan",
-    "hazards": ["Flood", "Earthquake", "Landslide", "Water management"],
-    "zones": [
-      { "name": "Hilly", "color": "#ff6d6d", "models": ["Confined concrete block masonry", "Geogrid reinforced retaining wall"] },
-      { "name": "Hilly / plain", "color": "#ff9f43", "models": ["Bamboo with wattle & daub", "Light gauge steel"] },
-      { "name": "Plain", "color": "#f0c14b", "models": ["Rat-trap bond masonry", "Timber with lath & plaster"] },
-      { "name": "Coastal / plain", "color": "#3ad7f5", "models": ["Elevated structure", "Floating structure"] }
+    "time": [
+      40,
+      60
     ],
-    "publications": ["Disaster resilient construction practices", "Resilient infra guidelines", "Zone-specific construction", "Risk-smart leaflets"],
-    "codes": ["Technical input", "Nationwide audits", "Non-compliance"]
+    "cost": [
+      15,
+      45
+    ],
+    "coverage": "All Pakistan",
+    "hazards": [
+      "Flood",
+      "Earthquake",
+      "Landslide",
+      "Water management"
+    ],
+    "zones": [
+      {
+        "name": "Hilly",
+        "color": "#ff6d6d",
+        "models": [
+          "Confined concrete block masonry",
+          "Geogrid reinforced retaining wall"
+        ]
+      },
+      {
+        "name": "Hilly / plain",
+        "color": "#ff9f43",
+        "models": [
+          "Bamboo with wattle & daub",
+          "Light gauge steel"
+        ]
+      },
+      {
+        "name": "Plain",
+        "color": "#f0c14b",
+        "models": [
+          "Rat-trap bond masonry",
+          "Timber with lath & plaster"
+        ]
+      },
+      {
+        "name": "Coastal / plain",
+        "color": "#3ad7f5",
+        "models": [
+          "Elevated structure",
+          "Floating structure"
+        ]
+      }
+    ],
+    "publications": [
+      "Disaster resilient construction practices",
+      "Resilient infra guidelines",
+      "Zone-specific construction",
+      "Risk-smart leaflets"
+    ],
+    "codes": [
+      "Technical input",
+      "Nationwide audits",
+      "Non-compliance"
+    ]
   },
-  "items": ["Bamboo 12 ft", "Bamboo 6 ft", "Bamboo 8 ft", "Chick mats", "Polythene sheet", "Cotton rope (kg)", "Steel girder", "CGI sheets", "Planks 8×1×1", "Planks 8×4×1", "EPS panels", "Wheelbarrows", "Shovels", "Pickaxes"],
+  "items": [
+    "Bamboo 12 ft",
+    "Bamboo 6 ft",
+    "Bamboo 8 ft",
+    "Chick mats",
+    "Polythene sheet",
+    "Cotton rope (kg)",
+    "Steel girder",
+    "CGI sheets",
+    "Planks 8×1×1",
+    "Planks 8×4×1",
+    "EPS panels",
+    "Wheelbarrows",
+    "Shovels",
+    "Pickaxes"
+  ],
   "families": [
-    { "name": "Bamboo", "idx": [0, 1, 2], "color": "#1ec87a" },
-    { "name": "Mats, sheet, rope", "idx": [3, 4, 5], "color": "#3ad7f5" },
-    { "name": "Steel & CGI", "idx": [6, 7], "color": "#f0c14b" },
-    { "name": "Timber planks", "idx": [8, 9], "color": "#d7b899" },
-    { "name": "EPS panels", "idx": [10], "color": "#b08cff" },
-    { "name": "Tools", "idx": [11, 12, 13], "color": "#ff9f43" }
+    {
+      "name": "Bamboo",
+      "idx": [
+        0,
+        1,
+        2
+      ],
+      "color": "#1ec87a"
+    },
+    {
+      "name": "Mats, sheet, rope",
+      "idx": [
+        3,
+        4,
+        5
+      ],
+      "color": "#3ad7f5"
+    },
+    {
+      "name": "Steel & CGI",
+      "idx": [
+        6,
+        7
+      ],
+      "color": "#f0c14b"
+    },
+    {
+      "name": "Timber planks",
+      "idx": [
+        8,
+        9
+      ],
+      "color": "#d7b899"
+    },
+    {
+      "name": "EPS panels",
+      "idx": [
+        10
+      ],
+      "color": "#b08cff"
+    },
+    {
+      "name": "Tools",
+      "idx": [
+        11,
+        12,
+        13
+      ],
+      "color": "#ff9f43"
+    }
   ],
   "hubs": [
-    { "id": "sukkur", "name": "Sukkur", "region": "Sindh", "color": "#3ad7f5", "x": 62, "y": 78, "stock": [1060, 2530, 1060, 1720, 130, 13, 35, 0, 160, 160, 330, 0, 0, 0] },
-    { "id": "muzaffargarh", "name": "Muzaffargarh", "region": "Punjab", "color": "#f0c14b", "x": 48, "y": 58, "stock": [1070, 2530, 1070, 1740, 130, 14, 30, 200, 169, 170, 330, 0, 0, 0] },
-    { "id": "gilgit", "name": "Gilgit", "region": "Gilgit-Baltistan", "color": "#1ec87a", "x": 58, "y": 18, "stock": [1080, 2540, 1070, 1750, 141, 13, 35, 400, 171, 168, 345, 0, 0, 0], "issue": "39 shelters · Diamer · July 2026", "issueItems": ["Sandwich panels", "Wooden planks", "CGI sheets", "Pre-engineered components", "Light gauge", "Bamboo"] },
-    { "id": "jallozai", "name": "Jallozai", "region": "Khyber Pakhtunkhwa", "color": "#b08cff", "x": 32, "y": 34, "stock": [1227, 2914, 1227, 7360, 154, 0, 39, 230, 192, 192, 39, 50, 100, 100] }
+    {
+      "id": "sukkur",
+      "name": "Sukkur",
+      "region": "Sindh",
+      "color": "#3ad7f5",
+      "x": 62,
+      "y": 78,
+      "stock": [
+        1060,
+        2530,
+        1060,
+        1720,
+        130,
+        13,
+        35,
+        0,
+        160,
+        160,
+        330,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "muzaffargarh",
+      "name": "Muzaffargarh",
+      "region": "Punjab",
+      "color": "#f0c14b",
+      "x": 48,
+      "y": 58,
+      "stock": [
+        1070,
+        2530,
+        1070,
+        1740,
+        130,
+        14,
+        30,
+        200,
+        169,
+        170,
+        330,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "gilgit",
+      "name": "Gilgit",
+      "region": "Gilgit-Baltistan",
+      "color": "#1ec87a",
+      "x": 58,
+      "y": 18,
+      "stock": [
+        1080,
+        2540,
+        1070,
+        1750,
+        141,
+        13,
+        35,
+        400,
+        171,
+        168,
+        345,
+        0,
+        0,
+        0
+      ],
+      "issue": "39 shelters · Diamer · July 2026",
+      "issueItems": [
+        "Sandwich panels",
+        "Wooden planks",
+        "CGI sheets",
+        "Pre-engineered components",
+        "Light gauge",
+        "Bamboo"
+      ]
+    },
+    {
+      "id": "jallozai",
+      "name": "Jallozai",
+      "region": "Khyber Pakhtunkhwa",
+      "color": "#b08cff",
+      "x": 32,
+      "y": 34,
+      "stock": [
+        1227,
+        2914,
+        1227,
+        7360,
+        154,
+        0,
+        39,
+        230,
+        192,
+        192,
+        39,
+        50,
+        100,
+        100
+      ]
+    }
   ],
   "app360": {
-    "link": "",
+    "link": "https://infra-resilience360-cloud.vercel.app/",
     "cards": [
-      { "title": "Retrofit guide", "line": "Strengthen buildings already standing", "color": "#6aa4ff" },
-      { "title": "DRIM", "line": "Resilient models by terrain", "color": "#1ec87a" },
-      { "title": "Building codes", "line": "Pakistan code checks in the field", "color": "#f0c14b" },
-      { "title": "Smart construction", "line": "Faster, lighter building methods", "color": "#3ad7f5" },
-      { "title": "Design toolkit", "line": "Drawings matched to the site", "color": "#ff9f43" },
-      { "title": "Disaster dashboard", "line": "Hazard picture for planners", "color": "#ff6d6d" },
-      { "title": "Learn and train", "line": "Short lessons for builders", "color": "#b08cff" },
-      { "title": "Readiness calculator", "line": "See how ready a structure is", "color": "#8dffc8" }
+      {
+        "title": "Retrofit guide",
+        "line": "Strengthen buildings already standing",
+        "color": "#6aa4ff"
+      },
+      {
+        "title": "DRIM",
+        "line": "Resilient models by terrain",
+        "color": "#1ec87a"
+      },
+      {
+        "title": "Building codes",
+        "line": "Pakistan code checks in the field",
+        "color": "#f0c14b"
+      },
+      {
+        "title": "Smart construction",
+        "line": "Faster, lighter building methods",
+        "color": "#3ad7f5"
+      },
+      {
+        "title": "Design toolkit",
+        "line": "Drawings matched to the site",
+        "color": "#ff9f43"
+      },
+      {
+        "title": "Disaster dashboard",
+        "line": "Hazard picture for planners",
+        "color": "#ff6d6d"
+      },
+      {
+        "title": "Learn and train",
+        "line": "Short lessons for builders",
+        "color": "#b08cff"
+      },
+      {
+        "title": "Readiness calculator",
+        "line": "See how ready a structure is",
+        "color": "#8dffc8"
+      }
     ],
     "interfaces": []
   },
   "modules": [
-    { "title": "Retrofit guide", "color": "#6aa4ff" },
-    { "title": "DRIM", "color": "#1ec87a" },
-    { "title": "Building codes", "color": "#f0c14b" },
-    { "title": "Smart construction", "color": "#3ad7f5" },
-    { "title": "Design toolkit", "color": "#ff9f43" },
-    { "title": "Disaster dashboard", "color": "#ff6d6d" },
-    { "title": "Learn & train", "color": "#b08cff" },
-    { "title": "Best practices", "color": "#ff6fa8" },
-    { "title": "Readiness calculator", "color": "#8dffc8" },
-    { "title": "Material hubs", "color": "#f0c14b" }
+    {
+      "title": "Retrofit guide",
+      "color": "#6aa4ff"
+    },
+    {
+      "title": "DRIM",
+      "color": "#1ec87a"
+    },
+    {
+      "title": "Building codes",
+      "color": "#f0c14b"
+    },
+    {
+      "title": "Smart construction",
+      "color": "#3ad7f5"
+    },
+    {
+      "title": "Design toolkit",
+      "color": "#ff9f43"
+    },
+    {
+      "title": "Disaster dashboard",
+      "color": "#ff6d6d"
+    },
+    {
+      "title": "Learn & train",
+      "color": "#b08cff"
+    },
+    {
+      "title": "Best practices",
+      "color": "#ff6fa8"
+    },
+    {
+      "title": "Readiness calculator",
+      "color": "#8dffc8"
+    },
+    {
+      "title": "Material hubs",
+      "color": "#f0c14b"
+    }
   ],
-  "users": ["Architects", "Engineers", "Planners", "Builders", "Common people"],
+  "users": [
+    "Architects",
+    "Engineers",
+    "Planners",
+    "Builders",
+    "Common people"
+  ],
   "field": {
     "rows": [
-      { "name": "Houses", "a": 1260, "b": 535 },
-      { "name": "Roads (km)", "a": 290.17, "b": 24.61 },
-      { "name": "Bridges", "a": 92, "b": 35 }
+      {
+        "name": "Houses",
+        "a": 1260,
+        "b": 535
+      },
+      {
+        "name": "Roads (km)",
+        "a": 290.17,
+        "b": 24.61
+      },
+      {
+        "name": "Bridges",
+        "a": 92,
+        "b": 35
+      }
     ],
     "districts": [
-      { "name": "Skardu", "detail": "" },
-      { "name": "Astore", "detail": "Louse Pain · Louse Bala" },
-      { "name": "Ghizer", "detail": "Mullabad · Talidas · Gupis / Punial · Mulaabad · Gahkuch" },
-      { "name": "Gilgit", "detail": "Naltar Bala · Naltar Dalan" },
-      { "name": "FCNA", "detail": "" }
+      {
+        "name": "Skardu",
+        "detail": ""
+      },
+      {
+        "name": "Astore",
+        "detail": "Louse Pain · Louse Bala"
+      },
+      {
+        "name": "Ghizer",
+        "detail": "Mullabad · Talidas · Gupis / Punial · Mulaabad · Gahkuch"
+      },
+      {
+        "name": "Gilgit",
+        "detail": "Naltar Bala · Naltar Dalan"
+      },
+      {
+        "name": "FCNA",
+        "detail": ""
+      }
     ],
-    "measures": ["Parallel chord truss", "Space frame truss", "Howe truss", "Sloped water-resistant roof", "Raised plinth", "Timber section restoration", "Steel wire-mesh crack repair"],
-    "vision": ["Forwarded to PMO", "CDA", "WASA", "RDA", "Drainage", "Nature-based solutions", "Resilient planning"],
-    "chain": ["PDMA & DDMA rapid data", "Satellite and third-party check", "Detailed assessment report", "Compile and archive", "C&W and local government detail"],
-    "residential": { "causes": ["Roof collapse", "Construction in the flood plain"], "recommendations": ["Sloped roof", "Land-use planning"] },
-    "communication": { "causes": ["Landslide debris", "Debris collision", "Embankment failure"], "recommendations": ["Culverts and retaining walls", "Freeboard", "Cross drainage"] }
+    "measures": [
+      "Parallel chord truss",
+      "Space frame truss",
+      "Howe truss",
+      "Sloped water-resistant roof",
+      "Raised plinth",
+      "Timber section restoration",
+      "Steel wire-mesh crack repair"
+    ],
+    "vision": [
+      "Forwarded to PMO",
+      "CDA",
+      "WASA",
+      "RDA",
+      "Drainage",
+      "Nature-based solutions",
+      "Resilient planning"
+    ],
+    "chain": [
+      "PDMA & DDMA rapid data",
+      "Satellite and third-party check",
+      "Detailed assessment report",
+      "Compile and archive",
+      "C&W and local government detail"
+    ],
+    "residential": {
+      "causes": [
+        "Roof collapse",
+        "Construction in the flood plain"
+      ],
+      "recommendations": [
+        "Sloped roof",
+        "Land-use planning"
+      ]
+    },
+    "communication": {
+      "causes": [
+        "Landslide debris",
+        "Debris collision",
+        "Embankment failure"
+      ],
+      "recommendations": [
+        "Culverts and retaining walls",
+        "Freeboard",
+        "Cross drainage"
+      ]
+    }
   },
   "seminars": [
-    { "t": "National Seminar on Disaster Resilient Infrastructure", "d": "Sep 2024", "y": 2024, "loc": "Bahria University", "n": 116 },
-    { "t": "Sustainable Smart Construction Solutions", "d": "Dec 2024", "y": 2024, "loc": "NEOC, NDMA", "n": 61 },
-    { "t": "Role of Development Organisations in Infra Resilience", "d": "Feb 2025", "y": 2025, "loc": "NEOC, NDMA", "n": 174 },
-    { "t": "Seismic Resilient Infrastructure", "d": "Mar 2025", "y": 2025, "loc": "NDMA Board Room", "n": 38 },
-    { "t": "Strengthening Infra Resilience for Sustainable Development", "d": "May 2025", "y": 2025, "loc": "NDMA Auditorium", "n": 230 },
-    { "t": "Build Back Better — Post 2025 Monsoon Rebuilding", "d": "Nov 2025", "y": 2025, "loc": "NDMA Auditorium", "n": 305 },
-    { "t": "National Infrastructure Audit Program 2026", "d": "Jan 2026", "y": 2026, "loc": "NEOC, NDMA", "n": 55 },
-    { "t": "Capacity Building for the National Infra Audit", "d": "Jul 2026", "y": 2026, "loc": "COE, NDMA", "n": 53 },
-    { "t": "Urban Flood Resilience Measures — Vision 2027", "d": "Sep 2026", "y": 2026, "loc": "NEOC, NDMA", "n": 60 },
-    { "t": "Climate Responsive Infrastructure", "d": "Oct 2026", "y": 2026, "loc": "NEOC, NDMA", "n": 40 }
+    {
+      "t": "National Seminar on Disaster Resilient Infrastructure",
+      "d": "Sep 2024",
+      "y": 2024,
+      "loc": "Bahria University",
+      "n": 116
+    },
+    {
+      "t": "Sustainable Smart Construction Solutions",
+      "d": "Dec 2024",
+      "y": 2024,
+      "loc": "NEOC, NDMA",
+      "n": 61
+    },
+    {
+      "t": "Role of Development Organisations in Infra Resilience",
+      "d": "Feb 2025",
+      "y": 2025,
+      "loc": "NEOC, NDMA",
+      "n": 174
+    },
+    {
+      "t": "Seismic Resilient Infrastructure",
+      "d": "Mar 2025",
+      "y": 2025,
+      "loc": "NDMA Board Room",
+      "n": 38
+    },
+    {
+      "t": "Strengthening Infra Resilience for Sustainable Development",
+      "d": "May 2025",
+      "y": 2025,
+      "loc": "NDMA Auditorium",
+      "n": 230
+    },
+    {
+      "t": "Build Back Better — Post 2025 Monsoon Rebuilding",
+      "d": "Nov 2025",
+      "y": 2025,
+      "loc": "NDMA Auditorium",
+      "n": 305
+    },
+    {
+      "t": "National Infrastructure Audit Program 2026",
+      "d": "Jan 2026",
+      "y": 2026,
+      "loc": "NEOC, NDMA",
+      "n": 55
+    },
+    {
+      "t": "Capacity Building for the National Infra Audit",
+      "d": "Jul 2026",
+      "y": 2026,
+      "loc": "COE, NDMA",
+      "n": 53
+    },
+    {
+      "t": "Urban Flood Resilience Measures — Vision 2027",
+      "d": "Sep 2026",
+      "y": 2026,
+      "loc": "NEOC, NDMA",
+      "n": 60
+    },
+    {
+      "t": "Climate Responsive Infrastructure",
+      "d": "Oct 2026",
+      "y": 2026,
+      "loc": "NEOC, NDMA",
+      "n": 40
+    }
   ],
   "response": [
-    { "title": "Disaster early warning", "color": "#1ec87a" },
-    { "title": "Academia best practice", "color": "#3ad7f5" },
-    { "title": "Risk communication & mobile alerts", "color": "#f0c14b" },
-    { "title": "Anticipatory action", "color": "#ff9f43" },
-    { "title": "National narrative & media", "color": "#ff6d6d" },
-    { "title": "Resilient infra & national audit", "color": "#b08cff" },
-    { "title": "Logistics stock & operational plans", "color": "#6aa4ff" },
-    { "title": "Humanitarian support — UN, NGOs", "color": "#ff6fa8" },
-    { "title": "National resource", "color": "#8dffc8" },
-    { "title": "International coordination", "color": "#f0c14b" },
-    { "title": "Regional & military assistance", "color": "#3ad7f5" },
-    { "title": "Risk finance — national & global", "color": "#1ec87a" },
-    { "title": "Review for next impacts — CoE", "color": "#ff9f43" }
+    {
+      "title": "Disaster early warning",
+      "color": "#1ec87a"
+    },
+    {
+      "title": "Academia best practice",
+      "color": "#3ad7f5"
+    },
+    {
+      "title": "Risk communication & mobile alerts",
+      "color": "#f0c14b"
+    },
+    {
+      "title": "Anticipatory action",
+      "color": "#ff9f43"
+    },
+    {
+      "title": "National narrative & media",
+      "color": "#ff6d6d"
+    },
+    {
+      "title": "Resilient infra & national audit",
+      "color": "#b08cff"
+    },
+    {
+      "title": "Logistics stock & operational plans",
+      "color": "#6aa4ff"
+    },
+    {
+      "title": "Humanitarian support — UN, NGOs",
+      "color": "#ff6fa8"
+    },
+    {
+      "title": "National resource",
+      "color": "#8dffc8"
+    },
+    {
+      "title": "International coordination",
+      "color": "#f0c14b"
+    },
+    {
+      "title": "Regional & military assistance",
+      "color": "#3ad7f5"
+    },
+    {
+      "title": "Risk finance — national & global",
+      "color": "#1ec87a"
+    },
+    {
+      "title": "Review for next impacts — CoE",
+      "color": "#ff9f43"
+    }
   ],
   "portals": [
-    { "title": "National infra disaster risk", "color": "#3ad7f5", "url": "", "items": ["Dynamic risk layers", "Threat alert mapping", "Encroachment tracking"] },
-    { "title": "Built-up growth to 2047", "color": "#f0c14b", "url": "", "items": ["Long-range projection", "Growth concentration", "Land conversion"] },
-    { "title": "Resilient infrastructure atlas", "color": "#1ec87a", "url": "", "items": ["Needs analysis", "AI hazard identifier", "Engineering solutions", "Policy directives"] }
+    {
+      "title": "PRIA Portal",
+      "color": "#1ec87a",
+      "url": "https://pria-tau.vercel.app/",
+      "items": [
+        "Resilient infrastructure atlas",
+        "Needs, hazards, and engineering solutions"
+      ]
+    },
+    {
+      "title": "Infra APP",
+      "color": "#6aa4ff",
+      "url": "https://infra-resilience360-cloud.vercel.app/",
+      "items": [
+        "Infra Resilience 360",
+        "Guides, codes, and readiness tools"
+      ]
+    },
+    {
+      "title": "Built up growth",
+      "color": "#f0c14b",
+      "url": "http://172.18.2.194:5183/",
+      "items": [
+        "Built-up growth to 2047",
+        "Long-range projection and land conversion"
+      ]
+    },
+    {
+      "title": "NIDRMP",
+      "color": "#3ad7f5",
+      "url": "http://172.18.2.194:7541/",
+      "items": [
+        "National infra disaster risk",
+        "Risk layers, alerts, and encroachment"
+      ]
+    }
   ],
   "library": [
-    { "type": "image", "title": "Classification of national assets", "url": "assets/gallery/brief-1.png", "place": "audit" },
-    { "type": "image", "title": "Infrastructure Audit Guidelines", "url": "assets/gallery/brief-2.png", "place": "audit" },
-    { "type": "image", "title": "National Infrastructure Audit Program 2026", "url": "assets/gallery/brief-3.png", "place": "audit" },
-    { "type": "image", "title": "Sindh riverine flood hazard", "url": "assets/gallery/sindh-flood.jpg", "place": "audit" },
-    { "type": "image", "title": "Punjab riverine flood hazard", "url": "assets/gallery/imp-3.jpeg", "place": "audit" },
-    { "type": "image", "title": "Flood hazard briefing", "url": "assets/gallery/imp-4.jpeg", "place": "audit" },
-    { "type": "image", "title": "Flood hazard briefing", "url": "assets/gallery/imp-5.jpeg", "place": "audit" },
-    { "type": "image", "title": "Flood hazard briefing", "url": "assets/gallery/imp-6.jpeg", "place": "audit" },
-    { "type": "image", "title": "Flood loss map", "url": "assets/gallery/loss-map.png", "place": "audit" },
-    { "type": "video", "title": "Audit portal", "url": "/uploads/audit-portal.mp4", "place": "audit" },
-    { "type": "image", "title": "Templates for disaster resilient infrastructure", "url": "assets/gallery/brief-4.png", "place": "drim" },
-    { "type": "image", "title": "Monsoon infrastructure guideline", "url": "assets/gallery/brief-5.png", "place": "drim" },
-    { "type": "image", "title": "Standard brief", "url": "assets/gallery/brief-6.png", "place": "mandate" },
-    { "type": "image", "title": "Standard brief", "url": "assets/gallery/brief-7.jpg", "place": "mandate" },
-    { "type": "image", "title": "Standard brief", "url": "assets/gallery/brief-8.jpg", "place": "mandate" },
-    { "type": "image", "title": "Green Building Code of Pakistan 2023", "url": "assets/gallery/brief-9.jpg", "place": "drim" },
-    { "type": "image", "title": "Energy Conservation Building Code 2023", "url": "assets/gallery/brief-10.jpg", "place": "drim" },
-    { "type": "image", "title": "Flood risk management seminar", "url": "assets/gallery/seminar-flood.jpg", "place": "seminars" },
-    { "type": "image", "title": "School roof collapse", "url": "assets/gallery/school-roof.jpg", "place": "field" },
-    { "type": "image", "title": "Rescue at the school", "url": "assets/gallery/school-rescue.jpg", "place": "field" },
-    { "type": "image", "title": "Debris inside the classroom", "url": "assets/gallery/pic-2.jpg", "place": "field" },
-    { "type": "image", "title": "Rescue at the site", "url": "assets/gallery/pic-3.jpg", "place": "field" },
-    { "type": "image", "title": "Field photograph", "url": "assets/gallery/pic-4.jpg", "place": "field" },
-    { "type": "image", "title": "Field photograph", "url": "assets/gallery/pic-5.jpg", "place": "field" },
-    { "type": "video", "title": "Peshawar school roof", "url": "/uploads/peshawar-school.mp4", "place": "field" }
+    {
+      "type": "image",
+      "title": "Classification of national assets",
+      "url": "assets/gallery/brief-1.png",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Infrastructure Audit Guidelines",
+      "url": "assets/gallery/brief-2.png",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "National Infrastructure Audit Program 2026",
+      "url": "assets/gallery/brief-3.png",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Sindh riverine flood hazard",
+      "url": "assets/gallery/sindh-flood.jpg",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Punjab riverine flood hazard",
+      "url": "assets/gallery/imp-3.jpeg",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Flood hazard briefing",
+      "url": "assets/gallery/imp-4.jpeg",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Flood hazard briefing",
+      "url": "assets/gallery/imp-5.jpeg",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Flood hazard briefing",
+      "url": "assets/gallery/imp-6.jpeg",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Flood loss map",
+      "url": "assets/gallery/loss-map.png",
+      "place": "audit"
+    },
+    {
+      "type": "video",
+      "title": "Audit portal",
+      "url": "/uploads/audit-portal.mp4",
+      "place": "audit"
+    },
+    {
+      "type": "image",
+      "title": "Templates for disaster resilient infrastructure",
+      "url": "assets/gallery/brief-4.png",
+      "place": "drim"
+    },
+    {
+      "type": "image",
+      "title": "Monsoon infrastructure guideline",
+      "url": "assets/gallery/brief-5.png",
+      "place": "drim"
+    },
+    {
+      "type": "image",
+      "title": "Standard brief",
+      "url": "assets/gallery/brief-6.png",
+      "place": "mandate"
+    },
+    {
+      "type": "image",
+      "title": "Standard brief",
+      "url": "assets/gallery/brief-7.jpg",
+      "place": "mandate"
+    },
+    {
+      "type": "image",
+      "title": "Standard brief",
+      "url": "assets/gallery/brief-8.jpg",
+      "place": "mandate"
+    },
+    {
+      "type": "image",
+      "title": "Green Building Code of Pakistan 2023",
+      "url": "assets/gallery/brief-9.jpg",
+      "place": "drim"
+    },
+    {
+      "type": "image",
+      "title": "Energy Conservation Building Code 2023",
+      "url": "assets/gallery/brief-10.jpg",
+      "place": "drim"
+    },
+    {
+      "type": "image",
+      "title": "Flood risk management seminar",
+      "url": "assets/gallery/seminar-flood.jpg",
+      "place": "seminars"
+    },
+    {
+      "type": "image",
+      "title": "School roof collapse",
+      "url": "assets/gallery/school-roof.jpg",
+      "place": "field"
+    },
+    {
+      "type": "image",
+      "title": "Rescue at the school",
+      "url": "assets/gallery/school-rescue.jpg",
+      "place": "field"
+    },
+    {
+      "type": "image",
+      "title": "Debris inside the classroom",
+      "url": "assets/gallery/pic-2.jpg",
+      "place": "field"
+    },
+    {
+      "type": "image",
+      "title": "Rescue at the site",
+      "url": "assets/gallery/pic-3.jpg",
+      "place": "field"
+    },
+    {
+      "type": "image",
+      "title": "Field photograph",
+      "url": "assets/gallery/pic-4.jpg",
+      "place": "field"
+    },
+    {
+      "type": "image",
+      "title": "Field photograph",
+      "url": "assets/gallery/pic-5.jpg",
+      "place": "field"
+    },
+    {
+      "type": "video",
+      "title": "Peshawar school roof",
+      "url": "/uploads/peshawar-school.mp4",
+      "place": "field"
+    }
+  ],
+  "advisories": [
+    {
+      "title": "Landslide Infrastructure Advisory - 2026",
+      "kind": "Advisory",
+      "line": "the Infrastructure Advisory & Project Development (IA&PD) Wing of the National Disaster",
+      "line2": "The advisory identifies intense and prolonged rainfall, unstable slopes, deforestation, erosion,",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/01.webp",
+      "file": "assets/advisories/books/01.pdf"
+    },
+    {
+      "title": "Rainfall/Thunderstorm Infrastructure Advisory - 2026",
+      "kind": "Advisory",
+      "line": "the Infrastructure Advisory & Project Development (IA&PD) Wing of the National Disaster",
+      "line2": "The advisory highlights that intense rainfall can lead to soil saturation, slope instability,",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/02.webp",
+      "file": "assets/advisories/books/02.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Prevention of House Collapses during Remaining Spells of Monsoon 2026 (Urdu)",
+      "kind": "Advisory",
+      "line": "the Infrastructure Advisory & Project Development (IA&PD) Wing of the National Disaster",
+      "line2": "The advisory highlights that prolonged rainfall, water infiltration, inadequate roof drainage, roof",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/03.webp",
+      "file": "assets/advisories/books/03.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Prevention of House Collapses during Remaining Spells of Monsoon 2026 (English)",
+      "kind": "Advisory",
+      "line": "the Infrastructure Advisory & Project Development (IA&PD) Wing of the National Disaster",
+      "line2": "The advisory highlights that prolonged rainfall, water infiltration, inadequate roof drainage, roof",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/04.webp",
+      "file": "assets/advisories/books/04.pdf"
+    },
+    {
+      "title": "MONSOON INFRASTRUCTURE ADVISORY 2026 – METROPOLITAN AREAS OF PAKISTAN",
+      "kind": "Advisory",
+      "line": "In view of the 2026 monsoon season, the Infrastructure Advisory & Project Development (IA&PD)",
+      "line2": "The advisory highlights that localized intense rainfall and urban flooding during July–September",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/05.webp",
+      "file": "assets/advisories/books/05.pdf"
+    },
+    {
+      "title": "MONSOON INFRASTRUCTURE ADVISORY 2026",
+      "kind": "Advisory",
+      "line": "In view of the 2026 monsoon season, the Infrastructure Advisory & Project Development (IA&PD)",
+      "line2": "The advisory warns that localized heavy rainfall, flash floods, urban flooding, GLOFs, landslides,",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/06.webp",
+      "file": "assets/advisories/books/06.pdf"
+    },
+    {
+      "title": "LANDSLIDE INFRASTRUCTURE ADVISORY 2026",
+      "kind": "Advisory",
+      "line": "In view of the pre-monsoon season, the Infrastructure Advisory & Project Development (IA&PD)",
+      "line2": "The advisory warns that increasing rainfall, rising temperatures, and accelerated snowmelt during",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/07.webp",
+      "file": "assets/advisories/books/07.pdf"
+    },
+    {
+      "title": "Rainfall, Hailstorm and Thunderstorm Infrastructure Advisory - 2026",
+      "kind": "Advisory",
+      "line": "In view of seasonal weather transitions, the Infrastructure Advisory & Project Development",
+      "line2": "The advisory highlights that high-intensity rainfall during this period significantly affects soil",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/08.png",
+      "file": "assets/advisories/books/08.pdf"
+    },
+    {
+      "title": "Avalanche Infrastructure Advisory 2026 – Northern Areas of Pakistan",
+      "kind": "Advisory",
+      "line": "In view of the late winter and early spring season, the Infrastructure Advisory & Project",
+      "line2": "The advisory highlights that rising temperatures during this period significantly destabilize",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/09.png",
+      "file": "assets/advisories/books/09.pdf"
+    },
+    {
+      "title": "Risk Reduction Measures for Housing Sector of GB & Northern Pakistan against Monsoon Rains (Urdu)",
+      "kind": "Advisory",
+      "line": "In light of the increasing damage to the housing sector caused by monsoon rains in the northern",
+      "line2": "It outlines common causes of structural failures and recommends practical measures that, if",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/10.png",
+      "file": "assets/advisories/books/10.pdf"
+    },
+    {
+      "title": "Resident Led Infrastructure Risk Reduction Measures (Urdu)",
+      "kind": "Advisory",
+      "line": "In anticipation of the upcoming monsoon season, the Infrastructure Advisory & Project",
+      "line2": "The advisory provides clear, actionable steps for residents to strengthen infrastructure resilience,",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/11.png",
+      "file": "assets/advisories/books/11.pdf"
+    },
+    {
+      "title": "Risk Reduction Measures For Hydraulic Structures",
+      "kind": "Advisory",
+      "line": "In light of the forthcoming monsoon season, the Infrastructure Advisory & Project Development",
+      "line2": "This advisory outlines key measures to strengthen hydraulic structures, prevent failure and enhance",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/12.png",
+      "file": "assets/advisories/books/12.pdf"
+    },
+    {
+      "title": "Resident Led Infrastructure Risk Reduction Measures (English)",
+      "kind": "Advisory",
+      "line": "In anticipation of the upcoming monsoon season, the Infrastructure Advisory & Project",
+      "line2": "The advisory provides clear, actionable steps for residents to strengthen infrastructure resilience,",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/13.png",
+      "file": "assets/advisories/books/13.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Hydraulic Structures - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "In light of the impending monsoon season, the Infrastructure Advisory & Project Development",
+      "line2": "The anticipated intensity of rainfall and associated flood risks demand urgent attention towards the",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/14.png",
+      "file": "assets/advisories/books/14.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Metropolitan Areas - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "In light of the upcoming monsoon season, the Infrastructure Advisory & Project Development",
+      "line2": "The advisory emphasizes the increased risks posed by intense rainfall and floods, particularly in",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/15.png",
+      "file": "assets/advisories/books/15.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Sindh - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "Pakistan suffers significant economic losses annually due to infrastructure damages caused by",
+      "line2": "These recurring impacts place considerable strain on national resources and impede long-term",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/16.png",
+      "file": "assets/advisories/books/16.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Khyber Pakhtunkhwa - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "Pakistan suffers significant economic losses annually due to infrastructure damages caused by",
+      "line2": "These recurring impacts place considerable strain on national resources and impede long-term",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/17.png",
+      "file": "assets/advisories/books/17.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Punjab - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "Pakistan suffers significant economic losses annually due to infrastructure damages caused by",
+      "line2": "These recurring impacts place considerable strain on national resources and impede long-term",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/18.png",
+      "file": "assets/advisories/books/18.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Balochistan - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "Pakistan suffers significant economic losses annually due to infrastructure damages caused by",
+      "line2": "These recurring impacts place considerable strain on national resources and impede long-term",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/19.png",
+      "file": "assets/advisories/books/19.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Gilgit-Baltistan (GB) - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "Pakistan suffers significant economic losses annually due to infrastructure damages caused by",
+      "line2": "These recurring impacts place considerable strain on national resources and impede long-term",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/20.png",
+      "file": "assets/advisories/books/20.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Azad Jammu and Kashmir - Monsoon 2025",
+      "kind": "Advisory",
+      "line": "Pakistan suffers significant economic losses annually due to infrastructure damages caused by",
+      "line2": "These recurring impacts place considerable strain on national resources and impede long-term",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/21.png",
+      "file": "assets/advisories/books/21.pdf"
+    },
+    {
+      "title": "Infrastructure Advisory for Hailstorm and Windstorm",
+      "kind": "Advisory",
+      "line": "In light of the increasing likelihood of severe hailstorms and windstorms, the Infrastructure",
+      "line2": "This document outlines essential mitigation measures aimed at enhancing the resilience of existing",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/22.png",
+      "file": "assets/advisories/books/22.pdf"
+    },
+    {
+      "title": "Mahandri bazar risk evaluation and recommendations",
+      "kind": "Advisory",
+      "line": "The collapse of Mahandri Bridge caused considerable traffic interruptions on vital highways",
+      "line2": "Following the recent collapse and rebuilding of this bridge and landslide on nearby mountain that is",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/23.png",
+      "file": "assets/advisories/books/23.pdf"
+    },
+    {
+      "title": "Communication infrastructure advisory - monsoon 2024",
+      "kind": "Advisory",
+      "line": "Keeping in view the upcoming monsoon 2024, the advisories have been issued to the concerned",
+      "line2": "departments for actions to be taken regarding communication infrastructure",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/24.jpg",
+      "file": "assets/advisories/books/24.pdf"
+    },
+    {
+      "title": "Industrial infrastructure advisory - monsoon 2024",
+      "kind": "Advisory",
+      "line": "Keeping in view the upcoming Monsoon 2024, the advisories have been issued to the concerned",
+      "line2": "departments for actions to be taken regarding Industrial infrastructure",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/25.jpg",
+      "file": "assets/advisories/books/25.pdf"
+    },
+    {
+      "title": "Residential and public buildings infrastructure advisory - monsoon 2024",
+      "kind": "Advisory",
+      "line": "Keeping in view the upcoming Monsoon 2024, the advisories have been issued to the concerned",
+      "line2": "departments for actions to be taken regarding Residential and Public Sector infrastructure",
+      "color": "#f0a202",
+      "cover": "assets/advisories/covers/26.jpg",
+      "file": "assets/advisories/books/26.pdf"
+    },
+    {
+      "title": "Post-Monsoon 2026 Assessment of Infrastructure Damages & Resilience Needs Report",
+      "kind": "Publication",
+      "line": "The Post-Monsoon 2026 Infrastructure Damage Report presents a nationwide assessment of",
+      "line2": "Prepared by NDMA’s Infrastructure Advisory and Project Development (IA&PD) Wing, the report analyzes",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/27.webp",
+      "file": "assets/advisories/books/27.pdf"
+    },
+    {
+      "title": "Community Sensitization on Resilient Structures Gilgit Baltistan",
+      "kind": "Publication",
+      "line": "The IA&PD Wing of NDMA conducted a seven-day field visit (21–28 September 2026) across Astore,",
+      "line2": "The team assessed damage from debris flows, riverine erosion and high groundwater, met district",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/28.webp",
+      "file": "assets/advisories/books/28.pdf"
+    },
+    {
+      "title": "Pictorial Booklet on Recommended Construction Methodologies, Resilient Structures and Global Best Practices",
+      "kind": "Publication",
+      "line": "The Pictorial Booklet on Recommended Construction Methodologies, Resilient Structures and Global",
+      "line2": "It presents visually rich, zone-specific recommendations for building disaster-resilient",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/29.png",
+      "file": "assets/advisories/books/29.pdf"
+    },
+    {
+      "title": "National Seminar Disaster Resilient Infrastructure Leaflet",
+      "kind": "Publication",
+      "line": "The National Seminar on Disaster Resilient Infrastructure leaflet, published by the",
+      "line2": "It features the Chairman’s address, seminar context, key objectives, environmental challenges, and",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/30.png",
+      "file": "assets/advisories/books/30.pdf"
+    },
+    {
+      "title": "Infrastructure Damages Reporting and Verification Framework",
+      "kind": "Publication",
+      "line": "The Infrastructure Advisory and Project Development Wing of the National Disaster Management",
+      "line2": "It outlines a standardized digital framework for reporting, verifying, and consolidating",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/31.png",
+      "file": "assets/advisories/books/31.pdf"
+    },
+    {
+      "title": "NATIONAL INFRASTRUCTURE AUDIT PROGRAM 2026 - Infrastructure Audit Program, Seminar Proceedings, Implementation Framework, and Policy Recommendations",
+      "kind": "Publication",
+      "line": "The Infrastructure Advisory and Project Development Wing of the NDMA conducted a seminar on",
+      "line2": "This post-seminar report documents the deliberations, decisions, and agreed implementation framework",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/32.png",
+      "file": "assets/advisories/books/32.pdf"
+    },
+    {
+      "title": "Post-Monsoon 2025 Infrastructure Damage Assessment Report",
+      "kind": "Publication",
+      "line": "The Post-Monsoon 2025 Infrastructure Damage Report presents a nationwide assessment of",
+      "line2": "Prepared by NDMA’s Infrastructure Advisory and Project Development Wing, the report analyzes damage",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/33.png",
+      "file": "assets/advisories/books/33.pdf"
+    },
+    {
+      "title": "POST EVENT REPORT OF SEMINAR ON BUILD BACK BETTER: SUSTAINABLE PATHWAYS FOR POST-MONSOON 2025 REBUILDING",
+      "kind": "Publication",
+      "line": "The IA&PD Wing of NDMA organized a national seminar titled “Build Back Better: Sustainable",
+      "line2": "Held on 5 November 2025 at NDMA Headquarters, Islamabad, the seminar brought together experts from",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/34.png",
+      "file": "assets/advisories/books/34.pdf"
+    },
+    {
+      "title": "Infrastructure Audit Guidelines For Disaster Resilience",
+      "kind": "Publication",
+      "line": "Pakistan faces frequent natural hazards like floods, earthquakes and landslides, highlighting",
+      "line2": "NDMA’s Infrastructure Audit Guidelines for Disaster Resilience provide a national framework to",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/35.png",
+      "file": "assets/advisories/books/35.pdf"
+    },
+    {
+      "title": "Infrastructure Guideline for Monsoon 2025",
+      "kind": "Publication",
+      "line": "The Infrastructure Guideline for Monsoon 2025, developed by the IA&PD Wing of NDMA, provides",
+      "line2": "With increasing climate variability and ageing infrastructure heightening flood risks, the guideline",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/36.png",
+      "file": "assets/advisories/books/36.pdf"
+    },
+    {
+      "title": "Post Event Report of Seminar on Strengthening Infrastructure Resilience for Sustainable Development in Pakistan",
+      "kind": "Publication",
+      "line": "A Seminar on Strengthening Infrastructure Resilience for Sustainable Development in Pakistan was",
+      "line2": "The seminar brought together key stakeholders from government, development organizations and",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/37.png",
+      "file": "assets/advisories/books/37.pdf"
+    },
+    {
+      "title": "Post Event Report of Seminar on Role of Development Organizations in Enhancing Infrastructure Resilience in Pakistan",
+      "kind": "Publication",
+      "line": "Pakistan faces severe climate change impacts, with recurrent disasters exposing infrastructure",
+      "line2": "To address these challenges, NDMA’s Infrastructure Advisory & Project Development (IA&PD) Wing",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/38.png",
+      "file": "assets/advisories/books/38.pdf"
+    },
+    {
+      "title": "Infrastructure Risk Atlas of Pakistan",
+      "kind": "Publication",
+      "line": "The Infrastructure Risk Atlas is Pakistan's first initiative on a National Level to identify",
+      "line2": "The risk maps in this atlas have been devised using information relating to building type and",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/39.png",
+      "file": "assets/advisories/books/39.pdf"
+    },
+    {
+      "title": "Post Event Report of Seminar on National Collaboration for Sustainable Smart Construction Solutions – Disaster Resilient Approach",
+      "kind": "Publication",
+      "line": "IA&PD wing organized a national seminar on Sustainable Smart Construction Solutions – Disaster",
+      "line2": "The event brought together industry experts, builders, developers, engineering organizations and",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/40.png",
+      "file": "assets/advisories/books/40.pdf"
+    },
+    {
+      "title": "Post Event Report of 1st National Seminar on Disaster Resilient Infrastructure",
+      "kind": "Publication",
+      "line": "IA&PD wing of NDMA Pakistan organized the 1st National Seminar on Disaster Resilient",
+      "line2": "Infrastructure in Bahria University on 23rd September 2024 to foster a dialogue towards",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/41.png",
+      "file": "assets/advisories/books/41.pdf"
+    },
+    {
+      "title": "Templates and methodologies for disaster resilient infrastructure 2024",
+      "kind": "Publication",
+      "line": "Pakistan has incurred huge financial and economic losses in the past due to",
+      "line2": "In order to mitigate such impacts, there is a need of developing disaster resilient infrastructure",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/42.jpg",
+      "file": "assets/advisories/books/42.pdf"
+    },
+    {
+      "title": "Basic principles of earthquake resilient construction in mountainous regions",
+      "kind": "Publication",
+      "line": "The mountainous regions of Pakistan experience a great deal of seismic activity due to",
+      "line2": "Keeping in view this hazard, IA&PD wing has developed an earthquake resilient construction leaflet",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/43.jpeg",
+      "file": "assets/advisories/books/43.pdf"
+    },
+    {
+      "title": "Basic principles of flood resilient construction in plains",
+      "kind": "Publication",
+      "line": "The plains of Punjab and Sindh frequently experience flooding wreaking havoc upon life and",
+      "line2": "This necessitates the development of flood resilient",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/44.jpeg",
+      "file": "assets/advisories/books/44.pdf"
+    },
+    {
+      "title": "Basic principles of resilient construction in coastal areas",
+      "kind": "Publication",
+      "line": "Pakistan Coastal belt is prone to a number of disasters such as tsunami, cyclones and earthquake",
+      "line2": "In order to effectively mitigate the probability of infrastructure damage, the IA&PD Wing has",
+      "color": "#3ad7f5",
+      "cover": "assets/advisories/covers/45.jpeg",
+      "file": "assets/advisories/books/45.pdf"
+    }
   ]
 }

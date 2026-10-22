@@ -1,5 +1,9 @@
 let DATA = null;
-const state = { hub: "all", region: "all", open: "" };
+const state = { hub: "all", region: "all", open: "", kind: "all" };
+let bookTask = null;
+let bookDoc = null;
+let bookPage = 1;
+let bookBusy = false;
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = (n) => {
@@ -144,6 +148,7 @@ function home() {
         <div class="shot-grid">
           ${DATA.tiles.map((item) => `<article class="card tilt shine shot" data-open="${esc(item.id)}" style="--accent:${item.color}"><img src="${esc(item.image)}" alt="" /><div class="shot-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div></article>`).join("")}
         </div>
+        <div class="portal-row">${portalPeeks(DATA.portals)}</div>
         ${pictureRail()}
         <p class="foot"><a href="admin.html">Admin</a><span>15 Oct 2026</span></p>
       </main>
@@ -232,7 +237,7 @@ function sectionBody(id) {
     const face = (item) => `<img class="phone" src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
     const moving = faces.length ? `<div class="reel app-reel"><div class="reel-track">${faces.map(face).join("")}${faces.map(face).join("")}</div></div>` : "";
     const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
-    return `${href ? `<a class="btn blue" href="${esc(href)}" target="_blank" rel="noopener">Open 360 App</a>` : ""}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    return `${href ? fullFrame(href, "Infra APP") : wingName(true)}${moving}<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div><div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
@@ -250,13 +255,152 @@ function sectionBody(id) {
   if (id === "response") {
     return `<div class="grid-6 steps-grid">${DATA.response.map((item, i) => `<article class="card step" style="--accent:${item.color}"><b class="n">${String(i + 1).padStart(2, "0")}</b><div>${esc(item.title)}</div></article>`).join("")}</div>`;
   }
+  if (id === "advisories") return advisoryShelf();
   if (id === "portals") {
-    return `<div class="grid-3">${DATA.portals.map((p) => {
-      const href = safeUrl(p.url);
-      return `<article class="card pad portal-card" style="--accent:${p.color || "#ff8a3d"}"><h3>${esc(p.title)}</h3>${chips(p.items)}${href ? `<a class="btn amber" style="margin-top:12px" href="${esc(href)}" target="_blank" rel="noopener">Open</a>` : ""}</article>`;
-    }).join("")}</div>`;
+    return `<div class="portal-row portals-open">${portalPeeks(DATA.portals)}</div>`;
   }
   return "";
+}
+
+function wingName(show) {
+  return `<div class="wing-name${show ? " is-on" : ""}"><img src="assets/ndma-logo.png" alt="" /><h2>INFRA WING</h2></div>`;
+}
+
+function fullFrame(url, title) {
+  return `<div class="live-frame full"><iframe data-live src="${esc(url)}" title="${esc(title || "Portal")}"></iframe>${wingName()}</div>`;
+}
+
+function portalPeeks(list) {
+  return (list || []).map((portal) => {
+    const href = safeUrl(portal.url);
+    const peek = href
+      ? `<div class="peek"><iframe data-live src="${esc(href)}" title="${esc(portal.title)}" tabindex="-1"></iframe>${wingName()}</div>`
+      : `<div class="peek">${wingName(true)}</div>`;
+    return `<article class="card shot portal-peek" data-frame="${esc(href)}" data-title="${esc(portal.title)}" style="--accent:${portal.color || "#ff8a3d"}">${peek}<div class="shot-copy"><h3>${esc(portal.title)}</h3><p>${esc((portal.items || [])[0] || "")}</p><p>${esc((portal.items || [])[1] || "")}</p></div></article>`;
+  }).join("");
+}
+
+function watchFrames(root) {
+  (root || document).querySelectorAll("iframe[data-live]").forEach((frame) => {
+    if (frame.dataset.watched) return;
+    frame.dataset.watched = "1";
+    const box = frame.closest(".live-frame, .peek");
+    const fail = () => { if (box) box.classList.add("is-dead"); };
+    let loaded = false;
+    frame.addEventListener("error", fail);
+    frame.addEventListener("load", () => {
+      loaded = true;
+      try {
+        const doc = frame.contentDocument;
+        if (!doc || doc.URL === "about:blank" || !(doc.body && doc.body.childNodes.length)) fail();
+      } catch (error) {
+        /* A cross-origin portal loaded inside the frame. */
+      }
+    });
+    setTimeout(() => { if (!loaded) fail(); }, 9000);
+  });
+}
+
+function openFrame(url, title) {
+  const href = safeUrl(url);
+  if (!href) return;
+  state.open = "portals";
+  state.frame = { url: href, title: title || "Portal" };
+  const modal = document.getElementById("modal");
+  const sheet = modal.querySelector(".sheet");
+  document.getElementById("modal-title").textContent = state.frame.title;
+  document.getElementById("modal-body").innerHTML = fullFrame(href, state.frame.title);
+  sheet.classList.add("is-wide");
+  modal.classList.add("is-on");
+  document.body.style.overflow = "hidden";
+  watchFrames(document.getElementById("modal-body"));
+  markNav();
+}
+
+function advisoryShelf() {
+  const books = DATA.advisories || [];
+  const kinds = ["all", "Advisory", "Publication"];
+  const labels = { all: "All", Advisory: "Advisories", Publication: "Publications" };
+  const shown = books.map((book, index) => ({ book, index })).filter((item) => state.kind === "all" || item.book.kind === state.kind);
+  return `<div class="switch">${kinds.map((kind) => `<button class="btn ${state.kind === kind ? "gold is-on" : "ghost"}" type="button" data-kind="${kind}">${labels[kind]}</button>`).join("")}</div>
+    <div class="shelf">${shown.map(({ book, index }) => `<article class="tome" data-book="${index}" style="--accent:${book.color}"><img src="${esc(book.cover)}" alt="" /><div class="tome-copy"><b>${esc(book.kind)}</b><h3>${esc(book.title)}</h3><p>${esc(book.line)}</p><p>${esc(book.line2)}</p></div></article>`).join("")}</div>`;
+}
+
+function releaseBook() {
+  bookDoc = null;
+  bookPage = 1;
+  if (bookTask) {
+    try { bookTask.destroy(); } catch (error) { /* already closed */ }
+    bookTask = null;
+  }
+}
+
+async function paintPage(num) {
+  if (!bookDoc) return;
+  const total = bookDoc.numPages;
+  num = Math.max(1, Math.min(total, num));
+  const token = num;
+  bookPage = num;
+  const canvas = document.getElementById("book-page");
+  if (!canvas) return;
+  const page = await bookDoc.getPage(num);
+  if (bookPage !== token) return;
+  const base = page.getViewport({ scale: 1 });
+  const view = page.getViewport({ scale: 1200 / base.width });
+  canvas.width = view.width;
+  canvas.height = view.height;
+  await page.render({ canvasContext: canvas.getContext("2d"), viewport: view }).promise;
+  const count = document.getElementById("book-count");
+  const range = document.getElementById("book-range");
+  if (count) count.textContent = num + " / " + total;
+  if (range) range.value = String(num);
+}
+
+function turnPage(dir) {
+  if (!bookDoc || bookBusy) return;
+  const next = bookPage + dir;
+  if (next < 1 || next > bookDoc.numPages) return;
+  const paper = document.getElementById("paper");
+  if (!paper || reduce) {
+    paintPage(next);
+    return;
+  }
+  bookBusy = true;
+  paper.classList.add(dir > 0 ? "leaving-next" : "leaving-prev");
+  paper.addEventListener("animationend", async function once() {
+    paper.removeEventListener("animationend", once);
+    await paintPage(next);
+    paper.classList.remove("leaving-next", "leaving-prev");
+    paper.classList.add("arriving");
+    paper.addEventListener("animationend", function done() {
+      paper.classList.remove("arriving");
+      paper.removeEventListener("animationend", done);
+      bookBusy = false;
+    }, { once: true });
+  }, { once: true });
+}
+
+async function openBook(index) {
+  const item = (DATA.advisories || [])[index];
+  if (!item || !window.pdfjsLib) return;
+  releaseBook();
+  state.book = index;
+  document.getElementById("modal-title").textContent = item.title;
+  document.getElementById("modal-body").innerHTML = `<div class="bookbar"><button class="btn ghost" type="button" data-shelf>Shelf</button><button class="btn gold" type="button" data-turn="-1">Previous</button><span id="book-count">Opening</span><button class="btn gold" type="button" data-turn="1">Next</button></div><div class="bookstage"><div class="paper" id="paper"><canvas id="book-page"></canvas></div></div><input id="book-range" type="range" min="1" max="1" value="1" />`;
+  const range = document.getElementById("book-range");
+  range.oninput = () => { if (!bookBusy) paintPage(Number(range.value)); };
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "assets/vendor/pdf.worker.min.js";
+  try {
+    bookTask = pdfjsLib.getDocument(item.file);
+    bookDoc = await bookTask.promise;
+  } catch (error) {
+    const count = document.getElementById("book-count");
+    if (count) count.textContent = "Could not open";
+    return;
+  }
+  if (state.book !== index) return;
+  range.max = String(bookDoc.numPages);
+  await paintPage(1);
 }
 
 function markNav() {
@@ -281,12 +425,18 @@ function paintModal() {
   body.classList.add("inview");
   modal.classList.add("is-on");
   document.body.style.overflow = "hidden";
+  const sheet = modal.querySelector(".sheet");
+  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals");
   playDonuts(body);
   runCounters(body);
+  watchFrames(body);
   markNav();
 }
 
 function openPanel(id) {
+  state.book = null;
+  state.frame = null;
+  releaseBook();
   if (id === "wing") state.open = "";
   else state.open = state.open === id ? "" : id;
   paintModal();
@@ -305,8 +455,42 @@ function bind() {
       openPanel(opener.dataset.open);
       return;
     }
+    const frameBtn = e.target.closest("[data-frame]");
+    if (frameBtn && frameBtn.dataset.frame) {
+      openFrame(frameBtn.dataset.frame, frameBtn.dataset.title);
+      return;
+    }
+    const bookBtn = e.target.closest("[data-book]");
+    if (bookBtn) {
+      openBook(Number(bookBtn.dataset.book));
+      return;
+    }
+    const kindBtn = e.target.closest("[data-kind]");
+    if (kindBtn) {
+      state.kind = kindBtn.dataset.kind;
+      paintModal();
+      return;
+    }
+    if (e.target.closest("[data-shelf]")) {
+      state.book = null;
+      releaseBook();
+      paintModal();
+      return;
+    }
+    const turn = e.target.closest("[data-turn]");
+    if (turn) {
+      turnPage(Number(turn.dataset.turn));
+      return;
+    }
+    if (e.target.id === "book-page") {
+      const box = e.target.getBoundingClientRect();
+      turnPage(e.clientX > box.left + box.width / 2 ? 1 : -1);
+      return;
+    }
     if (e.target.closest("[data-close]") || e.target.id === "modal") {
       state.open = "";
+      state.book = null;
+      releaseBook();
       paintModal();
       return;
     }
@@ -333,8 +517,19 @@ function bind() {
     }
   });
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && state.book != null) {
+      state.book = null;
+      releaseBook();
+      paintModal();
+      return;
+    }
+    if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && state.book != null) {
+      turnPage(e.key === "ArrowRight" ? 1 : -1);
+      return;
+    }
     if (e.key === "Escape" && state.open) {
       state.open = "";
+      releaseBook();
       paintModal();
     }
   });
@@ -369,6 +564,7 @@ async function loadContent() {
 async function boot() {
   DATA = await loadContent();
   document.getElementById("app").innerHTML = home();
+  watchFrames(document);
   bind();
   runCounters(document);
   tickClock();
