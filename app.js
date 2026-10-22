@@ -69,6 +69,14 @@ const FLOW_COLORS = ["#3ad7f5", "#1ec87a", "#f0c14b", "#ff9f43", "#b08cff", "#ff
 function chips(list) {
   return `<div class="chips">${(list || []).map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>`;
 }
+function storyBoard(title, lead, lanes) {
+  const body = lanes.map((lane) => {
+    const from = lane.from.map((text) => `<span>${esc(text)}</span>`).join("");
+    const to = lane.to.map((text) => `<b>${esc(text)}</b>`).join("");
+    return `<article class="lane" style="--c:${lane.color}"><div class="lane-from">${from}</div><span class="lane-go" aria-hidden="true"></span><div class="lane-to">${to}</div></article>`;
+  }).join("");
+  return `<section class="story"><h3>${esc(title)}</h3><p>${esc(lead)}</p>${body}</section>`;
+}
 function pairFlow(leftTitle, leftItems, rightTitle, rightItems, pairs) {
   const node = (text, side, index) => `<div class="flow-node" data-side="${side}" data-i="${index}" style="--c:${FLOW_COLORS[index % FLOW_COLORS.length]}"><i></i><b>${esc(text)}</b></div>`;
   const links = (pairs || []).map(([a, b]) => `${a}:${b}`).join(",");
@@ -543,8 +551,17 @@ function mandatePage() {
     <div class="m-hero"><img src="assets/home/mandate-hero.jpg" alt="" /><div><h2>Mandate</h2><p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p></div></div>
     <div class="m-three">${pillars}</div>
     <div class="m-six">${classes}</div>
-    ${pairFlow("Pre-disaster", DATA.pre, "Post-disaster", DATA.post, [[0, 4], [1, 0], [2, 1], [2, 2], [3, 4], [4, 4], [5, 1], [5, 3], [6, 0], [7, 0], [7, 3]])}
-    ${pairFlow("If it stays exposed", DATA.exposed, "Built to survive", DATA.resilient, [[0, 0], [1, 1], [2, 2], [3, 0], [3, 2]])}
+    ${storyBoard("How preparation is used after a disaster", "Read each row from left to right. The left side is the work done before a disaster. The right side is what that work becomes after one.", [
+      { color: "#3ad7f5", from: ["Infrastructure awareness advisories", "Infrastructure audit mechanism", "Cost of exposed infrastructure", "Pre-disaster damage projection"], to: ["Damage verification"] },
+      { color: "#1ec87a", from: ["Material hubs", "Region-wise designs"], to: ["Reconstruction through material hubs", "Temporary camp support", "Temporary infrastructure"] },
+      { color: "#f0c14b", from: ["National seminars", "Global practice for Pakistan"], to: ["Strengthening and retrofitting"] }
+    ])}
+    ${storyBoard("What changes when a building can survive", "Each result of an exposed build is answered by the result beside it.", [
+      { color: "#ff6d6d", from: ["Infrastructure damage"], to: ["Survive the hazard"] },
+      { color: "#ff9f43", from: ["Lives disrupted"], to: ["Save lives"] },
+      { color: "#b08cff", from: ["Services halt"], to: ["Reduce losses"] },
+      { color: "#6aa4ff", from: ["Recovery delayed"], to: ["Reduce losses"] }
+    ])}
   </section>`;
 }
 
@@ -621,11 +638,14 @@ function cardMedia(item) {
 function homeCard(item, wide) {
   return `<article class="home-card${wide ? " wide" : ""}" style="--accent:${esc(item.color || "#1ec87a")}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${cardMedia(item)}<footer class="card-foot"><b>${esc(item.title)}</b><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></footer></article>`;
 }
+function filmTag(url) {
+  return `<div class="film"><video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(url)}"></video></div>`;
+}
 function wingStage(id) {
   const videos = mediaFor(id, "video");
-  const images = mediaFor(id, "image");
+  const images = mediaFor(id, "image").filter((item) => !/\/still-\d/i.test(item.url) && !/\/field\/\d+\.jpg$/i.test(item.url));
   if (!videos.length && !images.length) return "";
-  const video = videos.length ? `<div class="wing-videos">${videos.map((item) => `<video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(item.url)}"></video>`).join("")}</div>` : "";
+  const video = videos.length ? `<div class="wing-videos">${videos.map((item) => filmTag(item.url)).join("")}</div>` : "";
   const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="${esc(item.title)}">`).join("")}</div>` : "";
   return `<div class="wing-stage">${video}${strip}</div>`;
 }
@@ -726,6 +746,22 @@ function heatmap() {
   return `<div class="heat-scroll"><div class="heat" id="heat"><div class="hh"></div>${heads}${body}<div class="hl">Net valuation</div>${nets}</div></div><div class="scale"><span>0</span><i></i><span>10</span></div>`;
 }
 
+const HUB_PIN = {
+  gilgit: [68, 12.5],
+  muzaffargarh: [54.3, 53.4],
+  sukkur: [44, 69.9],
+  jallozai: [56.9, 25.7]
+};
+function hubWhere(active) {
+  if (!window.pakistanMap) return "";
+  const marks = Object.keys(HUB_PIN).map((id) => {
+    const hub = (DATA.hubs || []).find((item) => item.id === id);
+    if (!hub) return "";
+    const [x, y] = HUB_PIN[id];
+    return `<button class="map-pin${active === id ? " is-on" : ""}" type="button" data-hub="${esc(id)}" style="left:${x}%;top:${y}%;--c:${hub.color}"><i></i><b>${esc(hub.name)}</b></button>`;
+  }).join("");
+  return `<section class="hub-where"><div class="k">Hub locations</div><h3>Where the stock stands</h3><p>Gilgit, Muzaffargarh, Sukkur, and Jalozai, placed from the coordinates used by Infra Resilience 360.</p><div class="hub-where-map">${window.pakistanMap(["sindh", "punjab", "gilgit-baltistan", "khyber-pakhtunkhwa"], false)}${marks}</div></section>`;
+}
 function hubViz(id) {
   if (id === "all") {
     const slices = DATA.hubs.map((h) => ({ name: h.name, value: hubTotal(h), color: h.color }));
@@ -775,7 +811,7 @@ function sectionBody(id) {
     const chosen = DATA.hubs.find((hub) => hub.id === active);
     const shots = DATA.hubs.filter((hub) => photo(hub)).map((hub) => `<button class="hub-shot${active === hub.id ? " is-on" : ""}" type="button" data-hub="${esc(hub.id)}"><img src="${esc(photo(hub))}" alt="" /><b>${esc(hub.name)}</b><span>${esc(hub.region)}</span></button>`).join("");
     const hero = chosen && photo(chosen) ? `<figure class="hub-hero"><img src="${esc(photo(chosen))}" alt="" /><figcaption><em>Material hub</em><strong>${esc(chosen.name)} Material Hub</strong><span>${esc(chosen.region)}</span></figcaption></figure>` : `<div class="hub-row">${shots}</div>`;
-    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div>${hero}${chosen ? `<div class="hub-row">${shots}</div>` : ""}<div id="hubViz">${hubViz(active)}</div>`;
+    return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div>${hubWhere(active)}${hero}${chosen ? `<div class="hub-row">${shots}</div>` : ""}<div id="hubViz">${hubViz(active)}</div>`;
   }
   if (id === "app360") {
     const app = DATA.app360 || { link: "", cards: [], interfaces: [] };
@@ -837,7 +873,7 @@ function portalCard(portal) {
   const film = PORTAL_VIDEO[portal.title] || "";
   const intro = (portal.items || []).filter(Boolean).join(". ");
   const media = film
-    ? `<video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(film)}"></video>`
+    ? filmTag(film)
     : `<div class="portal-miss"><b>Not available</b><span>No film for this portal is on the disk or in the buckets.</span></div>`;
   const button = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer">Open in another page</a>` : "";
   return `<article class="portal-card" style="--accent:${esc(portal.color || "#ff8a3d")}"><div class="portal-media">${media}</div><div class="portal-copy"><h3>${esc(portal.title)}</h3><p>${esc(intro)}</p>${button}</div></article>`;
