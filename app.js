@@ -669,6 +669,24 @@ function wingLink() {
   return `<section class="wing-link"><span class="k">Connected work</span><h2>How the wing fits together</h2><div class="link-board"><svg class="link-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}${dots}</svg>${buttons}</div></section>`;
 }
 
+function pageScene(id) {
+  const key = id || "home";
+  const dot = (path, color, dur) => reduce ? "" : `<circle r="4.5" fill="${color}"><animateMotion dur="${dur}" repeatCount="indefinite" path="${path}" /></circle>`;
+  const art = {
+    home: `<path class="scene-road" d="M0 560 H1200"/><path class="scene-line" d="M40 560 V390 H150 V250 H250 V560 M430 560 C530 390 690 390 790 560 M860 560 V340 H980 V220 H1100 V560"/>${dot("M0 560 H1200", "#8dffe4", "11s")}`,
+    mandate: `<g class="scene-rise"><path class="scene-line" d="M80 560 V320 H150 V240 H230 V560 M360 560 V280 H470 V180 H560 V560 M700 560 V340 H820 V200 H960 V560 M1020 560 V300 H1140 V560"/></g>${dot("M80 500 H1140", "#f0c14b", "13s")}`,
+    audit: `<path class="scene-line" d="M80 120 H1120 M80 240 H1120 M80 360 H1120 M80 480 H1120 M160 80 V560 M360 80 V560 M560 80 V560 M760 80 V560 M960 80 V560"/><line class="scene-scan" x1="70" x2="1130" y1="90" y2="90"/>`,
+    drim: `<path class="scene-draw" d="M120 560 V300 L280 180 L440 300 V560 Z M220 560 V400 H340 V560 M700 560 V280 L900 140 L1100 280 V560 Z M800 560 V400 H980 V560"/>`,
+    hubs: `<path class="scene-road" d="M0 470 H1200"/><g class="scene-crates"><rect x="40" y="390" width="70" height="70"/><rect x="130" y="360" width="80" height="100"/><rect x="230" y="400" width="60" height="60"/></g>${dot("M0 430 H1200", "#b08cff", "10s")}`,
+    app360: `<circle class="scene-ring" cx="600" cy="340" r="70"/><circle class="scene-ring" cx="600" cy="340" r="140"/><circle class="scene-ring" cx="600" cy="340" r="220"/><path class="scene-line" d="M560 300 H640 V420 H560 Z M590 300 V270 H610 V300"/>`,
+    field: `<path class="scene-wave" d="M0 420 C150 340 250 500 400 420 S650 340 800 420 1050 500 1200 420"/><path class="scene-wave" d="M0 500 C160 420 280 580 440 500 S700 420 860 500 1100 580 1200 500"/>${dot("M0 460 H1200", "#ff6d6d", "14s")}`,
+    advisories: `<g class="scene-pages"><rect x="180" y="160" width="220" height="300" rx="8"/><rect x="490" y="130" width="220" height="300" rx="8"/><rect x="800" y="180" width="220" height="300" rx="8"/></g>`,
+    seminars: `<path class="scene-line" d="M600 180 L600 180"/><circle class="scene-ring" cx="600" cy="220" r="40"/><path class="scene-arc" d="M430 260 A180 180 0 0 1 770 260"/><path class="scene-arc" d="M330 300 A280 280 0 0 1 870 300"/><path class="scene-arc" d="M230 350 A380 380 0 0 1 970 350"/>`,
+    portals: `<path class="scene-line" d="M180 220 H420 V460 H180 Z M500 160 H760 V400 H500 Z M820 240 H1080 V500 H820 Z M420 340 H500 M760 280 H820"/>${dot("M200 340 H500", "#ff8a3d", "6s")}${dot("M760 280 H900", "#3ad7f5", "7s")}`
+  };
+  return `<div class="scene scene-${key}" aria-hidden="true"><svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">${art[key] || art.home}</svg></div>`;
+}
+
 function home() {
   const portals = (DATA.tiles || []).find((item) => item.id === "portals");
   const cards = (DATA.tiles || []).filter((item) => item.id !== "portals");
@@ -685,6 +703,7 @@ function home() {
         <a class="side-admin" href="admin.html">Admin</a>
       </aside>
       <div class="stage main">
+        ${pageScene("home")}
         <header class="command">
           <label class="finder">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
@@ -723,6 +742,7 @@ function home() {
     </div>
     <div id="modal" class="modal" role="dialog" aria-modal="true">
       <div class="sheet">
+        <div id="page-scene"></div>
         <div class="sheet-h"><h2 id="modal-title"></h2><div class="frame-actions"><span id="modal-actions"></span><button class="btn coral" type="button" data-close>Close</button></div></div>
         <div id="modal-body"></div>
       </div>
@@ -1047,7 +1067,9 @@ function paintModal() {
   const body = document.getElementById("modal-body");
   setFrameActions("");
   stopModelShow();
+  const scene = document.getElementById("page-scene");
   if (!state.open) {
+    if (scene) scene.innerHTML = "";
     modal.classList.remove("is-on");
     document.body.style.overflow = "";
     markNav();
@@ -1055,6 +1077,7 @@ function paintModal() {
   }
   const tile = (DATA.tiles || []).find((t) => t.id === state.open) || (DATA.nav || []).find((t) => t.id === state.open);
   document.getElementById("modal-title").textContent = tile ? tile.title || tile.label : state.open;
+  if (scene) scene.innerHTML = pageScene(state.open);
   body.innerHTML = modalBody(state.open);
   body.classList.add("inview");
   modal.classList.add("is-on");
