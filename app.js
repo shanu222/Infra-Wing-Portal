@@ -878,7 +878,9 @@ function sectionBody(id) {
     const href = safeUrl(app.link);
     const cards = (app.cards && app.cards.length ? app.cards : DATA.modules).map((m) => `<article class="card pad" style="--accent:${m.color}"><h3>${esc(m.title)}</h3>${m.line ? `<p class="muted">${esc(m.line)}</p>` : ""}</article>`).join("");
     const open = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer" style="--accent:#6aa4ff">Open Infra APP</a>` : "";
-    return `${wingStage("app360")}<div class="portal-actions">${open}</div>${phoneBoard()}${cards ? `<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div>` : ""}<div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    const films = mediaFor("app360", "video");
+    const video = films.length ? `<div class="wing-stage"><div class="wing-videos">${films.map((item) => filmTag(item.url)).join("")}</div></div>` : "";
+    return `${video}<div class="portal-actions">${open}</div>${phoneBoard()}${cards ? `<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div>` : ""}<div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
