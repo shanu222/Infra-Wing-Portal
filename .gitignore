@@ -1,4 +1,11 @@
 *.pptx
+shots
 .vercel
 .DS_Store
 Thumbs.db
+node_modules
+server/node_modules
+server/.env
+server/uploads/*
+!server/uploads/.gitkeep
+server/data/sessions.json

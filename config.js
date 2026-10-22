@@ -1,0 +1,1 @@
+window.INFRA_API = "";

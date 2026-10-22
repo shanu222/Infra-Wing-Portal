@@ -1,0 +1,163 @@
+{
+  "brand": { "title": "INFRA WING", "line": "NDMA" },
+  "ratio": { "tag": "UNDRR", "left": "1", "right": "6", "leftLabel": "US$ invested", "rightLabel": "US$ saved" },
+  "mandate": [
+    { "title": "Strengthen", "color": "#f0c14b" },
+    { "title": "Innovate", "color": "#ff9f43" },
+    { "title": "Localise", "color": "#1ec87a" }
+  ],
+  "stats": [
+    { "n": 7, "label": "Regions indexed", "color": "#3ad7f5" },
+    { "n": 17, "label": "DRIM", "color": "#ff9f43" },
+    { "n": 4, "label": "Material hubs", "color": "#b08cff" },
+    { "n": 36188, "label": "Units stocked", "color": "#1ec87a" },
+    { "n": 1132, "label": "Seminar participants", "color": "#ff6fa8" },
+    { "n": 39, "label": "Shelters issued", "color": "#f0c14b" }
+  ],
+  "tiles": [
+    { "id": "audit", "title": "Audit", "color": "#3ad7f5" },
+    { "id": "drim", "title": "DRIM", "color": "#ff9f43" },
+    { "id": "hubs", "title": "Hubs", "color": "#b08cff" },
+    { "id": "app360", "title": "360", "color": "#6aa4ff" },
+    { "id": "field", "title": "Field", "color": "#ff6d6d" },
+    { "id": "seminars", "title": "Seminars", "color": "#ff6fa8" },
+    { "id": "response", "title": "Response", "color": "#8dffc8" },
+    { "id": "portals", "title": "Portals", "color": "#ff8a3d" },
+    { "id": "media", "title": "Media", "color": "#3ad7f5" },
+    { "id": "mandate", "title": "Mandate", "color": "#f0c14b" }
+  ],
+  "nav": [
+    { "id": "wing", "label": "Wing", "color": "#1ec87a" },
+    { "id": "mandate", "label": "Mandate", "color": "#f0c14b" },
+    { "id": "audit", "label": "Audit", "color": "#3ad7f5" },
+    { "id": "drim", "label": "DRIM", "color": "#ff9f43" },
+    { "id": "hubs", "label": "Hubs", "color": "#b08cff" },
+    { "id": "app360", "label": "360", "color": "#6aa4ff" },
+    { "id": "field", "label": "Field", "color": "#ff6d6d" },
+    { "id": "seminars", "label": "Seminars", "color": "#ff6fa8" },
+    { "id": "response", "label": "Response", "color": "#8dffc8" },
+    { "id": "portals", "label": "Portals", "color": "#ff8a3d" },
+    { "id": "media", "label": "Media", "color": "#7ee0c6" }
+  ],
+  "classes": [
+    { "title": "Communication", "line": "Roads, bridges, culverts", "color": "#3ad7f5" },
+    { "title": "Public", "line": "Schools, hospitals, offices", "color": "#6aa4ff" },
+    { "title": "Industrial", "line": "Factories, plants, warehouses", "color": "#ff9f43" },
+    { "title": "Hydraulic", "line": "Dams, barrages, channels", "color": "#1ec87a" },
+    { "title": "Residential", "line": "Urban and rural housing", "color": "#ff6fa8" },
+    { "title": "Commercial", "line": "Malls and plazas", "color": "#f0c14b" }
+  ],
+  "pre": ["Infrastructure awareness advisories", "Infrastructure audit mechanism", "Material hubs", "National seminars", "Global practice for Pakistan", "Region-wise designs", "Cost of exposed infrastructure", "Pre-disaster damage projection"],
+  "post": ["Damage verification", "Reconstruction through material hubs", "Temporary camp support", "Temporary infrastructure", "Strengthening and retrofitting"],
+  "exposed": ["Infrastructure damage", "Lives disrupted", "Services halt", "Recovery delayed"],
+  "resilient": ["Survive the hazard", "Save lives", "Reduce losses"],
+  "regions": [
+    { "id": "ict", "name": "ICT", "net": 64, "color": "#3ad7f5" },
+    { "id": "gb", "name": "GB", "net": 53, "color": "#1ec87a" },
+    { "id": "ajk", "name": "AJK", "net": 61, "color": "#f0c14b" },
+    { "id": "punjab", "name": "Punjab", "net": 52, "color": "#6aa4ff" },
+    { "id": "sindh", "name": "Sindh", "net": 46, "color": "#ff6d6d" },
+    { "id": "kp", "name": "KP", "net": 62, "color": "#b08cff" },
+    { "id": "bln", "name": "Balochistan", "net": 44, "color": "#ff9f43" }
+  ],
+  "attrs": ["Building codes", "Land-use planning", "Resilience value", "Local materials", "Eco designs", "Climate friendly", "Stability index", "Site parameters", "Build back better", "Work environment"],
+  "matrix": [[8, 4, 6, 6, 4, 7, 4.3], [7, 4, 5, 5, 3, 5, 4.4], [6, 7, 6, 5, 4, 8, 3.9], [3, 8, 8, 4, 7, 6, 6.2], [4, 5, 8, 5, 7, 7, 5], [7, 8, 5, 5, 5, 6, 5.3], [8, 5, 7, 5, 3, 6, 4], [8, 3, 4, 6, 4, 5, 4.5], [6, 5, 8, 5, 4, 7, 4.3], [7, 4, 4, 6, 5, 5, 4.4]],
+  "badges": ["PMO approved", "First in Pakistan"],
+  "process": ["Policy & governance", "Pilot infrastructure audits", "IRI rating & digital platform", "Engagement and monitoring", "Retrofit demonstrations", "Capacity development"],
+  "objectives": ["Vulnerable regions and structures", "Safety in extreme conditions", "Upgrades and retrofitting", "Early damage detection", "Preparedness decisions", "Post-disaster safe reuse"],
+  "drim": {
+    "count": 17,
+    "time": [40, 60],
+    "cost": [15, 45],
+    "coverage": "All Pakistan",
+    "hazards": ["Flood", "Earthquake", "Landslide", "Water management"],
+    "zones": [
+      { "name": "Hilly", "color": "#ff6d6d", "models": ["Confined concrete block masonry", "Geogrid reinforced retaining wall"] },
+      { "name": "Hilly / plain", "color": "#ff9f43", "models": ["Bamboo with wattle & daub", "Light gauge steel"] },
+      { "name": "Plain", "color": "#f0c14b", "models": ["Rat-trap bond masonry", "Timber with lath & plaster"] },
+      { "name": "Coastal / plain", "color": "#3ad7f5", "models": ["Elevated structure", "Floating structure"] }
+    ],
+    "publications": ["Disaster resilient construction practices", "Resilient infra guidelines", "Zone-specific construction", "Risk-smart leaflets"],
+    "codes": ["Technical input", "Nationwide audits", "Non-compliance"]
+  },
+  "items": ["Bamboo 12 ft", "Bamboo 6 ft", "Bamboo 8 ft", "Chick mats", "Polythene sheet", "Cotton rope (kg)", "Steel girder", "CGI sheets", "Planks 8×1×1", "Planks 8×4×1", "EPS panels", "Wheelbarrows", "Shovels", "Pickaxes"],
+  "families": [
+    { "name": "Bamboo", "idx": [0, 1, 2], "color": "#1ec87a" },
+    { "name": "Mats, sheet, rope", "idx": [3, 4, 5], "color": "#3ad7f5" },
+    { "name": "Steel & CGI", "idx": [6, 7], "color": "#f0c14b" },
+    { "name": "Timber planks", "idx": [8, 9], "color": "#d7b899" },
+    { "name": "EPS panels", "idx": [10], "color": "#b08cff" },
+    { "name": "Tools", "idx": [11, 12, 13], "color": "#ff9f43" }
+  ],
+  "hubs": [
+    { "id": "sukkur", "name": "Sukkur", "region": "Sindh", "color": "#3ad7f5", "x": 62, "y": 78, "stock": [1060, 2530, 1060, 1720, 130, 13, 35, 0, 160, 160, 330, 0, 0, 0] },
+    { "id": "muzaffargarh", "name": "Muzaffargarh", "region": "Punjab", "color": "#f0c14b", "x": 48, "y": 58, "stock": [1070, 2530, 1070, 1740, 130, 14, 30, 200, 169, 170, 330, 0, 0, 0] },
+    { "id": "gilgit", "name": "Gilgit", "region": "Gilgit-Baltistan", "color": "#1ec87a", "x": 58, "y": 18, "stock": [1080, 2540, 1070, 1750, 141, 13, 35, 400, 171, 168, 345, 0, 0, 0], "issue": "39 shelters · Diamer · July 2026", "issueItems": ["Sandwich panels", "Wooden planks", "CGI sheets", "Pre-engineered components", "Light gauge", "Bamboo"] },
+    { "id": "jallozai", "name": "Jallozai", "region": "Khyber Pakhtunkhwa", "color": "#b08cff", "x": 32, "y": 34, "stock": [1227, 2914, 1227, 7360, 154, 0, 39, 230, 192, 192, 39, 50, 100, 100] }
+  ],
+  "modules": [
+    { "title": "Retrofit guide", "color": "#6aa4ff" },
+    { "title": "DRIM", "color": "#1ec87a" },
+    { "title": "Building codes", "color": "#f0c14b" },
+    { "title": "Smart construction", "color": "#3ad7f5" },
+    { "title": "Design toolkit", "color": "#ff9f43" },
+    { "title": "Disaster dashboard", "color": "#ff6d6d" },
+    { "title": "Learn & train", "color": "#b08cff" },
+    { "title": "Best practices", "color": "#ff6fa8" },
+    { "title": "Readiness calculator", "color": "#8dffc8" },
+    { "title": "Material hubs", "color": "#f0c14b" }
+  ],
+  "users": ["Architects", "Engineers", "Planners", "Builders", "Common people"],
+  "field": {
+    "rows": [
+      { "name": "Houses", "a": 1260, "b": 535 },
+      { "name": "Roads (km)", "a": 290.17, "b": 24.61 },
+      { "name": "Bridges", "a": 92, "b": 35 }
+    ],
+    "districts": [
+      { "name": "Skardu", "detail": "" },
+      { "name": "Astore", "detail": "Louse Pain · Louse Bala" },
+      { "name": "Ghizer", "detail": "Mullabad · Talidas · Gupis / Punial · Mulaabad · Gahkuch" },
+      { "name": "Gilgit", "detail": "Naltar Bala · Naltar Dalan" },
+      { "name": "FCNA", "detail": "" }
+    ],
+    "measures": ["Parallel chord truss", "Space frame truss", "Howe truss", "Sloped water-resistant roof", "Raised plinth", "Timber section restoration", "Steel wire-mesh crack repair"],
+    "vision": ["Forwarded to PMO", "CDA", "WASA", "RDA", "Drainage", "Nature-based solutions", "Resilient planning"],
+    "chain": ["PDMA & DDMA rapid data", "Satellite and third-party check", "Detailed assessment report", "Compile and archive", "C&W and local government detail"],
+    "residential": { "causes": ["Roof collapse", "Construction in the flood plain"], "recommendations": ["Sloped roof", "Land-use planning"] },
+    "communication": { "causes": ["Landslide debris", "Debris collision", "Embankment failure"], "recommendations": ["Culverts and retaining walls", "Freeboard", "Cross drainage"] }
+  },
+  "seminars": [
+    { "t": "National Seminar on Disaster Resilient Infrastructure", "d": "Sep 2024", "y": 2024, "loc": "Bahria University", "n": 116 },
+    { "t": "Sustainable Smart Construction Solutions", "d": "Dec 2024", "y": 2024, "loc": "NEOC, NDMA", "n": 61 },
+    { "t": "Role of Development Organisations in Infra Resilience", "d": "Feb 2025", "y": 2025, "loc": "NEOC, NDMA", "n": 174 },
+    { "t": "Seismic Resilient Infrastructure", "d": "Mar 2025", "y": 2025, "loc": "NDMA Board Room", "n": 38 },
+    { "t": "Strengthening Infra Resilience for Sustainable Development", "d": "May 2025", "y": 2025, "loc": "NDMA Auditorium", "n": 230 },
+    { "t": "Build Back Better — Post 2025 Monsoon Rebuilding", "d": "Nov 2025", "y": 2025, "loc": "NDMA Auditorium", "n": 305 },
+    { "t": "National Infrastructure Audit Program 2026", "d": "Jan 2026", "y": 2026, "loc": "NEOC, NDMA", "n": 55 },
+    { "t": "Capacity Building for the National Infra Audit", "d": "Jul 2026", "y": 2026, "loc": "COE, NDMA", "n": 53 },
+    { "t": "Urban Flood Resilience Measures — Vision 2027", "d": "Sep 2026", "y": 2026, "loc": "NEOC, NDMA", "n": 60 },
+    { "t": "Climate Responsive Infrastructure", "d": "Oct 2026", "y": 2026, "loc": "NEOC, NDMA", "n": 40 }
+  ],
+  "response": [
+    { "title": "Disaster early warning", "color": "#1ec87a" },
+    { "title": "Academia best practice", "color": "#3ad7f5" },
+    { "title": "Risk communication & mobile alerts", "color": "#f0c14b" },
+    { "title": "Anticipatory action", "color": "#ff9f43" },
+    { "title": "National narrative & media", "color": "#ff6d6d" },
+    { "title": "Resilient infra & national audit", "color": "#b08cff" },
+    { "title": "Logistics stock & operational plans", "color": "#6aa4ff" },
+    { "title": "Humanitarian support — UN, NGOs", "color": "#ff6fa8" },
+    { "title": "National resource", "color": "#8dffc8" },
+    { "title": "International coordination", "color": "#f0c14b" },
+    { "title": "Regional & military assistance", "color": "#3ad7f5" },
+    { "title": "Risk finance — national & global", "color": "#1ec87a" },
+    { "title": "Review for next impacts — CoE", "color": "#ff9f43" }
+  ],
+  "portals": [
+    { "title": "National infra disaster risk", "color": "#3ad7f5", "url": "", "items": ["Dynamic risk layers", "Threat alert mapping", "Encroachment tracking"] },
+    { "title": "Built-up growth to 2047", "color": "#f0c14b", "url": "", "items": ["Long-range projection", "Growth concentration", "Land conversion"] },
+    { "title": "Resilient infrastructure atlas", "color": "#1ec87a", "url": "", "items": ["Needs analysis", "AI hazard identifier", "Engineering solutions", "Policy directives"] }
+  ],
+  "media": []
+}
