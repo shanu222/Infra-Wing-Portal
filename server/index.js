@@ -196,7 +196,7 @@ app.post("/api/wing-media", auth, (req, res) => {
       if (status !== 200) return res.status(502).json({ error: "store failed", status });
       res.json({ ok: true });
     } catch (err) {
-      res.status(502).json({ error: "store failed" });
+      res.status(502).json({ error: err.message || "store failed" });
     }
   });
 });
