@@ -788,11 +788,11 @@ function heatmap() {
   const heads = DATA.regions.map((r) => `<div class="hh" style="color:${r.color}">${esc(r.name)}</div>`).join("");
   const body = DATA.attrs.map((name, i) => `<div class="hl">${esc(name)}</div>` + DATA.matrix[i].map((v, c) => {
     const tone = heatColor(v, 10);
-    return `<div class="cell" data-col="${c}" style="--d:${(i * 7 + c) * 12}ms;background:${tone.bg};color:${tone.fg}">${fmt(v)}</div>`;
+    return `<div class="cell" data-col="${c}" style="--d:${(i * 7 + c) * 18}ms;background:${tone.bg};color:${tone.fg}">${fmt(v)}</div>`;
   }).join("")).join("");
   const nets = DATA.regions.map((r, c) => {
     const tone = heatColor(r.net, 100);
-    return `<div class="cell" data-col="${c}" style="background:${tone.bg};color:${tone.fg}">${r.net}%</div>`;
+    return `<div class="cell" data-col="${c}" style="--d:${(DATA.attrs.length * 7 + c) * 18}ms;background:${tone.bg};color:${tone.fg}">${r.net}%</div>`;
   }).join("");
   return `<div class="heat-scroll"><div class="heat" id="heat"><div class="hh"></div>${heads}${body}<div class="hl">Net valuation</div>${nets}</div></div><div class="scale"><span>0</span><i></i><span>10</span></div>`;
 }

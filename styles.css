@@ -439,17 +439,28 @@ img { max-width: 100%; display: block; }
 }
 .heat .hl { font-weight: 600; color: var(--ink); }
 .cell {
+  position: relative;
+  overflow: hidden;
   min-height: 36px;
   border-radius: 10px;
   display: grid;
   place-items: center;
-  font-weight: 750;
   font-weight: 700;
   font-size: 13px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 3px 0 rgba(0,0,0,0.28);
   transform: translateY(8px);
   opacity: 0;
   transition: transform 0.45s ease, opacity 0.45s ease;
+}
+.cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,0.55) 50%, transparent 68%);
+  transform: translateX(-140%);
+  animation: heat-sweep 5.6s ease-in-out infinite;
+  animation-delay: var(--d, 0ms);
+  pointer-events: none;
 }
 .inview .cell { transform: none; opacity: 1; transition-delay: var(--d, 0ms); }
 .heat.is-filter .cell { opacity: 0.25; }
@@ -465,12 +476,23 @@ img { max-width: 100%; display: block; }
   font-size: 12px;
 }
 .scale i {
+  position: relative;
+  overflow: hidden;
   flex: 1;
   height: 8px;
   border-radius: 99px;
   background: linear-gradient(90deg, hsl(6 70% 36%), hsl(48 80% 46%), hsl(144 70% 42%));
   box-shadow: 0 3px 0 rgba(0,0,0,0.3);
 }
+.scale i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+  transform: translateX(-120%);
+  animation: heat-sweep 2.8s linear infinite;
+}
+@keyframes heat-sweep { to { transform: translateX(140%); } }
 
 .donut { display: grid; grid-template-columns: 220px 1fr; gap: 8px; align-items: center; }
 .donut-svg { width: 100%; height: auto; overflow: visible; }
@@ -1117,5 +1139,5 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
   .phone-hero img { animation: none; opacity: 0; }
   .phone-hero img:first-child { opacity: 1; }
   .home-card .drim-play img { transition: none; animation: none; transform: none; }
-  .drim-meter, .link-flow, .flow-line, .card-foot, .card-foot::before, .chain-join, .portal-open, .film::before, .portal-card::before, .lane-go::after, .map-pin i, .brand img, .sky-dash, .sky-run { animation: none; }
+  .drim-meter, .link-flow, .flow-line, .card-foot, .card-foot::before, .chain-join, .portal-open, .film::before, .portal-card::before, .lane-go::after, .map-pin i, .brand img, .sky-dash, .sky-run, .cell::after, .scale i::after { animation: none; }
 }
