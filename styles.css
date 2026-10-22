@@ -790,11 +790,16 @@ img { max-width: 100%; display: block; }
 .home-card { position: relative; min-height: 188px; border-radius: 18px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 16px 30px rgba(0,0,0,0.28); }
 .home-card.wide { grid-column: span 2; min-height: 168px; }
 .home-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.home-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 20%, rgba(3,8,12,0.88) 100%); }
-.home-card-copy { position: absolute; left: 14px; right: 52px; bottom: 12px; z-index: 1; }
+.home-card::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.05) 20%, rgba(3,8,12,0.88) 100%); }
+.home-card .card-play { position: absolute; inset: 0; background: #071018; }
+.home-card .card-play img { opacity: 0; transition: opacity 0.9s ease; z-index: 0; }
+.home-card .card-play img.is-on { opacity: 1; }
+.home-card .card-play video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 1; }
+.home-card .card-play video.is-on { opacity: 1; }
+.home-card-copy { position: absolute; left: 14px; right: 52px; bottom: 12px; z-index: 3; }
 .home-card-copy h3 { margin: 0 0 4px; font-size: 18px; letter-spacing: -0.02em; }
 .home-card-copy p { margin: 0; color: #d5e2ea; font-size: 12px; line-height: 1.35; }
-.home-go { position: absolute; right: 12px; bottom: 12px; z-index: 1; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: rgba(6,16,22,0.72); border: 1px solid rgba(255,255,255,0.16); }
+.home-go { position: absolute; right: 12px; bottom: 12px; z-index: 3; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: rgba(6,16,22,0.72); border: 1px solid rgba(255,255,255,0.16); }
 .home-card:hover .home-go { background: #1ec87a; color: #042015; }
 .skyline { height: 84px; margin: 10px 22px 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 80' preserveAspectRatio='none'%3E%3Cpath fill='%231ec87a' fill-opacity='.45' d='M0 80V52h30V34h26V52h40V22h18V52h48V40h36V18h22V52h70V30h28V52h54V38h80V14h24V52h90V28h40V52h60V36h34V20h22V52h100V44h70V16h26V52h86V32H1200V80z'/%3E%3C/svg%3E") center bottom / 100% 84px no-repeat; opacity: 0.8; }
 .quick { position: fixed; right: 0; top: 42%; z-index: 30; writing-mode: vertical-rl; border: 0; cursor: pointer; color: #d7fff0; background: linear-gradient(180deg, #123044, #0c1c28); border-radius: 12px 0 0 12px; padding: 14px 8px; letter-spacing: 0.08em; font: inherit; font-size: 12px; font-weight: 700; box-shadow: -8px 8px 20px rgba(0,0,0,0.35); }

@@ -534,23 +534,51 @@ const WING_FILES = [
   { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/03.jpg" },
   { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/04.jpg" },
   { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/05.jpg" },
-  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/06.jpg" }
+  { id: "field", title: "Field visit", kind: "image", url: "media/portal/field/06.jpg" },
+  { id: "mandate", title: "Pre and post disaster work", kind: "image", url: "media/portal/mandate/still-1.jpg" },
+  { id: "mandate", title: "Pre and post disaster work", kind: "image", url: "media/portal/mandate/still-2.jpg" },
+  { id: "mandate", title: "Pre and post disaster work", kind: "image", url: "media/portal/mandate/still-3.jpg" },
+  { id: "audit", title: "Infra Audit Program", kind: "image", url: "media/portal/audit/still-1.jpg" },
+  { id: "audit", title: "Infra Audit Program", kind: "image", url: "media/portal/audit/still-2.jpg" },
+  { id: "audit", title: "Infra Audit Program", kind: "image", url: "media/portal/audit/still-3.jpg" },
+  { id: "drim", title: "DRIM", kind: "image", url: "media/portal/drim/still-1.jpg" },
+  { id: "drim", title: "DRIM", kind: "image", url: "media/portal/drim/still-2.jpg" },
+  { id: "drim", title: "DRIM", kind: "image", url: "media/portal/drim/still-3.jpg" },
+  { id: "app360", title: "Resilience 360", kind: "image", url: "media/portal/app/still-1.jpg" },
+  { id: "app360", title: "Resilience 360", kind: "image", url: "media/portal/app/still-2.jpg" },
+  { id: "app360", title: "Resilience 360", kind: "image", url: "media/portal/app/still-3.jpg" },
+  { id: "advisories", title: "Infrastructure publications", kind: "image", url: "media/portal/advisories/still-1.jpg" },
+  { id: "advisories", title: "Infrastructure publications", kind: "image", url: "media/portal/advisories/still-2.jpg" },
+  { id: "advisories", title: "Infrastructure publications", kind: "image", url: "media/portal/advisories/still-3.jpg" },
+  { id: "portals", title: "PRIA", kind: "image", url: "media/portal/portals/still-1.jpg" },
+  { id: "portals", title: "PRIA", kind: "image", url: "media/portal/portals/still-2.jpg" },
+  { id: "portals", title: "PRIA", kind: "image", url: "media/portal/portals/still-3.jpg" }
 ];
 let wingMedia = WING_FILES;
 function mediaFor(id, kind) {
   return wingMedia.filter((item) => item.id === id && (!kind || item.kind === kind));
 }
-function cardMedia(item) {
-  const art = HOME_ART[item.id] || item.image;
-  if (item.id === "drim") return `<div class="drim-play" id="drim-play"><img src="${esc(art)}" alt="" class="is-on" /><img alt="" /></div>`;
-  if (item.id === "hubs") return `<div class="hub-play" id="hub-play"><video muted autoplay playsinline poster="${esc(art)}"></video></div>`;
-  const slides = item.id === "seminars" ? mediaFor(item.id, "image") : [];
-  if (slides.length) {
-    return `<div class="drim-play" data-card-slides="${esc(item.id)}"><img src="${esc(slides[0].url)}" alt="" class="is-on" /><img src="${esc((slides[1] || slides[0]).url)}" alt="" /></div>`;
+function cardPlaylist(id) {
+  const images = mediaFor(id, "image").map((item) => item.url);
+  const videos = mediaFor(id, "video").map((item) => item.url);
+  if (id === "drim") models.images.forEach((item) => images.push(item.url));
+  if (id === "hubs") {
+    Object.keys(HUB_PHOTO).forEach((key) => images.push(hubMedia(HUB_PHOTO[key])));
+    HUB_VIDEOS.forEach((rel) => videos.push(hubMedia(rel)));
   }
-  const clips = mediaFor(item.id, "video");
-  if (clips.length) return `<div class="hub-play" data-card-video="${esc(item.id)}"><img src="${esc(art)}" alt="" /><video muted autoplay playsinline poster="${esc(art)}"></video></div>`;
-  return `<img src="${esc(art)}" alt="" />`;
+  const list = [];
+  const count = Math.max(images.length, videos.length);
+  for (let i = 0; i < count; i += 1) {
+    if (images[i]) list.push({ type: "image", url: images[i] });
+    if (videos[i]) list.push({ type: "video", url: videos[i] });
+  }
+  return list;
+}
+function cardMedia(item) {
+  const list = cardPlaylist(item.id);
+  const first = list.find((entry) => entry.type === "image") || list[0];
+  const src = first ? first.url : (HOME_ART[item.id] || item.image);
+  return `<div class="card-play" data-card-play="${esc(item.id)}"><img src="${esc(src)}" alt="" class="is-on" /><img alt="" /><video muted playsinline></video></div>`;
 }
 function homeCard(item, wide) {
   return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${cardMedia(item)}<div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
@@ -1174,30 +1202,57 @@ function startPhotoPlay(box, urls) {
     }, 1200);
   }, 3400);
 }
-function startWingCards() {
-  document.querySelectorAll("[data-card-video]").forEach((box) => {
-    const clips = mediaFor(box.dataset.cardVideo, "video");
+function startCardShows() {
+  document.querySelectorAll("[data-card-play]").forEach((box, index) => {
+    const list = cardPlaylist(box.dataset.cardPlay);
+    const frames = [...box.querySelectorAll("img")];
     const video = box.querySelector("video");
-    if (!video || !clips.length) return;
+    if (!list.length || frames.length < 2) return;
+    if (reduce) {
+      const photo = list.find((entry) => entry.type === "image");
+      if (photo) frames[0].src = photo.url;
+      return;
+    }
     let n = 0;
-    const next = () => {
-      video.src = clips[n].url;
-      const play = video.play();
-      if (play && play.catch) play.catch(() => {});
+    let flip = 0;
+    let token = 0;
+    const show = () => {
+      if (!box.isConnected) return;
+      const mine = ++token;
+      const item = list[n % list.length];
+      const advance = () => {
+        if (mine !== token || !box.isConnected) return;
+        n = (n + 1) % list.length;
+        show();
+      };
+      if (item.type === "video" && video && !reduce) {
+        frames.forEach((img) => img.classList.remove("is-on"));
+        video.classList.add("is-on");
+        video.muted = true;
+        video.playsInline = true;
+        video.onended = advance;
+        video.onerror = advance;
+        video.src = item.url;
+        const play = video.play();
+        if (play && play.catch) play.catch(() => {});
+        window.setTimeout(advance, 9000);
+        return;
+      }
+      if (video) {
+        video.pause();
+        video.classList.remove("is-on");
+        video.onended = null;
+        video.onerror = null;
+      }
+      const showImg = frames[flip % 2];
+      const hideImg = frames[(flip + 1) % 2];
+      flip += 1;
+      showImg.src = item.url;
+      showImg.classList.add("is-on");
+      hideImg.classList.remove("is-on");
+      if (list.length > 1 && !reduce) window.setTimeout(advance, 3400);
     };
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    if (clips.length === 1) video.loop = true;
-    else video.addEventListener("ended", () => {
-      n = (n + 1) % clips.length;
-      next();
-    });
-    video.addEventListener("error", () => { video.remove(); });
-    next();
-  });
-  document.querySelectorAll("[data-card-slides]").forEach((box) => {
-    startPhotoPlay(box, mediaFor(box.dataset.cardSlides, "image").map((item) => item.url));
+    window.setTimeout(show, index * 500);
   });
 }
 async function loadWingMedia() {
@@ -1215,7 +1270,7 @@ async function boot() {
   markNav();
   startDrimCard();
   startHubCard();
-  startWingCards();
+  startCardShows();
 }
 
 boot();
