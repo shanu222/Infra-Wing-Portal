@@ -1125,6 +1125,20 @@ function markNav() {
   });
 }
 
+function pageIds() {
+  const ids = new Set();
+  (DATA.nav || []).forEach((item) => { if (item.id && item.id !== "wing") ids.add(item.id); });
+  (DATA.tiles || []).forEach((item) => { if (item.id) ids.add(item.id); });
+  return ids;
+}
+
+function rememberPage() {
+  const id = pageIds().has(state.open) ? state.open : "";
+  const hash = id ? `#${id}` : "";
+  if (location.hash === hash) return;
+  history.replaceState(null, "", location.pathname + location.search + hash);
+}
+
 function paintModal() {
   const modal = document.getElementById("modal");
   const body = document.getElementById("modal-body");
@@ -1136,6 +1150,7 @@ function paintModal() {
     modal.classList.remove("is-on");
     document.body.style.overflow = "";
     markNav();
+    rememberPage();
     return;
   }
   const tile = (DATA.tiles || []).find((t) => t.id === state.open) || (DATA.nav || []).find((t) => t.id === state.open);
@@ -1156,6 +1171,7 @@ function paintModal() {
     showModel(0);
     startModelShow();
   }
+  rememberPage();
 }
 
 function openPanel(id) {
@@ -1494,6 +1510,20 @@ async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
   markNav();
+  const saved = location.hash.slice(1);
+  if (pageIds().has(saved)) {
+    state.open = saved;
+    paintModal();
+  }
+  window.addEventListener("hashchange", () => {
+    const id = pageIds().has(location.hash.slice(1)) ? location.hash.slice(1) : "";
+    if (id === state.open) return;
+    state.book = null;
+    state.frame = null;
+    releaseBook();
+    state.open = id;
+    paintModal();
+  });
   startDrimCard();
   startHubCard();
   startCardShows();
