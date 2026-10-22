@@ -63,8 +63,50 @@ function hBars(rows) {
   return `<div class="bars">${rows.map((r) => `<div class="barline"><span>${esc(r.name)}</span><div class="track"><i class="fill" style="--w:${(r.value / max) * 100}%;--c:${r.color}"></i></div><em>${fmt(r.value)}</em></div>`).join("")}</div>`;
 }
 
+const FLOW_COLORS = ["#3ad7f5", "#1ec87a", "#f0c14b", "#ff9f43", "#b08cff", "#ff6fa8", "#6aa4ff", "#ff6d6d", "#8dffe4", "#ffd56a"];
 function chips(list) {
   return `<div class="chips">${(list || []).map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>`;
+}
+function pairFlow(leftTitle, leftItems, rightTitle, rightItems, pairs) {
+  const node = (text, side, index) => `<div class="flow-node" data-side="${side}" data-i="${index}" style="--c:${FLOW_COLORS[index % FLOW_COLORS.length]}"><i></i><b>${esc(text)}</b></div>`;
+  const links = (pairs || []).map(([a, b]) => `${a}:${b}`).join(",");
+  return `<section class="pair-flow" data-flow data-links="${links}"><div class="pair-col"><h3>${esc(leftTitle)}</h3>${leftItems.map((text, index) => node(text, "l", index)).join("")}</div><svg class="pair-lines" aria-hidden="true"></svg><div class="pair-col"><h3>${esc(rightTitle)}</h3>${rightItems.map((text, index) => node(text, "r", index + 3)).join("")}</div></section>`;
+}
+function chainFlow(title, items) {
+  const row = (items || []).map((text, index) => {
+    const node = `<div class="chain-node" style="--c:${FLOW_COLORS[index % FLOW_COLORS.length]}"><em>${String(index + 1).padStart(2, "0")}</em><b>${esc(text)}</b></div>`;
+    const join = index < items.length - 1 ? `<span class="chain-join" style="--c:${FLOW_COLORS[index % FLOW_COLORS.length]}"></span>` : "";
+    return node + join;
+  }).join("");
+  return `<section class="chain-flow"><h3>${esc(title)}</h3><div class="chain-row">${row}</div></section>`;
+}
+function paintFlows(root) {
+  (root || document).querySelectorAll("[data-flow]").forEach((board) => {
+    const svg = board.querySelector(".pair-lines");
+    if (!svg) return;
+    const left = [...board.querySelectorAll("[data-side='l']")];
+    const right = [...board.querySelectorAll("[data-side='r']")];
+    const box = board.getBoundingClientRect();
+    if (box.width < 40) return;
+    const parts = String(board.dataset.links || "").split(",").filter(Boolean).map((link, index) => {
+      const [a, b] = link.split(":").map(Number);
+      const from = left[a];
+      const to = right[b];
+      if (!from || !to) return "";
+      const A = from.getBoundingClientRect();
+      const B = to.getBoundingClientRect();
+      const x1 = A.right - box.left;
+      const y1 = A.top + A.height / 2 - box.top;
+      const x2 = B.left - box.left;
+      const y2 = B.top + B.height / 2 - box.top;
+      const color = FLOW_COLORS[index % FLOW_COLORS.length];
+      const d = `M${x1.toFixed(1)},${y1.toFixed(1)} C${(x1 + 64).toFixed(1)},${y1.toFixed(1)} ${(x2 - 64).toFixed(1)},${y2.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`;
+      const dot = reduce ? "" : `<circle r="3.4" fill="${color}"><animateMotion dur="${2.6 + (index % 4) * 0.35}s" repeatCount="indefinite" path="${d}" /></circle>`;
+      return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" class="flow-line" style="animation-delay:${index * 0.12}s" />${dot}`;
+    }).join("");
+    svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+    svg.innerHTML = parts;
+  });
 }
 
 function playDonuts(root) {
@@ -499,14 +541,8 @@ function mandatePage() {
     <div class="m-hero"><img src="assets/home/mandate-hero.jpg" alt="" /><div><h2>Mandate</h2><p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p></div></div>
     <div class="m-three">${pillars}</div>
     <div class="m-six">${classes}</div>
-    <div class="m-split">
-      <article class="m-panel pre"><img src="assets/home/mandate-pre.jpg" alt="" /><div><h3>${glyph("shield")} Pre-disaster</h3>${chips(DATA.pre)}</div></article>
-      <article class="m-panel post"><img src="assets/home/mandate-post.jpg" alt="" /><div><h3>${glyph("gear")} Post-disaster</h3>${chips(DATA.post)}</div></article>
-    </div>
-    <div class="m-split">
-      <article class="m-panel exposed"><img src="assets/home/mandate-exposed.jpg" alt="" /><div><h3>${glyph("alert")} Exposed</h3>${chips(DATA.exposed)}</div></article>
-      <article class="m-panel survive"><img src="assets/home/mandate-survive.jpg" alt="" /><div><h3>${glyph("shield")} Built to survive</h3>${chips(DATA.resilient)}</div></article>
-    </div>
+    ${pairFlow("Pre-disaster", DATA.pre, "Post-disaster", DATA.post, [[0, 4], [1, 0], [2, 1], [2, 2], [3, 4], [4, 4], [5, 1], [5, 3], [6, 0], [7, 0], [7, 3]])}
+    ${pairFlow("If it stays exposed", DATA.exposed, "Built to survive", DATA.resilient, [[0, 0], [1, 1], [2, 2], [3, 0], [3, 2]])}
   </section>`;
 }
 
@@ -581,7 +617,7 @@ function cardMedia(item) {
   return `<div class="card-play" data-card-play="${esc(item.id)}"><img src="${esc(src)}" alt="" class="is-on" /><img alt="" /><video muted playsinline></video></div>`;
 }
 function homeCard(item, wide) {
-  return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${cardMedia(item)}<div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
+  return `<article class="home-card${wide ? " wide" : ""}" style="--accent:${esc(item.color || "#1ec87a")}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${cardMedia(item)}<footer class="card-foot"><b>${esc(item.title)}</b><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></footer></article>`;
 }
 function wingStage(id) {
   const videos = mediaFor(id, "video");
@@ -604,10 +640,11 @@ function wingLink() {
     ["advisories", "Advisories", 56, 74],
     ["app360", "360 App", 82, 74]
   ];
-  const lines = [[12, 22, 31, 22], [31, 22, 50, 22], [50, 22, 69, 22], [69, 22, 88, 22], [12, 22, 12, 74], [12, 74, 31, 74], [31, 74, 56, 74], [56, 74, 82, 74], [31, 22, 31, 74], [50, 22, 56, 74], [69, 22, 82, 74]];
-  const paths = lines.map(([x1, y1, x2, y2], index) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="link-flow" style="animation-delay:${index * 0.2}s" />`).join("");
-  const dots = lines.slice(0, 6).map(([x1, y1, x2, y2], index) => `<circle r="0.7" fill="#8dffe4"><animateMotion dur="${5 + index}s" repeatCount="indefinite" path="M${x1},${y1} L${x2},${y2}" /></circle>`).join("");
-  const buttons = nodes.map(([id, label, x, y]) => `<button class="link-node" type="button" data-open="${id}" style="left:${x}%;top:${y}%"><b>${esc(label)}</b></button>`).join("");
+  const tone = { mandate: "#f0c14b", audit: "#3ad7f5", field: "#ff6d6d", seminars: "#ff6fa8", portals: "#ff8a3d", drim: "#ff9f43", hubs: "#b08cff", advisories: "#f0a202", app360: "#6aa4ff" };
+  const lines = [[12, 22, 31, 22, "#f0c14b"], [31, 22, 50, 22, "#3ad7f5"], [50, 22, 69, 22, "#ff6d6d"], [69, 22, 88, 22, "#ff6fa8"], [12, 22, 12, 74, "#f0c14b"], [12, 74, 31, 74, "#ff9f43"], [31, 74, 56, 74, "#b08cff"], [56, 74, 82, 74, "#f0a202"], [31, 22, 31, 74, "#3ad7f5"], [50, 22, 56, 74, "#ff6d6d"], [69, 22, 82, 74, "#ff6fa8"]];
+  const paths = lines.map(([x1, y1, x2, y2, color], index) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" class="link-flow" style="animation-delay:${index * 0.18}s" />`).join("");
+  const dots = reduce ? "" : lines.map(([x1, y1, x2, y2, color], index) => `<circle r="0.85" fill="${color}"><animateMotion dur="${4.2 + index * 0.35}s" repeatCount="indefinite" path="M${x1},${y1} L${x2},${y2}" /></circle>`).join("");
+  const buttons = nodes.map(([id, label, x, y]) => `<button class="link-node" type="button" data-open="${id}" style="left:${x}%;top:${y}%;--c:${tone[id] || "#1ec87a"}"><b>${esc(label)}</b></button>`).join("");
   return `<section class="wing-link"><span class="k">Connected work</span><h2>How the wing fits together</h2><div class="link-board"><svg class="link-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}${dots}</svg>${buttons}</div></section>`;
 }
 
@@ -719,7 +756,7 @@ function sectionBody(id) {
     return `${wingStage("audit")}<div class="badges">${DATA.badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")}</div>
       <article class="card pad"><div class="k">Net valuation</div>${provinceBars()}</article>
       <article class="card pad" style="margin-top:14px"><div class="switch" id="regSwitch"><button class="btn cyan is-on" type="button" data-region="all">All regions</button>${DATA.regions.map((r) => `<button class="btn ghost" type="button" data-region="${r.id}">${esc(r.name)}</button>`).join("")}</div>${heatmap()}</article>
-      <div class="flow" style="margin-top:14px">${DATA.process.map((t, i) => `<article class="card"><div class="n">${String(i + 1).padStart(2, "0")}</div><b>${esc(t)}</b></article>`).join("")}</div>
+      ${chainFlow("How an audit moves", DATA.process)}
       <div class="chips" style="margin-top:14px">${DATA.objectives.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>`;
   }
   if (id === "drim") {
@@ -753,8 +790,10 @@ function sectionBody(id) {
     const f = DATA.field;
     return `${wingStage("field")}<div class="grid-2"><article class="card pad"><div class="k">Monsoon damage</div><h3>2025 and 2026</h3>${gbBlock()}</article><article class="card pad"><div class="k">Districts visited</div><ul class="list">${f.districts.map((d) => `<li><b>${esc(d.name)}</b>${d.detail ? `<span>${esc(d.detail)}</span>` : ""}</li>`).join("")}</ul></article></div>
       <article class="card pad" style="margin-top:14px"><div class="k">Recommended measures</div>${chips(f.measures)}</article>
-      <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#6aa4ff"><div class="k">Vision 2027</div><h3>Urban flood resilience</h3>${chips(f.vision)}</article><article class="card pad" style="--accent:#f0c14b"><div class="k">Verification chain</div><ul class="list">${f.chain.map((t) => `<li><b>${esc(t)}</b></li>`).join("")}</ul></article></div>
-      <div class="cause" style="margin-top:14px"><article class="card pad" style="--accent:#ff6d6d"><div class="k">Residential</div><div class="stack">${f.residential.causes.map((t) => `<div>${esc(t)}</div>`).join("")}</div><div class="k" style="margin-top:12px">Recommendations</div><div class="stack">${f.residential.recommendations.map((t) => `<div>${esc(t)}</div>`).join("")}</div></article><article class="card pad" style="--accent:#ff9f43"><div class="k">Communication</div><div class="stack">${f.communication.causes.map((t) => `<div>${esc(t)}</div>`).join("")}</div><div class="k" style="margin-top:12px">Recommendations</div><div class="stack">${f.communication.recommendations.map((t) => `<div>${esc(t)}</div>`).join("")}</div></article></div>`;
+      ${pairFlow("Vision 2027", ["Urban flood resilience"], "Taken up by", f.vision, f.vision.map((_, index) => [0, index]))}
+      ${chainFlow("Verification chain", f.chain)}
+      ${pairFlow("Residential damage", f.residential.causes, "What to change", f.residential.recommendations, [[0, 0], [1, 1]])}
+      ${pairFlow("Communication damage", f.communication.causes, "What to change", f.communication.recommendations, [[0, 0], [1, 1], [2, 2]])}`;
   }
   if (id === "seminars") {
     const max = Math.max(...DATA.seminars.map((s) => Number(s.n)), 1);
@@ -828,6 +867,17 @@ function watchFrames(root) {
       }
     });
     setTimeout(() => { if (!loaded) fail(); }, 9000);
+  });
+  (root || document).querySelectorAll("video.wing-video").forEach((video) => {
+    if (video.dataset.watched) return;
+    video.dataset.watched = "1";
+    video.addEventListener("error", () => {
+      if (video.nextElementSibling && video.nextElementSibling.classList.contains("video-miss")) return;
+      const note = document.createElement("p");
+      note.className = "video-miss";
+      note.textContent = "This video did not load. Hard-refresh the page. If it stays black, the site host has not published the media folder yet.";
+      video.insertAdjacentElement("afterend", note);
+    });
   });
 }
 
@@ -980,6 +1030,7 @@ function paintModal() {
   playDonuts(body);
   runCounters(body);
   watchFrames(body);
+  requestAnimationFrame(() => paintFlows(body));
   markNav();
   if (state.open === "drim" && state.book == null) {
     showModel(0);
@@ -1271,6 +1322,10 @@ async function boot() {
   startDrimCard();
   startHubCard();
   startCardShows();
+  window.addEventListener("resize", () => {
+    window.clearTimeout(window.__flowTimer);
+    window.__flowTimer = window.setTimeout(() => paintFlows(document), 140);
+  });
 }
 
 boot();
