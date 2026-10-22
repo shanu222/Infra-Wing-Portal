@@ -18,8 +18,7 @@ const totalUnits = () => (DATA.hubs || []).reduce((a, h) => a + hubTotal(h), 0);
 const seminarTotal = () => (DATA.seminars || []).reduce((a, s) => a + Number(s.n || 0), 0);
 
 function apiBase() {
-  const stored = localStorage.getItem("infra-api") || "";
-  return String(stored || window.INFRA_API || "").replace(/\/$/, "");
+  return String(window.INFRA_API || "").replace(/\/$/, "");
 }
 function absUrl(url) {
   if (!url) return "";

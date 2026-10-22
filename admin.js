@@ -4,8 +4,7 @@ let panel = "portals";
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function apiBase() {
-  const stored = localStorage.getItem("infra-api") || "";
-  return String(stored || window.INFRA_API || "").replace(/\/$/, "");
+  return String(window.INFRA_API || "").replace(/\/$/, "");
 }
 
 async function api(path, options = {}) {
@@ -37,7 +36,7 @@ function loginView() {
   return `<header class="topbar"><div class="brand"><img src="assets/ndma-logo.png" alt="NDMA" /><div><h1>INFRA WING</h1><p>Admin</p></div></div><a class="btn cyan" href="/">Wing</a></header>
     <form class="card login-card" id="login">
       <h2>Admin</h2>
-      <div class="editor"><label>Password<input type="password" name="password" required /></label><label>Backend URL<input name="api" value="${esc(localStorage.getItem("infra-api") || "")}" placeholder="https://your-api.up.railway.app" /></label><button class="btn" type="submit">Enter</button></div>
+      <div class="editor"><label>Password<input type="password" name="password" required /></label><button class="btn" type="submit">Enter</button></div>
     </form>`;
 }
 
@@ -144,7 +143,6 @@ function bind() {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const data = new FormData(form);
-      localStorage.setItem("infra-api", String(data.get("api") || "").trim());
       const res = await fetch(apiBase() + "/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: data.get("password") }) });
       if (!res.ok) return;
       const body = await res.json();
