@@ -160,9 +160,123 @@ function navIcon(id) {
   return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[id] || paths.wing}</svg>`;
 }
 
+const MODEL_MEDIA = "https://pub-e38210c9c2ff4bf3a45338616cd43df2.r2.dev/content/resilience-models";
+let models = { images: [], pdfs: [] };
+let modelTimer = null;
+let modelIndex = 0;
+let cardTimer = null;
+
+function modelMedia(rel) {
+  return MODEL_MEDIA + "/" + String(rel || "").split("/").map((part) => encodeURIComponent(part)).join("/");
+}
+function modelFile(rel) {
+  return apiBase() + "/api/models/file?path=" + encodeURIComponent(rel);
+}
+function titleize(stem) {
+  return stem.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).replace(/\bPk\b/g, "Pakistan");
+}
+function uniqueModels(list) {
+  const rank = { png: 3, jpg: 2, jpeg: 1, webp: 2 };
+  const best = new Map();
+  (list || []).forEach((rel) => {
+    const file = String(rel).split("/").pop() || "";
+    const dot = file.lastIndexOf(".");
+    if (dot < 1) return;
+    const stem = file.slice(0, dot);
+    const ext = file.slice(dot + 1).toLowerCase();
+    const score = rank[ext] || 0;
+    const prev = best.get(stem);
+    if (!prev || score > prev.score) best.set(stem, { stem, rel, score, title: titleize(stem), url: modelMedia(rel) });
+  });
+  return [...best.values()];
+}
+async function loadModels() {
+  const base = apiBase();
+  if (!base) return;
+  try {
+    const res = await fetch(base + "/api/models");
+    if (!res.ok) return;
+    const meta = await res.json();
+    const images = uniqueModels(meta.images);
+    const covers = new Map(images.map((item) => [item.stem, item.url]));
+    models = {
+      images,
+      pdfs: (meta.pdfs || []).map((rel) => {
+        const file = String(rel).split("/").pop() || "model.pdf";
+        const stem = file.replace(/\.pdf$/i, "");
+        return { title: titleize(stem), url: modelFile(rel), cover: covers.get(stem) || (images[0] && images[0].url) || "" };
+      })
+    };
+  } catch (error) {
+    models = { images: [], pdfs: [] };
+  }
+}
+function startDrimCard() {
+  if (cardTimer) clearInterval(cardTimer);
+  cardTimer = null;
+  const box = document.getElementById("drim-play");
+  if (!box || models.images.length < 2 || reduce) {
+    const first = box && box.querySelector("img");
+    if (first && models.images[0]) first.src = models.images[0].url;
+    return;
+  }
+  const frames = [...box.querySelectorAll("img")];
+  let n = 0;
+  frames[0].src = models.images[0].url;
+  frames[0].classList.add("is-on");
+  frames[1].src = models.images[1].url;
+  cardTimer = setInterval(() => {
+    n = (n + 1) % models.images.length;
+    const show = frames[n % 2];
+    const hide = frames[(n + 1) % 2];
+    show.src = models.images[n].url;
+    show.classList.add("is-on");
+    hide.classList.remove("is-on");
+    setTimeout(() => {
+      if (hide.isConnected) hide.src = models.images[(n + 1) % models.images.length].url;
+    }, 1200);
+  }, 3400);
+}
+function stopModelShow() {
+  if (modelTimer) clearInterval(modelTimer);
+  modelTimer = null;
+}
+function showModel(index) {
+  if (!models.images.length) return;
+  modelIndex = (index + models.images.length) % models.images.length;
+  const item = models.images[modelIndex];
+  const hero = document.getElementById("model-hero");
+  const name = document.getElementById("model-name");
+  if (hero) hero.src = item.url;
+  if (name) name.textContent = item.title;
+  document.querySelectorAll("[data-model]").forEach((el) => el.classList.toggle("is-on", Number(el.dataset.model) === modelIndex));
+  const current = document.querySelector(".model-shot.is-on");
+  if (current && current.scrollIntoView) current.scrollIntoView({ inline: "center", block: "nearest", behavior: reduce ? "auto" : "smooth" });
+}
+function startModelShow() {
+  stopModelShow();
+  if (models.images.length < 2 || reduce || !document.getElementById("model-hero")) return;
+  modelTimer = setInterval(() => {
+    if (!document.getElementById("model-hero")) {
+      stopModelShow();
+      return;
+    }
+    showModel(modelIndex + 1);
+  }, 3800);
+}
+function drimShowcase() {
+  if (!models.images.length && !models.pdfs.length) return "";
+  const stage = models.images.length ? `<div class="model-stage"><img id="model-hero" src="${esc(models.images[0].url)}" alt="${esc(models.images[0].title)}" /><div class="model-cap"><b id="model-name">${esc(models.images[0].title)}</b><span>Resilience model</span></div></div><div class="model-film">${models.images.map((item, i) => `<button class="model-shot${i === 0 ? " is-on" : ""}" type="button" data-model="${i}"><img src="${esc(item.url)}" alt="" /><b>${esc(item.title)}</b></button>`).join("")}</div>` : "";
+  const books = models.pdfs.length ? `<div class="k" style="margin:18px 0 8px">Model guides</div><div class="shelf model-shelf">${models.pdfs.map((item) => `<article class="tome model-tome" data-doc="${esc(item.url)}" data-title="${esc(item.title)}"><img src="${esc(item.cover)}" alt="" /><div class="tome-copy"><b>Guide</b><h3>${esc(item.title)}</h3><p>Open the model book</p></div></article>`).join("")}</div>` : "";
+  return stage + books;
+}
+
 function homeCard(item, wide) {
   const art = HOME_ART[item.id] || item.image;
-  return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}"><img src="${esc(art)}" alt="" /><div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
+  const media = item.id === "drim"
+    ? `<div class="drim-play" id="drim-play"><img src="${esc(art)}" alt="" class="is-on" /><img alt="" /></div>`
+    : `<img src="${esc(art)}" alt="" />`;
+  return `<article class="home-card${wide ? " wide" : ""}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${media}<div class="home-card-copy"><h3>${esc(item.title)}</h3><p>${esc(item.line)}</p><p>${esc(item.line2)}</p></div><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></article>`;
 }
 
 function home() {
@@ -285,6 +399,7 @@ function sectionBody(id) {
     const d = DATA.drim;
     return `<div class="stats cols-4"><article class="card stat" style="--accent:#ff9f43"><strong>${d.count}</strong><em>DRIM</em></article><article class="card stat" style="--accent:#1ec87a"><strong>${d.time[0]}–${d.time[1]}%</strong><em>Faster</em></article><article class="card stat" style="--accent:#f0c14b"><strong>${d.cost[0]}–${d.cost[1]}%</strong><em>Cost saved</em></article><article class="card stat" style="--accent:#3ad7f5"><strong>All</strong><em>${esc(d.coverage)}</em></article></div>
       <article class="card pad" style="margin-top:14px">${chips(d.hazards)}<div class="range"><div class="range-lab"><span>Time saved</span><b>${d.time[0]}–${d.time[1]}%</b></div><div class="range-track"><i style="--a:${d.time[0]}%;--b:${d.time[1]}%;--c:#1ec87a"></i></div></div><div class="range"><div class="range-lab"><span>Cost saved</span><b>${d.cost[0]}–${d.cost[1]}%</b></div><div class="range-track"><i style="--a:${d.cost[0]}%;--b:${d.cost[1]}%;--c:#f0c14b"></i></div></div></article>
+      ${drimShowcase()}
       <div class="models" style="margin-top:14px">${d.zones.map((z) => `<article class="card model" style="--accent:${z.color}"><h3>${esc(z.name)}</h3>${chips(z.models)}</article>`).join("")}</div>
       <div class="grid-2" style="margin-top:14px"><article class="card pad" style="--accent:#b08cff"><div class="k">Publications</div>${chips(d.publications)}</article><article class="card pad" style="--accent:#6aa4ff"><div class="k">Building Code of Pakistan</div>${chips(d.codes)}</article></div>`;
   }
@@ -475,24 +590,31 @@ function turnPage(dir) {
 
 async function openBook(index) {
   const item = (DATA.advisories || [])[index];
-  if (!item || !window.pdfjsLib) return;
+  if (!item) return;
+  openDoc(item.file, item.title, index);
+}
+
+async function openDoc(file, title, mark) {
+  if (!file || !window.pdfjsLib) return;
   releaseBook();
-  state.book = index;
+  stopModelShow();
+  state.book = mark == null ? 0 : mark;
   setFrameActions("");
-  document.getElementById("modal-title").textContent = item.title;
+  document.getElementById("modal-title").textContent = title || "Guide";
   document.getElementById("modal-body").innerHTML = `<div class="bookbar"><button class="btn ghost" type="button" data-shelf>Shelf</button><button class="btn gold" type="button" data-turn="-1">Previous</button><span id="book-count">Opening</span><button class="btn gold" type="button" data-turn="1">Next</button></div><div class="bookstage"><div class="paper" id="paper"><canvas id="book-page"></canvas></div></div><input id="book-range" type="range" min="1" max="1" value="1" />`;
   const range = document.getElementById("book-range");
   range.oninput = () => { if (!bookBusy) paintPage(Number(range.value)); };
   pdfjsLib.GlobalWorkerOptions.workerSrc = "assets/vendor/pdf.worker.min.js";
+  const token = state.book;
   try {
-    bookTask = pdfjsLib.getDocument(item.file);
+    bookTask = pdfjsLib.getDocument(file);
     bookDoc = await bookTask.promise;
   } catch (error) {
     const count = document.getElementById("book-count");
     if (count) count.textContent = "Could not open";
     return;
   }
-  if (state.book !== index) return;
+  if (state.book !== token) return;
   range.max = String(bookDoc.numPages);
   await paintPage(1);
 }
@@ -508,6 +630,7 @@ function paintModal() {
   const modal = document.getElementById("modal");
   const body = document.getElementById("modal-body");
   setFrameActions("");
+  stopModelShow();
   if (!state.open) {
     modal.classList.remove("is-on");
     document.body.style.overflow = "";
@@ -521,11 +644,12 @@ function paintModal() {
   modal.classList.add("is-on");
   document.body.style.overflow = "hidden";
   const sheet = modal.querySelector(".sheet");
-  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals");
+  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals" || state.open === "drim");
   playDonuts(body);
   runCounters(body);
   watchFrames(body);
   markNav();
+  if (state.open === "drim" && state.book == null) startModelShow();
 }
 
 function openPanel(id) {
@@ -575,6 +699,17 @@ function bind() {
     const frameBtn = e.target.closest("[data-frame]");
     if (frameBtn && frameBtn.dataset.frame) {
       openFrame(frameBtn.dataset.frame, frameBtn.dataset.title);
+      return;
+    }
+    const docBtn = e.target.closest("[data-doc]");
+    if (docBtn && docBtn.dataset.doc) {
+      openDoc(docBtn.dataset.doc, docBtn.dataset.title);
+      return;
+    }
+    const modelBtn = e.target.closest("[data-model]");
+    if (modelBtn) {
+      showModel(Number(modelBtn.dataset.model));
+      startModelShow();
       return;
     }
     const bookBtn = e.target.closest("[data-book]");
@@ -695,7 +830,8 @@ async function loadContent() {
 }
 
 async function boot() {
-  DATA = await loadContent();
+  const [content] = await Promise.all([loadContent(), loadModels()]);
+  DATA = content;
   document.getElementById("app").innerHTML = home();
   watchFrames(document);
   bind();
@@ -703,6 +839,7 @@ async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
   markNav();
+  startDrimCard();
 }
 
 boot();

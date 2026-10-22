@@ -24,6 +24,18 @@ const CONTENT = path.join(DATA_DIR, "content.json");
 const SESSIONS = path.join(DATA_DIR, "sessions.json");
 const PORT = process.env.PORT || 8787;
 const PASSWORD = process.env.ADMIN_PASSWORD || "wing-admin";
+const MODEL_PUBLIC = (process.env.R2_READ_PUBLIC_BASE || "https://pub-e38210c9c2ff4bf3a45338616cd43df2.r2.dev").replace(/\/$/, "");
+const MODEL_PREFIX = "content/resilience-models";
+let modelCache = { at: 0, body: null };
+
+async function modelMeta() {
+  if (modelCache.body && Date.now() - modelCache.at < 10 * 60 * 1000) return modelCache.body;
+  const upstream = await fetch(`${MODEL_PUBLIC}/${MODEL_PREFIX}/metadata.json`);
+  if (!upstream.ok) throw new Error("models unavailable");
+  const body = await upstream.json();
+  modelCache = { at: Date.now(), body };
+  return body;
+}
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -73,6 +85,33 @@ app.use(cors({ origin: true }));
 app.use(express.json({ limit: "8mb" }));
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
+
+app.get("/api/models", async (req, res) => {
+  try {
+    res.setHeader("Cache-Control", "public, max-age=300");
+    res.json(await modelMeta());
+  } catch (error) {
+    res.status(502).json({ error: "models unavailable" });
+  }
+});
+
+app.get("/api/models/file", async (req, res) => {
+  const rel = String(req.query.path || "");
+  if (!/^(images|pdfs|videos)\/[A-Za-z0-9._-]+$/.test(rel)) return res.status(400).json({ error: "bad path" });
+  try {
+    const upstream = await fetch(`${MODEL_PUBLIC}/${MODEL_PREFIX}/${rel}`);
+    if (!upstream.ok || !upstream.body) return res.status(upstream.status || 502).end();
+    res.setHeader("Content-Type", upstream.headers.get("content-type") || "application/octet-stream");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    const { Readable } = require("stream");
+    const { pipeline } = require("stream");
+    pipeline(Readable.fromWeb(upstream.body), res, (err) => {
+      if (err && !res.headersSent) res.status(502).end();
+    });
+  } catch (error) {
+    if (!res.headersSent) res.status(502).end();
+  }
+});
 
 app.get("/api/content", (req, res) => {
   res.json(readContent());
