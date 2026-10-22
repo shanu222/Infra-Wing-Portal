@@ -161,10 +161,32 @@ function navIcon(id) {
 }
 
 const MODEL_MEDIA = "https://pub-e38210c9c2ff4bf3a45338616cd43df2.r2.dev/content/resilience-models";
+const DRIM_BOARD = [
+  { slug: "loh-kaat-timber-house-structure", title: "Loh-Kaat Timber House", hazards: ["Earthquake", "Heat & cold"], regions: [["Upper Khyber Pakhtunkhwa (hilly)", "khyber-pakhtunkhwa"], ["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"]] },
+  { slug: "timber-frame-lath-plaster", title: "Timber Frame with Lath & Plaster", hazards: ["Earthquake", "Heat & cold"], regions: [["Upper Khyber Pakhtunkhwa (hilly)", "khyber-pakhtunkhwa"], ["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"]] },
+  { slug: "bamboo-frame-wattle-daub", title: "Bamboo Frame with Wattle & Daub", hazards: ["Earthquake", "Heat & cold"], regions: [["Northern Azad Jammu & Kashmir", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"], ["Balochistan plains", "balochistan"]] },
+  { slug: "cement-bamboo-frame-structure", title: "Cement Bamboo Frame Structure", hazards: ["Earthquake"], regions: [["Khyber Pakhtunkhwa plains", "khyber-pakhtunkhwa"], ["Sindh plains", "sindh"]] },
+  { slug: "confined-concrete-block-masonry-structure", title: "Confined Concrete Block Masonry", hazards: ["Earthquake"], regions: [["Khyber Pakhtunkhwa (hilly)", "khyber-pakhtunkhwa"], ["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"], ["Northern Punjab", "punjab"]] },
+  { slug: "interlocking-brick-masonry-structure", title: "Interlocking Brick Masonry", hazards: ["Earthquake"], regions: [["Punjab plains", "punjab"], ["Sindh plains", "sindh"], ["Khyber Pakhtunkhwa plains", "khyber-pakhtunkhwa"]] },
+  { slug: "rat-trap-bond-masonry-structure", title: "Rat-Trap Bond Masonry", hazards: ["Heat & cold"], regions: [["Punjab plains", "punjab"], ["Sindh plains", "sindh"], ["Khyber Pakhtunkhwa plains", "khyber-pakhtunkhwa"]] },
+  { slug: "fly-ash-masonry-structure", title: "Fly Ash Masonry", hazards: ["Heat & cold"], regions: [["Sindh plains", "sindh"], ["Punjab (industrial zones)", "punjab"], ["Khyber Pakhtunkhwa plains", "khyber-pakhtunkhwa"]] },
+  { slug: "earthbag-masonry-structure", title: "Earthbag Masonry", hazards: ["Earthquake", "Heat & cold"], regions: [["Khyber Pakhtunkhwa (hilly)", "khyber-pakhtunkhwa"], ["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"]] },
+  { slug: "reinforced-adobe-brick-structure", title: "Reinforced Adobe Brick", hazards: ["Earthquake", "Heat & cold"], regions: [["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"], ["Khyber Pakhtunkhwa seismic areas", "khyber-pakhtunkhwa"]] },
+  { slug: "light-gauge-steel-house-structure", title: "Light Gauge Steel House", hazards: ["Earthquake"], regions: [["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"], ["Khyber Pakhtunkhwa (hilly & plains)", "khyber-pakhtunkhwa"]] },
+  { slug: "pre-fabricated-house-structure", title: "Pre-Fabricated House", hazards: ["Earthquake"], regions: [["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Northern Punjab", "punjab"], ["Khyber Pakhtunkhwa (hilly)", "khyber-pakhtunkhwa"]] },
+  { slug: "elevated-flood-resilient-house-structure", title: "Elevated Flood Resilient House", hazards: ["Flood"], regions: [["Riverine Sindh", "sindh"], ["Riverine Punjab", "punjab"], ["Coastal Sindh", "sindh"]] },
+  { slug: "raised-plinth-flood-resilient-house", title: "Raised Plinth Flood Resilient House", hazards: ["Flood"], regions: [["Khyber Pakhtunkhwa plains", "khyber-pakhtunkhwa"], ["South Punjab plains", "punjab"], ["Balochistan plains", "balochistan"]] },
+  { slug: "floating-amphibious-structure", title: "Floating Amphibious Structure", hazards: ["Flood"], regions: [["Sindh (flood-prone areas)", "sindh"], ["South Punjab", "punjab"], ["Coastal Balochistan", "balochistan"]] },
+  { slug: "geogrid-reinforced-retaining-wall-structure", title: "Geogrid Reinforced Retaining Wall", hazards: ["Landslide"], regions: [["Upper Khyber Pakhtunkhwa (hilly)", "khyber-pakhtunkhwa"], ["Azad Jammu & Kashmir (hilly)", "azad-kashmir"], ["Gilgit-Baltistan (hilly)", "gilgit-baltistan"]] }
+];
 let models = { images: [], pdfs: [] };
 let modelTimer = null;
 let modelIndex = 0;
 let cardTimer = null;
+let pdfShot = 0;
+let boardRender = null;
+const pdfCache = new Map();
+let drimHold = false;
 
 function modelMedia(rel) {
   return MODEL_MEDIA + "/" + String(rel || "").split("/").map((part) => encodeURIComponent(part)).join("/");
@@ -190,6 +212,17 @@ function uniqueModels(list) {
   });
   return [...best.values()];
 }
+function modelProvinces(item) {
+  return [...new Set((item.regions || []).map((region) => region[1]))];
+}
+function regionChips(item) {
+  const map = window.PAK_MAP;
+  return (item.regions || []).map((region) => {
+    const color = map && map.colors[region[1]] ? map.colors[region[1]] : "#1ec87a";
+    const name = map && map.names[region[1]] ? map.names[region[1]] : region[1];
+    return `<span class="drim-loc"><i style="background:${color}"></i><b>${esc(region[0])}</b><em>${esc(name)}</em></span>`;
+  }).join("");
+}
 async function loadModels() {
   const base = apiBase();
   if (!base) return;
@@ -197,15 +230,18 @@ async function loadModels() {
     const res = await fetch(base + "/api/models");
     if (!res.ok) return;
     const meta = await res.json();
-    const images = uniqueModels(meta.images);
-    const covers = new Map(images.map((item) => [item.stem, item.url]));
+    const images = new Map(uniqueModels(meta.images).map((item) => [item.stem, item]));
+    const pdfs = new Map((meta.pdfs || []).map((rel) => {
+      const file = String(rel).split("/").pop() || "";
+      return [file.replace(/\.pdf$/i, ""), modelFile(rel)];
+    }));
     models = {
-      images,
-      pdfs: (meta.pdfs || []).map((rel) => {
-        const file = String(rel).split("/").pop() || "model.pdf";
-        const stem = file.replace(/\.pdf$/i, "");
-        return { title: titleize(stem), url: modelFile(rel), cover: covers.get(stem) || (images[0] && images[0].url) || "" };
-      })
+      images: DRIM_BOARD.map((info) => {
+        const image = images.get(info.slug);
+        if (!image) return null;
+        return { stem: info.slug, title: info.title, url: image.url, pdf: pdfs.get(info.slug) || "", hazards: info.hazards, regions: info.regions };
+      }).filter(Boolean),
+      pdfs: []
     };
   } catch (error) {
     models = { images: [], pdfs: [] };
@@ -247,28 +283,136 @@ function showModel(index) {
   const item = models.images[modelIndex];
   const hero = document.getElementById("model-hero");
   const name = document.getElementById("model-name");
-  if (hero) hero.src = item.url;
+  if (hero) {
+    hero.src = item.url;
+    hero.alt = item.title;
+  }
   if (name) name.textContent = item.title;
-  document.querySelectorAll("[data-model]").forEach((el) => el.classList.toggle("is-on", Number(el.dataset.model) === modelIndex));
-  const current = document.querySelector(".model-shot.is-on");
-  if (current && current.scrollIntoView) current.scrollIntoView({ inline: "center", block: "nearest", behavior: reduce ? "auto" : "smooth" });
+  const hazards = document.getElementById("model-hazards");
+  if (hazards) hazards.innerHTML = item.hazards.map((hazard) => `<span>${esc(hazard)}</span>`).join("");
+  const count = document.getElementById("model-count");
+  if (count) count.textContent = `${modelIndex + 1} / ${models.images.length}`;
+  const regions = document.getElementById("model-regions");
+  if (regions) regions.innerHTML = regionChips(item);
+  const map = document.getElementById("drim-map");
+  if (map && window.pakistanMap) map.innerHTML = window.pakistanMap(modelProvinces(item));
+  const pdfTitle = document.getElementById("drim-pdf-title");
+  if (pdfTitle) pdfTitle.textContent = item.title;
+  const open = document.getElementById("drim-open-pdf");
+  if (open) {
+    open.dataset.doc = item.pdf || "";
+    open.dataset.title = item.title;
+    open.hidden = !item.pdf;
+  }
+  const meter = document.getElementById("drim-meter");
+  if (meter) {
+    meter.classList.remove("run");
+    void meter.offsetWidth;
+    if (!reduce) meter.classList.add("run");
+  }
+  paintBoardPdf(item.pdf);
 }
 function startModelShow() {
   stopModelShow();
-  if (models.images.length < 2 || reduce || !document.getElementById("model-hero")) return;
+  const pair = document.getElementById("drim-pair");
+  if (pair && !pair.dataset.bound) {
+    pair.dataset.bound = "1";
+    pair.addEventListener("mouseenter", () => {
+      drimHold = true;
+      stopModelShow();
+    });
+    pair.addEventListener("mouseleave", () => {
+      drimHold = false;
+      startModelShow();
+    });
+  }
+  if (drimHold || models.images.length < 2 || reduce || !document.getElementById("model-hero")) return;
   modelTimer = setInterval(() => {
     if (!document.getElementById("model-hero")) {
       stopModelShow();
       return;
     }
     showModel(modelIndex + 1);
-  }, 3800);
+  }, 5600);
+}
+async function paintBoardPdf(url) {
+  const canvas = document.getElementById("drim-pdf-page");
+  if (!canvas || !url || !window.pdfjsLib) return;
+  const token = ++pdfShot;
+  if (boardRender) {
+    try { boardRender.cancel(); } catch (error) { /* a newer page replaces this one */ }
+    boardRender = null;
+  }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "assets/vendor/pdf.worker.min.js";
+  try {
+    let doc = pdfCache.get(url);
+    if (!doc) {
+      doc = await pdfjsLib.getDocument(url).promise;
+      pdfCache.set(url, doc);
+    }
+    if (token !== pdfShot || !canvas.isConnected) return;
+    const page = await doc.getPage(1);
+    const base = page.getViewport({ scale: 1 });
+    const box = canvas.parentElement;
+    const width = box && box.clientWidth ? box.clientWidth : 520;
+    const view = page.getViewport({ scale: Math.min(1.8, Math.max(0.8, (width - 8) / base.width)) });
+    canvas.width = Math.floor(view.width);
+    canvas.height = Math.floor(view.height);
+    if (token !== pdfShot) return;
+    boardRender = page.render({ canvasContext: canvas.getContext("2d"), viewport: view });
+    await boardRender.promise;
+  } catch (error) {
+    /* the next model replaces a cancelled page */
+  }
 }
 function drimShowcase() {
-  if (!models.images.length && !models.pdfs.length) return "";
-  const stage = models.images.length ? `<div class="model-stage"><img id="model-hero" src="${esc(models.images[0].url)}" alt="${esc(models.images[0].title)}" /><div class="model-cap"><b id="model-name">${esc(models.images[0].title)}</b><span>Resilience model</span></div></div><div class="model-film">${models.images.map((item, i) => `<button class="model-shot${i === 0 ? " is-on" : ""}" type="button" data-model="${i}"><img src="${esc(item.url)}" alt="" /><b>${esc(item.title)}</b></button>`).join("")}</div>` : "";
-  const books = models.pdfs.length ? `<div class="k" style="margin:18px 0 8px">Model guides</div><div class="shelf model-shelf">${models.pdfs.map((item) => `<article class="tome model-tome" data-doc="${esc(item.url)}" data-title="${esc(item.title)}"><img src="${esc(item.cover)}" alt="" /><div class="tome-copy"><b>Guide</b><h3>${esc(item.title)}</h3><p>Open the model book</p></div></article>`).join("")}</div>` : "";
-  return stage + books;
+  const item = models.images[0];
+  if (!item) return "";
+  const map = window.pakistanMap ? window.pakistanMap(modelProvinces(item)) : "";
+  return `<div class="drim-pair" id="drim-pair">
+    <article class="drim-feature">
+      <img id="model-hero" src="${esc(item.url)}" alt="${esc(item.title)}" />
+      <div class="drim-feature-copy">
+        <span class="k">DRIM model</span>
+        <h3 id="model-name">${esc(item.title)}</h3>
+        <p id="model-hazards">${item.hazards.map((hazard) => `<span>${esc(hazard)}</span>`).join("")}</p>
+        <b id="model-count">1 / ${models.images.length}</b>
+      </div>
+      <i class="drim-meter" id="drim-meter"></i>
+    </article>
+    <article class="drim-board">
+      <div class="drim-board-page"><canvas id="drim-pdf-page"></canvas></div>
+      <div class="drim-board-copy">
+        <span class="k">Model board</span>
+        <h3 id="drim-pdf-title">${esc(item.title)}</h3>
+        <p>The display board for this model, shown with the photo.</p>
+        <button class="btn gold" type="button" id="drim-open-pdf" data-doc="${esc(item.pdf)}" data-title="${esc(item.title)}">Open the board</button>
+      </div>
+    </article>
+  </div>
+  <div class="drim-where">
+    <div class="drim-map" id="drim-map">${map}</div>
+    <div class="drim-places">
+      <span class="k">Where this model is used</span>
+      <h3>Province and location</h3>
+      <div id="model-regions">${regionChips(item)}</div>
+      <p class="pk-note">Boundaries are indicative. The Survey of Pakistan is the authority for official boundaries.</p>
+    </div>
+  </div>`;
+}
+function pakistanFooter() {
+  if (!window.pakistanMap || !window.PAK_MAP) return "";
+  const legend = Object.keys(window.PAK_MAP.names).map((id) => `<li><i style="background:${window.PAK_MAP.colors[id]}"></i>${esc(window.PAK_MAP.names[id])}</li>`).join("");
+  return `<footer class="pk-foot">
+    <div class="pk-foot-copy">
+      <span class="k">Pakistan</span>
+      <h2>Provinces and territories</h2>
+      <p>Infra Wing works across the country. Each DRIM model marks the provinces and locations where it can be used.</p>
+      <ul class="pk-legend">${legend}</ul>
+      <p class="pk-note">Boundaries are indicative. The Survey of Pakistan is the authority for official boundaries.</p>
+    </div>
+    <div class="pk-foot-map">${window.pakistanMap(null)}</div>
+  </footer>`;
 }
 
 const HUB_MEDIA = "https://pub-e38210c9c2ff4bf3a45338616cd43df2.r2.dev/content/material-hubs";
@@ -422,6 +566,7 @@ function home() {
           ${cards.map((item) => homeCard(item, false)).join("")}
           ${portals ? homeCard(portals, true) : ""}
         </div>
+        ${pakistanFooter()}
         <div class="skyline" aria-hidden="true"></div>
       </div>
       <button class="quick" type="button" data-quick>Quick Access</button>
@@ -745,7 +890,10 @@ function paintModal() {
   runCounters(body);
   watchFrames(body);
   markNav();
-  if (state.open === "drim" && state.book == null) startModelShow();
+  if (state.open === "drim" && state.book == null) {
+    showModel(0);
+    startModelShow();
+  }
 }
 
 function openPanel(id) {
