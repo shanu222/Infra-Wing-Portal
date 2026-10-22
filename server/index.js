@@ -142,35 +142,54 @@ const WING_MEDIA = [
   { id: "field", title: "Field visit", kind: "image", key: "portal/field/06.jpg" }
 ];
 
-app.get("/api/wing-media", (req, res) => {
+function safeKey(key) {
+  return /^portal\/[a-z0-9/_-]+\.(mp4|webm|jpe?g|png|webp)$/i.test(String(key || "")) && !String(key).includes("..");
+}
+function mediaCatalog() {
+  let extra = [];
+  try {
+    const data = readContent();
+    if (Array.isArray(data.media)) extra = data.media;
+  } catch (error) {
+    extra = [];
+  }
+  const byKey = new Map();
+  WING_MEDIA.forEach((item) => byKey.set(item.key, item));
+  extra.forEach((item) => {
+    if (item && safeKey(item.key)) byKey.set(item.key, { id: item.id, title: item.title || "Media", kind: item.kind || "image", key: item.key });
+  });
+  return [...byKey.values()];
+}
+function wingConfig() {
   const accessKey = process.env.R2_ACCESS_KEY_ID;
   const secret = process.env.R2_SECRET_ACCESS_KEY;
   const endpoint = process.env.R2_ENDPOINT || "https://38fa030ebec51c33ffeec13cdf1233.r2.cloudflarestorage.com";
-  if (!accessKey || !secret) return res.json([]);
+  if (!accessKey || !secret) return null;
   let host = "";
-  try { host = new URL(endpoint).host; } catch (error) { return res.json([]); }
-  const bucket = process.env.R2_BUCKET || "infra-wing-portal";
-  const items = WING_MEDIA.map((item) => ({
+  try { host = new URL(endpoint).host; } catch (error) { return null; }
+  return { accessKey, secret, host, bucket: process.env.R2_BUCKET || "infra-wing-portal" };
+}
+
+app.get("/api/wing-media", (req, res) => {
+  const cfg = wingConfig();
+  const items = mediaCatalog().map((item) => ({
     id: item.id,
     title: item.title,
     kind: item.kind,
-    url: presignGet({ host, bucket, key: item.key, accessKey, secret, expires: 86400 })
+    key: item.key,
+    url: cfg ? presignGet({ host: cfg.host, bucket: cfg.bucket, key: item.key, accessKey: cfg.accessKey, secret: cfg.secret, expires: 86400 }) : ""
   }));
-  res.setHeader("Cache-Control", "public, max-age=600");
+  res.setHeader("Cache-Control", "public, max-age=60");
   res.json(items);
 });
 
 const wingUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 40 * 1024 * 1024 } });
 
 function storeWingObject(key, contentType, body) {
-  const accessKey = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  const endpoint = process.env.R2_ENDPOINT || "https://38fa030ebec51c33ffeec13cdf1233.r2.cloudflarestorage.com";
-  if (!accessKey || !secret) return Promise.reject(new Error("storage is not configured"));
-  const host = new URL(endpoint).host;
-  const bucket = process.env.R2_BUCKET || "infra-wing-portal";
+  const cfg = wingConfig();
+  if (!cfg) return Promise.reject(new Error("storage is not configured"));
   const payloadHash = crypto.createHash("sha256").update(body).digest("hex");
-  const signed = signPut({ host, bucket, key, accessKey, secret, contentType, payloadHash });
+  const signed = signPut({ host: cfg.host, bucket: cfg.bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, contentType, payloadHash });
   return new Promise((resolve, reject) => {
     const req = https.request(signed.url, {
       method: "PUT",
@@ -180,29 +199,108 @@ function storeWingObject(key, contentType, body) {
       upstream.on("end", () => resolve(upstream.statusCode || 502));
     });
     req.on("error", reject);
+    req.setTimeout(20000, () => req.destroy(new Error("bucket timeout")));
     req.end(body);
   });
+}
+
+function openWingObject(key, range) {
+  const cfg = wingConfig();
+  if (!cfg) return Promise.reject(new Error("storage is not configured"));
+  const url = presignGet({ host: cfg.host, bucket: cfg.bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, expires: 300 });
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { headers: range ? { Range: range } : {} }, resolve);
+    req.on("error", reject);
+    req.setTimeout(20000, () => req.destroy(new Error("bucket timeout")));
+  });
+}
+
+const CONTENT_KEY = "portal/content.json";
+const BUCKET_FLAG = path.join(DATA_DIR, "content.bucket-ok");
+
+async function readStoredContent() {
+  if (fs.existsSync(BUCKET_FLAG)) {
+    try {
+      const upstream = await openWingObject(CONTENT_KEY);
+      if (upstream.statusCode === 200) {
+        const chunks = [];
+        for await (const chunk of upstream) chunks.push(chunk);
+        return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      }
+      upstream.resume();
+    } catch (error) {
+      /* disk copy remains available */
+    }
+  }
+  return readContent();
+}
+
+async function writeStoredContent(data) {
+  writeContent(data);
+  try {
+    const status = await storeWingObject(CONTENT_KEY, "application/json", Buffer.from(JSON.stringify(data)));
+    if (status === 200) {
+      fs.writeFileSync(BUCKET_FLAG, "ok");
+      return true;
+    }
+  } catch (error) {
+    /* reported to the admin as not stored in the bucket */
+  }
+  fs.rmSync(BUCKET_FLAG, { force: true });
+  return false;
 }
 
 app.post("/api/wing-media", auth, (req, res) => {
   wingUpload.single("file")(req, res, async (error) => {
     if (error) return res.status(400).json({ error: error.message });
     const key = String((req.body && req.body.key) || "");
-    if (!WING_MEDIA.some((item) => item.key === key)) return res.status(400).json({ error: "unknown key" });
+    if (!safeKey(key)) return res.status(400).json({ error: "unknown key" });
     if (!req.file) return res.status(400).json({ error: "file required" });
-    const contentType = key.endsWith(".mp4") ? "video/mp4" : "image/jpeg";
+    const dest = path.join(UPLOAD_DIR, key);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, req.file.buffer);
+    const contentType = /\.mp4$/i.test(key) ? "video/mp4" : /\.webm$/i.test(key) ? "video/webm" : /\.png$/i.test(key) ? "image/png" : /\.webp$/i.test(key) ? "image/webp" : "image/jpeg";
+    let bucket = false;
     try {
-      const status = await storeWingObject(key, contentType, req.file.buffer);
-      if (status !== 200) return res.status(502).json({ error: "store failed", status });
-      res.json({ ok: true });
+      bucket = (await storeWingObject(key, contentType, req.file.buffer)) === 200;
     } catch (err) {
-      res.status(502).json({ error: err.message || "store failed" });
+      bucket = false;
     }
+    res.json({ ok: true, bucket, key });
   });
 });
 
-app.get("/api/content", (req, res) => {
-  res.json(readContent());
+app.get("/api/media/*", (req, res) => {
+  const key = String(req.params[0] || "");
+  if (!safeKey(key)) return res.status(400).end();
+  const local = path.join(UPLOAD_DIR, key);
+  if (fs.existsSync(local)) return res.sendFile(local);
+  const packed = path.join(ROOT, "media", key);
+  openWingObject(key, req.headers.range).then((upstream) => {
+    if (upstream.statusCode !== 200 && upstream.statusCode !== 206) {
+      upstream.resume();
+      if (fs.existsSync(packed)) return res.sendFile(packed);
+      return res.status(upstream.statusCode || 404).end();
+    }
+    res.status(upstream.statusCode);
+    ["content-type", "content-length", "content-range", "accept-ranges"].forEach((name) => {
+      if (upstream.headers[name]) res.setHeader(name, upstream.headers[name]);
+    });
+    if (!res.getHeader("Accept-Ranges")) res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Cache-Control", "public, max-age=300");
+    upstream.pipe(res);
+  }).catch(() => {
+    if (fs.existsSync(packed)) return res.sendFile(packed);
+    res.status(404).end();
+  });
+});
+
+app.get("/api/content", async (req, res) => {
+  try {
+    res.json(await readStoredContent());
+  } catch (error) {
+    res.status(500).json({ error: "content unavailable" });
+  }
 });
 
 app.post("/api/login", (req, res) => {
@@ -214,10 +312,10 @@ app.post("/api/login", (req, res) => {
   res.json({ token });
 });
 
-app.put("/api/content", auth, (req, res) => {
+app.put("/api/content", auth, async (req, res) => {
   try {
-    writeContent(req.body);
-    res.json({ ok: true });
+    const bucket = await writeStoredContent(req.body);
+    res.json({ ok: true, bucket });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

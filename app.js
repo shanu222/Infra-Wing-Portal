@@ -695,10 +695,11 @@ function home() {
     <div class="desk">
       <aside class="side">
         <div class="brand">
+          <button class="menu-toggle" type="button" data-menu aria-label="Expand or collapse the menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
           <img src="assets/ndma-logo.png" alt="National Disaster Management Authority" />
           <div><h1>${esc(DATA.brand.title)}</h1><p>${esc(DATA.brand.line)}</p></div>
         </div>
-        <nav class="nav">${DATA.nav.map((item) => `<button type="button" data-open="${esc(item.id)}">${navIcon(item.id)}<span>${esc(item.id === "wing" ? "Home" : item.label)}</span></button>`).join("")}</nav>
+        <nav class="nav">${DATA.nav.map((item) => `<button type="button" data-open="${esc(item.id)}" title="${esc(item.id === "wing" ? "Home" : item.label)}">${navIcon(item.id)}<span>${esc(item.id === "wing" ? "Home" : item.label)}</span></button>`).join("")}</nav>
         <div class="side-promo"><b>Building a Resilient Pakistan</b></div>
         <a class="side-admin" href="admin.html">Admin</a>
       </aside>
@@ -889,14 +890,20 @@ function setFrameActions(url) {
   const slot = document.getElementById("modal-actions");
   if (slot) slot.innerHTML = url ? frameTab(url) : "";
 }
-const PORTAL_VIDEO = {
-  "PRIA Portal": "media/portal/portals/pria.mp4",
-  "Infra APP": "media/portal/app/r360.mp4",
-  "Structural health monitoring": "media/portal/portals/shm.mp4"
+const PORTAL_FILM = {
+  "PRIA Portal": "PRIA",
+  "Infra APP": "Resilience 360",
+  "Structural health monitoring": "Structural health monitoring"
 };
+function portalFilm(title) {
+  const name = PORTAL_FILM[title];
+  if (!name) return "";
+  const hit = wingMedia.find((item) => item.kind === "video" && item.title === name);
+  return hit ? hit.url : "";
+}
 function portalCard(portal) {
   const href = safeUrl(portal.url);
-  const film = PORTAL_VIDEO[portal.title] || "";
+  const film = portalFilm(portal.title);
   const intro = (portal.items || []).filter(Boolean).join(". ");
   const media = film
     ? filmTag(film)
@@ -917,6 +924,23 @@ function portalPages(list) {
   return `<div class="portal-stack">${rows.map(portalCard).join("")}</div>`;
 }
 
+function diskMedia(url) {
+  const mark = "/api/media/";
+  const text = String(url || "");
+  const at = text.indexOf(mark);
+  if (at < 0) return "";
+  return "media/" + text.slice(at + mark.length).split("?")[0];
+}
+function retryDisk(video) {
+  if (video.dataset.disk) return false;
+  const next = diskMedia(video.getAttribute("src") || video.currentSrc || "");
+  if (!next) return false;
+  video.dataset.disk = "1";
+  video.src = next;
+  const play = video.play();
+  if (play && play.catch) play.catch(() => {});
+  return true;
+}
 function watchFrames(root) {
   (root || document).querySelectorAll("video").forEach((video) => {
     video.muted = true;
@@ -931,6 +955,7 @@ function watchFrames(root) {
     if (video.dataset.watched) return;
     video.dataset.watched = "1";
     video.addEventListener("error", () => {
+      if (retryDisk(video)) return;
       const miss = video.parentElement && video.parentElement.querySelector(".portal-miss");
       if (miss || (video.nextElementSibling && video.nextElementSibling.classList.contains("video-miss"))) return;
       const note = document.createElement("p");
@@ -1127,17 +1152,27 @@ function bind() {
     });
   }
   document.body.addEventListener("click", (e) => {
+    const menu = e.target.closest("[data-menu]");
+    if (menu) {
+      document.body.classList.toggle("menu-slim");
+      localStorage.setItem("wing-menu", document.body.classList.contains("menu-slim") ? "slim" : "open");
+      return;
+    }
     if (e.target.closest("[data-quick]")) {
       const grid = document.getElementById("home-grid");
       if (grid) grid.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
       return;
     }
-    const tab = e.target.closest("[data-tab]");
+    const tab = e.target.closest("a[data-tab], a.portal-open");
     if (tab) {
-      e.preventDefault();
       const href = safeUrl(tab.getAttribute("href"));
-      if (href) window.open(href, "_blank", "noopener,noreferrer");
-      if (state.frame) closeFrame();
+      if (!href) {
+        e.preventDefault();
+        return;
+      }
+      tab.setAttribute("href", href);
+      tab.setAttribute("target", "_blank");
+      tab.setAttribute("rel", "noopener noreferrer");
       return;
     }
     const clip = e.target.closest("[data-clip]");
@@ -1348,7 +1383,10 @@ function startCardShows() {
         video.volume = 0;
         video.playsInline = true;
         video.onended = advance;
-        video.onerror = advance;
+        video.onerror = () => {
+          if (retryDisk(video)) return;
+          advance();
+        };
         video.src = item.url;
         const play = video.play();
         if (play && play.catch) play.catch(() => {});
@@ -1373,9 +1411,25 @@ function startCardShows() {
   });
 }
 async function loadWingMedia() {
-  wingMedia = WING_FILES;
+  try {
+    const res = await fetch(apiBase() + "/api/wing-media");
+    if (!res.ok) return;
+    const items = await res.json();
+    if (!Array.isArray(items) || !items.length) return;
+    const base = apiBase();
+    wingMedia = items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      kind: item.kind,
+      key: item.key || "",
+      url: item.key ? `${base}/api/media/${item.key}` : item.url
+    }));
+  } catch (error) {
+    wingMedia = WING_FILES;
+  }
 }
 async function boot() {
+  if (localStorage.getItem("wing-menu") === "slim") document.body.classList.add("menu-slim");
   const [content] = await Promise.all([loadContent(), loadModels(), loadWingMedia()]);
   DATA = content;
   document.getElementById("app").innerHTML = home();
