@@ -312,7 +312,8 @@ app.post("/api/wing-media", auth, (req, res) => {
       bucket = status === 200;
     } catch (err) {
       bucket = false;
-      code = String(err.code || err.message || "request").slice(0, 120);
+      const cause = err.cause && (err.cause.code || err.cause.message);
+      code = [err.code || err.message || "request", cause].filter(Boolean).join(" ").slice(0, 140);
     }
     res.json({ ok: true, bucket, key, status, code });
   });
