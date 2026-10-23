@@ -4,7 +4,6 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const https = require("https");
 const { presignGet, signPut, presignList } = require("./r2");
 
 function loadEnv() {
@@ -205,38 +204,57 @@ app.get("/api/wing-media", (req, res) => {
 
 const wingUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 80 * 1024 * 1024 } });
 
-function storeWingObject(key, contentType, body) {
+const { Readable } = require("stream");
+
+function asUpstream(res) {
+  return {
+    statusCode: res.status,
+    headers: {
+      "content-type": res.headers.get("content-type") || "",
+      "content-length": res.headers.get("content-length") || "",
+      "content-range": res.headers.get("content-range") || "",
+      "accept-ranges": res.headers.get("accept-ranges") || ""
+    },
+    resume() {
+      if (res.body && res.body.cancel) res.body.cancel().catch(() => {});
+    },
+    pipe(dest) {
+      Readable.fromWeb(res.body).pipe(dest);
+    },
+    async *[Symbol.asyncIterator]() {
+      const reader = res.body.getReader();
+      try {
+        while (true) {
+          const step = await reader.read();
+          if (step.done) return;
+          yield Buffer.from(step.value);
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    }
+  };
+}
+
+async function storeWingObject(key, contentType, body) {
   const cfg = wingConfig();
-  if (!cfg) return Promise.reject(new Error("storage is not configured"));
+  if (!cfg) throw new Error("storage is not configured");
   const signed = signPut({ host: cfg.host, bucket: cfg.bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, contentType, payloadHash: "UNSIGNED-PAYLOAD" });
-  return new Promise((resolve, reject) => {
-    const req = https.request(signed.url, {
-      method: "PUT",
-      headers: { ...signed.headers, "content-length": body.length }
-    }, (upstream) => {
-      const chunks = [];
-      upstream.on("data", (chunk) => { if (chunks.length < 4) chunks.push(chunk); });
-      upstream.on("end", () => {
-        const detail = Buffer.concat(chunks).toString("utf8");
-        const code = (detail.match(/<Code>([^<]+)<\/Code>/) || [])[1] || "";
-        resolve({ status: upstream.statusCode || 502, code });
-      });
-    });
-    req.on("error", reject);
-    req.setTimeout(120000, () => req.destroy(new Error("bucket timeout")));
-    req.end(body);
+  const res = await fetch(signed.url, {
+    method: "PUT",
+    headers: { ...signed.headers, "content-length": String(body.length) },
+    body
   });
+  const detail = await res.text();
+  const code = (detail.match(/<Code>([^<]+)<\/Code>/) || [])[1] || "";
+  return { status: res.status, code };
 }
 
 function openWingObject(key, range) {
   const cfg = wingConfig();
   if (!cfg) return Promise.reject(new Error("storage is not configured"));
   const url = presignGet({ host: cfg.host, bucket: cfg.bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, expires: 300 });
-  return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: range ? { Range: range } : {} }, resolve);
-    req.on("error", reject);
-    req.setTimeout(120000, () => req.destroy(new Error("bucket timeout")));
-  });
+  return fetch(url, { headers: range ? { Range: range } : {} }).then(asUpstream);
 }
 
 const CONTENT_KEY = "portal/content.json";
@@ -294,7 +312,7 @@ app.post("/api/wing-media", auth, (req, res) => {
       bucket = status === 200;
     } catch (err) {
       bucket = false;
-      code = "request";
+      code = String(err.code || err.message || "request").slice(0, 120);
     }
     res.json({ ok: true, bucket, key, status, code });
   });
@@ -397,11 +415,7 @@ function openReadObject(bucket, key, range) {
   const known = cfg && cfg.buckets.some((item) => item.bucket === bucket);
   if (!cfg || !known || !safeReadKey(key)) return Promise.reject(new Error("unknown object"));
   const url = presignGet({ host: cfg.host, bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, expires: 300 });
-  return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: range ? { Range: range } : {} }, resolve);
-    req.on("error", reject);
-    req.setTimeout(120000, () => req.destroy(new Error("bucket timeout")));
-  });
+  return fetch(url, { headers: range ? { Range: range } : {} }).then(asUpstream);
 }
 app.get("/api/read-media", async (req, res) => {
   try {
