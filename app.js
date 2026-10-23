@@ -1367,7 +1367,9 @@ function sectionBody(id) {
     const open = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer" style="--accent:#6aa4ff">Open Infra APP</a>` : "";
     const films = mediaFor("app360", "video");
     const video = films.length ? `<div class="wing-stage"><div class="wing-videos">${films.map((item) => filmTag(item.url)).join("")}</div></div>` : "";
-    return `${video}<div class="portal-actions">${open}</div>${phoneBoard()}${cards ? `<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div>` : ""}<div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
+    const shots = mediaFor("app360", "image").filter((item) => item.source === "read");
+    const strip = shots.length ? `<div class="wing-strip">${shots.map((item) => `<img src="${esc(item.url)}" alt="">`).join("")}</div>` : "";
+    return `${video}${strip}<div class="portal-actions">${open}</div>${phoneBoard()}${cards ? `<div class="grid-6 mod-grid" style="margin-top:14px">${cards}</div>` : ""}<div class="pills" style="margin-top:14px">${DATA.users.map((u) => `<span class="pill">${esc(u)}</span>`).join("")}</div>`;
   }
   if (id === "field") {
     const f = DATA.field;
@@ -1414,18 +1416,19 @@ const PORTAL_FILM = {
   "Infra APP": "Resilience 360",
   "Structural health monitoring": "Structural health monitoring"
 };
-function portalFilm(title) {
+function portalFilms(title) {
   const name = PORTAL_FILM[title];
-  if (!name) return "";
-  const hit = wingMedia.find((item) => item.kind === "video" && item.title === name);
-  return hit ? hit.url : "";
+  if (!name) return [];
+  const hits = wingMedia.filter((item) => item.kind === "video" && item.title === name);
+  const remote = hits.filter((item) => item.source === "read");
+  return (remote.length ? remote : hits.slice(0, 1)).map((item) => item.url);
 }
 function portalCard(portal) {
   const href = safeUrl(portal.url);
-  const film = portalFilm(portal.title);
+  const films = portalFilms(portal.title);
   const intro = (portal.items || []).filter(Boolean).join(". ");
-  const media = film
-    ? filmTag(film)
+  const media = films.length
+    ? films.map((url) => filmTag(url)).join("")
     : `<div class="portal-miss"><b>Not available</b><span>No film for this portal is on the disk or in the buckets.</span></div>`;
   const button = href ? `<a class="portal-open" data-tab href="${esc(href)}" target="_blank" rel="noopener noreferrer">Open in another page</a>` : "";
   return `<article class="portal-card" style="--accent:${esc(portal.color || "#ff8a3d")}"><div class="portal-media">${media}</div><div class="portal-copy"><h3>${esc(portal.title)}</h3><p>${esc(intro)}</p>${button}</div></article>`;
@@ -1440,7 +1443,9 @@ function portalPages(list) {
       items: ["Structural health of buildings and bridges", "Screen tour saved from the wing drive"]
     });
   }
-  return `<div class="portal-stack">${rows.map(portalCard).join("")}</div>`;
+  const shots = wingMedia.filter((item) => item.id === "portals" && item.kind === "image" && item.source === "read");
+  const strip = shots.length ? `<div class="wing-strip">${shots.map((item) => `<img src="${esc(item.url)}" alt="">`).join("")}</div>` : "";
+  return `<div class="portal-stack">${rows.map(portalCard).join("")}</div>${strip}`;
 }
 
 function diskMedia(url) {
@@ -1964,14 +1969,8 @@ function startCardShows() {
     window.setTimeout(show, index * 500);
   });
 }
+let readExtra = [];
 async function loadWingMedia() {
-  const diskFor = (item) => {
-    if (item.key) {
-      const disk = "media/" + item.key;
-      if (WING_FILES.some((file) => file.url === disk)) return disk;
-    }
-    return WING_FILES.find((file) => file.id === item.id && file.kind === item.kind && file.title === item.title);
-  };
   try {
     const res = await fetch(apiBase() + "/api/wing-media");
     if (!res.ok) return;
@@ -1981,24 +1980,45 @@ async function loadWingMedia() {
     const merged = [];
     const seen = new Set();
     items.forEach((item) => {
-      const known = diskFor(item);
-      const url = known ? (known.url || known) : (item.key ? `${base}/api/media/${item.key}` : "");
-      const mark = item.key || url;
-      if (!url || seen.has(mark)) return;
-      seen.add(mark);
+      const url = item.key ? `${base}/api/media/${item.key}` : "";
+      if (!url || seen.has(item.key)) return;
+      seen.add(item.key);
       merged.push({ id: item.id, title: item.title, kind: item.kind, key: item.key || "", url });
     });
     WING_FILES.forEach((file) => {
-      if (!merged.some((item) => item.url === file.url)) merged.push(file);
+      const key = String(file.url || "").replace(/^media\//, "");
+      if (seen.has(key) || merged.some((item) => item.url === file.url)) return;
+      merged.push(file);
     });
     if (merged.length) wingMedia = merged;
   } catch (error) {
     wingMedia = WING_FILES;
   }
 }
+async function loadReadMedia() {
+  readExtra = [];
+  try {
+    const res = await fetch(apiBase() + "/api/read-media");
+    if (!res.ok) return;
+    const items = await res.json();
+    if (!Array.isArray(items)) return;
+    const base = apiBase();
+    readExtra = items.filter((item) => item && item.path && item.id).map((item) => ({
+      id: item.id,
+      title: item.title || "Media",
+      kind: item.kind === "video" ? "video" : "image",
+      key: item.key || "",
+      source: "read",
+      url: base + item.path
+    }));
+  } catch (error) {
+    readExtra = [];
+  }
+}
 async function boot() {
   if (localStorage.getItem("wing-menu") === "slim") document.body.classList.add("menu-slim");
-  const [content] = await Promise.all([loadContent(), loadModels(), loadWingMedia()]);
+  const [content] = await Promise.all([loadContent(), loadModels(), loadWingMedia(), loadReadMedia()]);
+  if (readExtra.length) wingMedia = wingMedia.concat(readExtra);
   DATA = content;
   document.getElementById("app").innerHTML = home();
   watchFrames(document);

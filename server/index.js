@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const https = require("https");
-const { presignGet, signPut } = require("./r2");
+const { presignGet, signPut, presignList } = require("./r2");
 
 function loadEnv() {
   const file = path.join(__dirname, ".env");
@@ -141,6 +141,26 @@ const WING_MEDIA = [
   { id: "field", title: "Field visit", kind: "image", key: "portal/field/05.jpg" },
   { id: "field", title: "Field visit", kind: "image", key: "portal/field/06.jpg" }
 ];
+[
+  ["mandate", "Pre and post disaster work", "portal/mandate/still-1.jpg"],
+  ["mandate", "Pre and post disaster work", "portal/mandate/still-2.jpg"],
+  ["mandate", "Pre and post disaster work", "portal/mandate/still-3.jpg"],
+  ["audit", "Infra Audit Program", "portal/audit/still-1.jpg"],
+  ["audit", "Infra Audit Program", "portal/audit/still-2.jpg"],
+  ["audit", "Infra Audit Program", "portal/audit/still-3.jpg"],
+  ["drim", "DRIM", "portal/drim/still-1.jpg"],
+  ["drim", "DRIM", "portal/drim/still-2.jpg"],
+  ["drim", "DRIM", "portal/drim/still-3.jpg"],
+  ["app360", "Resilience 360", "portal/app/still-1.jpg"],
+  ["app360", "Resilience 360", "portal/app/still-2.jpg"],
+  ["app360", "Resilience 360", "portal/app/still-3.jpg"],
+  ["advisories", "Infrastructure publications", "portal/advisories/still-1.jpg"],
+  ["advisories", "Infrastructure publications", "portal/advisories/still-2.jpg"],
+  ["advisories", "Infrastructure publications", "portal/advisories/still-3.jpg"],
+  ["portals", "PRIA", "portal/portals/still-1.jpg"],
+  ["portals", "PRIA", "portal/portals/still-2.jpg"],
+  ["portals", "PRIA", "portal/portals/still-3.jpg"]
+].forEach(([id, title, key]) => WING_MEDIA.push({ id, title, kind: "image", key }));
 
 function safeKey(key) {
   return /^portal\/[a-z0-9/_-]+\.(mp4|webm|jpe?g|png|webp)$/i.test(String(key || "")) && !String(key).includes("..");
@@ -177,29 +197,33 @@ app.get("/api/wing-media", (req, res) => {
     title: item.title,
     kind: item.kind,
     key: item.key,
-    url: cfg ? presignGet({ host: cfg.host, bucket: cfg.bucket, key: item.key, accessKey: cfg.accessKey, secret: cfg.secret, expires: 86400 }) : ""
+    url: `/api/media/${item.key}`
   }));
   res.setHeader("Cache-Control", "public, max-age=60");
   res.json(items);
 });
 
-const wingUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 40 * 1024 * 1024 } });
+const wingUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 80 * 1024 * 1024 } });
 
 function storeWingObject(key, contentType, body) {
   const cfg = wingConfig();
   if (!cfg) return Promise.reject(new Error("storage is not configured"));
-  const payloadHash = crypto.createHash("sha256").update(body).digest("hex");
-  const signed = signPut({ host: cfg.host, bucket: cfg.bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, contentType, payloadHash });
+  const signed = signPut({ host: cfg.host, bucket: cfg.bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, contentType, payloadHash: "UNSIGNED-PAYLOAD" });
   return new Promise((resolve, reject) => {
     const req = https.request(signed.url, {
       method: "PUT",
       headers: { ...signed.headers, "content-length": body.length }
     }, (upstream) => {
-      upstream.resume();
-      upstream.on("end", () => resolve(upstream.statusCode || 502));
+      const chunks = [];
+      upstream.on("data", (chunk) => { if (chunks.length < 4) chunks.push(chunk); });
+      upstream.on("end", () => {
+        const detail = Buffer.concat(chunks).toString("utf8");
+        const code = (detail.match(/<Code>([^<]+)<\/Code>/) || [])[1] || "";
+        resolve({ status: upstream.statusCode || 502, code });
+      });
     });
     req.on("error", reject);
-    req.setTimeout(20000, () => req.destroy(new Error("bucket timeout")));
+    req.setTimeout(120000, () => req.destroy(new Error("bucket timeout")));
     req.end(body);
   });
 }
@@ -211,7 +235,7 @@ function openWingObject(key, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { headers: range ? { Range: range } : {} }, resolve);
     req.on("error", reject);
-    req.setTimeout(20000, () => req.destroy(new Error("bucket timeout")));
+    req.setTimeout(120000, () => req.destroy(new Error("bucket timeout")));
   });
 }
 
@@ -219,18 +243,18 @@ const CONTENT_KEY = "portal/content.json";
 const BUCKET_FLAG = path.join(DATA_DIR, "content.bucket-ok");
 
 async function readStoredContent() {
-  if (fs.existsSync(BUCKET_FLAG)) {
-    try {
-      const upstream = await openWingObject(CONTENT_KEY);
-      if (upstream.statusCode === 200) {
-        const chunks = [];
-        for await (const chunk of upstream) chunks.push(chunk);
-        return JSON.parse(Buffer.concat(chunks).toString("utf8"));
-      }
+  try {
+    const upstream = await openWingObject(CONTENT_KEY);
+    if (upstream.statusCode === 200) {
+      const chunks = [];
+      for await (const chunk of upstream) chunks.push(chunk);
+      const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      if (data && typeof data === "object" && !Array.isArray(data)) return data;
+    } else {
       upstream.resume();
-    } catch (error) {
-      /* disk copy remains available */
     }
+  } catch (error) {
+    /* disk copy remains available */
   }
   return readContent();
 }
@@ -238,8 +262,8 @@ async function readStoredContent() {
 async function writeStoredContent(data) {
   writeContent(data);
   try {
-    const status = await storeWingObject(CONTENT_KEY, "application/json", Buffer.from(JSON.stringify(data)));
-    if (status === 200) {
+    const stored = await storeWingObject(CONTENT_KEY, "application/json", Buffer.from(JSON.stringify(data)));
+    if (stored.status === 200) {
       fs.writeFileSync(BUCKET_FLAG, "ok");
       return true;
     }
@@ -261,12 +285,18 @@ app.post("/api/wing-media", auth, (req, res) => {
     fs.writeFileSync(dest, req.file.buffer);
     const contentType = /\.mp4$/i.test(key) ? "video/mp4" : /\.webm$/i.test(key) ? "video/webm" : /\.png$/i.test(key) ? "image/png" : /\.webp$/i.test(key) ? "image/webp" : "image/jpeg";
     let bucket = false;
+    let status = 0;
+    let code = "";
     try {
-      bucket = (await storeWingObject(key, contentType, req.file.buffer)) === 200;
+      const stored = await storeWingObject(key, contentType, req.file.buffer);
+      status = stored.status;
+      code = stored.code;
+      bucket = status === 200;
     } catch (err) {
       bucket = false;
+      code = "request";
     }
-    res.json({ ok: true, bucket, key });
+    res.json({ ok: true, bucket, key, status, code });
   });
 });
 
@@ -294,6 +324,158 @@ app.get("/api/media/*", (req, res) => {
     res.status(404).end();
   });
 });
+
+function readConfig() {
+  const accessKey = process.env.R2_READ_ACCESS_KEY_ID;
+  const secret = process.env.R2_READ_SECRET_ACCESS_KEY;
+  const endpoint = process.env.R2_READ_ENDPOINT || "";
+  if (!accessKey || !secret || !endpoint) return null;
+  let host = "";
+  try { host = new URL(endpoint).host; } catch (error) { return null; }
+  const buckets = [
+    { id: "portals", title: "PRIA", bucket: process.env.R2_READ_BUCKET_PRIA || "" },
+    { id: "app360", title: "Resilience 360", bucket: process.env.R2_READ_BUCKET_APP360 || "" },
+    { id: "advisories", title: "Climate resilience", bucket: process.env.R2_READ_BUCKET_CLIMATE || "" }
+  ].filter((item) => item.bucket);
+  if (!buckets.length) return null;
+  return { accessKey, secret, host, buckets };
+}
+function safeReadKey(key) {
+  const text = String(key || "");
+  if (!text || text.length > 500 || text.includes("..") || text.includes("\\") || text.startsWith("/")) return false;
+  return /\.(mp4|webm|mov|jpe?g|png|webp|gif)$/i.test(text);
+}
+function readKind(key) {
+  return /\.(mp4|webm|mov)$/i.test(key) ? "video" : "image";
+}
+function decodeXml(value) {
+  return String(value || "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+}
+let readCache = { at: 0, items: [] };
+async function listReadKeys(cfg, bucket) {
+  const keys = [];
+  let token = "";
+  for (let page = 0; page < 8; page += 1) {
+    const url = presignList({ host: cfg.host, bucket, accessKey: cfg.accessKey, secret: cfg.secret, token });
+    const upstream = await fetch(url);
+    if (!upstream.ok) break;
+    const xml = await upstream.text();
+    const re = /<Key>([^<]*)<\/Key>/g;
+    let match;
+    while ((match = re.exec(xml))) keys.push(decodeXml(match[1]));
+    if (!/<IsTruncated>true<\/IsTruncated>/.test(xml)) break;
+    const next = xml.match(/<NextContinuationToken>([^<]+)<\/NextContinuationToken>/);
+    if (!next) break;
+    token = decodeXml(next[1]);
+  }
+  return keys;
+}
+async function readCatalog() {
+  const cfg = readConfig();
+  if (!cfg) return [];
+  if (readCache.items.length && Date.now() - readCache.at < 10 * 60 * 1000) return readCache.items;
+  const items = [];
+  for (const source of cfg.buckets) {
+    let keys = [];
+    try { keys = await listReadKeys(cfg, source.bucket); } catch (error) { keys = []; }
+    keys.filter(safeReadKey).slice(0, 24).forEach((key) => {
+      items.push({
+        id: source.id,
+        title: source.title,
+        kind: readKind(key),
+        key,
+        bucket: source.bucket,
+        path: `/api/read-file?bucket=${encodeURIComponent(source.bucket)}&key=${encodeURIComponent(key)}`
+      });
+    });
+  }
+  readCache = { at: Date.now(), items };
+  return items;
+}
+function openReadObject(bucket, key, range) {
+  const cfg = readConfig();
+  const known = cfg && cfg.buckets.some((item) => item.bucket === bucket);
+  if (!cfg || !known || !safeReadKey(key)) return Promise.reject(new Error("unknown object"));
+  const url = presignGet({ host: cfg.host, bucket, key, accessKey: cfg.accessKey, secret: cfg.secret, expires: 300 });
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { headers: range ? { Range: range } : {} }, resolve);
+    req.on("error", reject);
+    req.setTimeout(120000, () => req.destroy(new Error("bucket timeout")));
+  });
+}
+app.get("/api/read-media", async (req, res) => {
+  try {
+    res.setHeader("Cache-Control", "public, max-age=60");
+    res.json(await readCatalog());
+  } catch (error) {
+    res.json([]);
+  }
+});
+app.get("/api/read-file", (req, res) => {
+  const bucket = String(req.query.bucket || "");
+  const key = String(req.query.key || "");
+  openReadObject(bucket, key, req.headers.range).then((upstream) => {
+    if (upstream.statusCode !== 200 && upstream.statusCode !== 206) {
+      upstream.resume();
+      return res.status(upstream.statusCode || 404).end();
+    }
+    res.status(upstream.statusCode);
+    ["content-type", "content-length", "content-range", "accept-ranges"].forEach((name) => {
+      if (upstream.headers[name]) res.setHeader(name, upstream.headers[name]);
+    });
+    if (!res.getHeader("Accept-Ranges")) res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Cache-Control", "public, max-age=300");
+    upstream.pipe(res);
+  }).catch(() => {
+    if (!res.headersSent) res.status(404).end();
+  });
+});
+
+function contentTypeFor(key) {
+  if (/\.mp4$/i.test(key)) return "video/mp4";
+  if (/\.webm$/i.test(key)) return "video/webm";
+  if (/\.mov$/i.test(key)) return "video/quicktime";
+  if (/\.png$/i.test(key)) return "image/png";
+  if (/\.webp$/i.test(key)) return "image/webp";
+  if (/\.gif$/i.test(key)) return "image/gif";
+  return "image/jpeg";
+}
+function localPortalFiles() {
+  const root = path.join(ROOT, "media", "portal");
+  const files = [];
+  const walk = (dir) => {
+    if (!fs.existsSync(dir)) return;
+    fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else files.push(full);
+    });
+  };
+  walk(root);
+  return files;
+}
+async function objectExists(key) {
+  const upstream = await openWingObject(key, "bytes=0-0");
+  const ok = upstream.statusCode === 200 || upstream.statusCode === 206;
+  upstream.resume();
+  return ok;
+}
+async function ensureWingCopies() {
+  if (!wingConfig()) return;
+  try {
+    for (const file of localPortalFiles()) {
+      const key = path.relative(path.join(ROOT, "media"), file).split(path.sep).join("/");
+      if (!safeKey(key) || await objectExists(key)) continue;
+      const stored = await storeWingObject(key, contentTypeFor(key), fs.readFileSync(file));
+      if (stored.status !== 200) return;
+    }
+    if (!(await objectExists(CONTENT_KEY))) {
+      await storeWingObject(CONTENT_KEY, "application/json", fs.readFileSync(CONTENT));
+    }
+  } catch (error) {
+    /* disk copies still play when the bucket cannot be reached */
+  }
+}
 
 app.get("/api/content", async (req, res) => {
   try {
@@ -348,4 +530,5 @@ app.use(express.static(ROOT));
 
 app.listen(PORT, () => {
   console.log(`Infra Wing portal http://127.0.0.1:${PORT}`);
+  ensureWingCopies();
 });

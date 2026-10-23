@@ -81,4 +81,25 @@ function signPut({ host, bucket, key, accessKey, secret, contentType, payloadHas
   };
 }
 
-module.exports = { presignGet, signPut };
+function presignList({ host, bucket, accessKey, secret, token, now }) {
+  const stamp = amzDate(now || new Date());
+  const date = stamp.slice(0, 8);
+  const pairs = [
+    ["X-Amz-Algorithm", "AWS4-HMAC-SHA256"],
+    ["X-Amz-Credential", `${accessKey}/${date}/auto/s3/aws4_request`],
+    ["X-Amz-Date", stamp],
+    ["X-Amz-Expires", "120"],
+    ["X-Amz-SignedHeaders", "host"],
+    ["list-type", "2"],
+    ["max-keys", "1000"]
+  ];
+  if (token) pairs.push(["continuation-token", token]);
+  const query = pairs.map(([name, value]) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).sort().join("&");
+  const canonical = ["GET", `/${bucket}`, query, `host:${host}\n`, "host", "UNSIGNED-PAYLOAD"].join("\n");
+  const scope = `${date}/auto/s3/aws4_request`;
+  const stringToSign = ["AWS4-HMAC-SHA256", stamp, scope, sha256(canonical)].join("\n");
+  const signature = crypto.createHmac("sha256", signingKey(secret, date)).update(stringToSign).digest("hex");
+  return `https://${host}/${bucket}?${query}&X-Amz-Signature=${signature}`;
+}
+
+module.exports = { presignGet, signPut, presignList };
