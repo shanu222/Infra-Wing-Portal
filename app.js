@@ -238,7 +238,6 @@ let cardTimer = null;
 let pdfShot = 0;
 let boardRender = null;
 const pdfCache = new Map();
-let drimHold = false;
 
 function modelMedia(rel) {
   return MODEL_MEDIA + "/" + String(rel || "").split("/").map((part) => encodeURIComponent(part)).join("/");
@@ -333,12 +332,20 @@ function showModel(index) {
   if (!models.images.length) return;
   modelIndex = (index + models.images.length) % models.images.length;
   const item = models.images[modelIndex];
-  const hero = document.getElementById("model-hero");
+  const frames = [document.getElementById("model-hero"), document.getElementById("model-next")];
   const name = document.getElementById("model-name");
-  if (hero) {
-    hero.src = item.url;
-    hero.alt = item.title;
+  const show = frames[modelIndex % 2];
+  const hide = frames[(modelIndex + 1) % 2];
+  if (show) {
+    if (show.getAttribute("src") !== item.url) show.src = item.url;
+    show.alt = item.title;
+    show.classList.add("is-on");
   }
+  if (hide) hide.classList.remove("is-on");
+  const upcoming = models.images[(modelIndex + 1) % models.images.length];
+  window.setTimeout(() => {
+    if (hide && hide.isConnected && !hide.classList.contains("is-on") && upcoming) hide.src = upcoming.url;
+  }, 900);
   if (name) name.textContent = item.title;
   const hazards = document.getElementById("model-hazards");
   if (hazards) hazards.innerHTML = item.hazards.map((hazard) => `<span>${esc(hazard)}</span>`).join("");
@@ -366,19 +373,7 @@ function showModel(index) {
 }
 function startModelShow() {
   stopModelShow();
-  const pair = document.getElementById("drim-pair");
-  if (pair && !pair.dataset.bound) {
-    pair.dataset.bound = "1";
-    pair.addEventListener("mouseenter", () => {
-      drimHold = true;
-      stopModelShow();
-    });
-    pair.addEventListener("mouseleave", () => {
-      drimHold = false;
-      startModelShow();
-    });
-  }
-  if (drimHold || models.images.length < 2 || reduce || !document.getElementById("model-hero")) return;
+  if (models.images.length < 2 || reduce || !document.getElementById("model-hero")) return;
   modelTimer = setInterval(() => {
     if (!document.getElementById("model-hero")) {
       stopModelShow();
@@ -421,9 +416,11 @@ function drimShowcase() {
   const item = models.images[0];
   if (!item) return "";
   const map = window.pakistanMap ? window.pakistanMap(modelProvinces(item)) : "";
+  const next = models.images[1];
   return `<div class="drim-pair" id="drim-pair">
     <article class="drim-feature">
-      <img id="model-hero" src="${esc(item.url)}" alt="${esc(item.title)}" />
+      <img id="model-hero" class="is-on" src="${esc(item.url)}" alt="${esc(item.title)}" />
+      <img id="model-next" src="${next ? esc(next.url) : ""}" alt="" />
       <div class="drim-feature-copy">
         <span class="k">DRIM model</span>
         <h3 id="model-name">${esc(item.title)}</h3>
@@ -820,6 +817,10 @@ function cardPlaylist(id) {
   const images = mediaFor(id, "image").map((item) => item.url);
   const videos = mediaFor(id, "video").map((item) => item.url);
   if (id === "drim") models.images.forEach((item) => images.push(item.url));
+  if (id === "mandate") {
+    const gallery = typeof MANDATE_SHOW !== "undefined" ? MANDATE_SHOW : [];
+    if (gallery.length) return gallery.map((url) => ({ type: "image", url }));
+  }
   if (id === "hubs") {
     const gallery = typeof HUB_SHOW !== "undefined" ? HUB_SHOW : [];
     const list = gallery.map((url) => ({ type: "image", url }));
@@ -1381,7 +1382,7 @@ function sectionBody(id) {
     const max = Math.max(...DATA.seminars.map((s) => Number(s.n)), 1);
     const colors = { 2024: "#f0c14b", 2025: "#3ad7f5", 2026: "#1ec87a" };
     const years = [2024, 2025, 2026].map((y) => ({ name: String(y), value: DATA.seminars.filter((s) => Number(s.y) === y).reduce((a, s) => a + Number(s.n), 0), color: colors[y] }));
-    return `${seminarAtom()}${wingStage("seminars")}<div class="grid-2"><article class="card pad"><div class="k">Participants</div><h3>${fmt(seminarTotal())}</h3>${DATA.seminars.map((s) => `<div class="sem-row"><span>${esc(s.d)}</span><div class="meta"><strong>${esc(s.t)}</strong><span>${esc(s.loc)}</span><div class="track" style="margin-top:4px"><i class="fill" style="--w:${(s.n / max) * 100}%;--c:${colors[s.y] || "#1ec87a"}"></i></div></div><em class="delta">${s.n}</em></div>`).join("")}</article><article class="card pad"><div class="k">By year</div>${donut(years, fmt(seminarTotal()), "People")}</article></div>`;
+    return `${wingStage("seminars")}<div class="grid-2"><article class="card pad"><div class="k">Participants</div><h3>${fmt(seminarTotal())}</h3>${DATA.seminars.map((s) => `<div class="sem-row"><span>${esc(s.d)}</span><div class="meta"><strong>${esc(s.t)}</strong><span>${esc(s.loc)}</span><div class="track" style="margin-top:4px"><i class="fill" style="--w:${(s.n / max) * 100}%;--c:${colors[s.y] || "#1ec87a"}"></i></div></div><em class="delta">${s.n}</em></div>`).join("")}</article><article class="card pad year-card"><div class="k">By year</div>${donut(years, fmt(seminarTotal()), "People")}<div class="year-stage">${seminarAtom()}</div></article></div>`;
   }
   if (id === "response") {
     return `<div class="grid-6 steps-grid">${DATA.response.map((item, i) => `<article class="card step" style="--accent:${item.color}"><b class="n">${String(i + 1).padStart(2, "0")}</b><div>${esc(item.title)}</div></article>`).join("")}</div>`;

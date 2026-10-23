@@ -972,9 +972,11 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .home-card .card-play img { opacity: 0; transition: opacity 0.9s ease; z-index: 0; }
 .home-card .card-play img.is-on { opacity: 1; }
 .home-card .card-play[data-card-play="hubs"] img,
-.home-card .card-play[data-card-play="seminars"] img { transform: scale(1.12); transition: opacity 1s ease, transform 5.2s linear; }
+.home-card .card-play[data-card-play="seminars"] img,
+.home-card .card-play[data-card-play="mandate"] img { transform: scale(1.12); transition: opacity 1s ease, transform 5.2s linear; }
 .home-card .card-play[data-card-play="hubs"] img.is-on,
-.home-card .card-play[data-card-play="seminars"] img.is-on { transform: scale(1); }
+.home-card .card-play[data-card-play="seminars"] img.is-on,
+.home-card .card-play[data-card-play="mandate"] img.is-on { transform: scale(1); }
 .home-card .card-play video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 1; }
 .home-card .card-play video.is-on { opacity: 1; }
 .card-foot { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 8px 8px 8px 14px; border-radius: 16px; color: #041018; overflow: hidden; background: linear-gradient(100deg, #f7fffb 0%, color-mix(in srgb, var(--accent, #1ec87a) 62%, white) 46%, var(--accent, #1ec87a) 100%); background-size: 180% 180%; animation: foot-shift 4.6s ease-in-out infinite; box-shadow: 0 12px 26px color-mix(in srgb, var(--accent, #1ec87a) 42%, transparent); }
@@ -1143,7 +1145,8 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .drim-pair, .drim-where { display: grid; grid-template-columns: 1.35fr 0.9fr; gap: 16px; margin-top: 16px; }
 .drim-feature, .drim-board, .drim-map, .drim-places { position: relative; border-radius: 24px; overflow: hidden; background: #0c1822; border: 1px solid rgba(255,255,255,0.08); }
 .drim-feature { min-height: 520px; background: #071018; }
-.drim-feature img { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; object-fit: cover; background: transparent; display: block; }
+.drim-feature img { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; object-fit: cover; background: transparent; display: block; opacity: 0; transition: opacity 0.9s ease; }
+.drim-feature img.is-on { opacity: 1; }
 .drim-feature-copy { position: absolute; left: 16px; right: 16px; bottom: 18px; display: grid; gap: 8px; padding: 16px 18px; border-radius: 18px; background: rgba(6,16,28,0.78); }
 .drim-feature-copy h3, .drim-board-copy h3, .drim-places h3 { margin: 0; }
 .drim-feature-copy .k, .drim-board-copy .k, .drim-places .k { color: #8dffc8; }
@@ -1184,6 +1187,12 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .atom-core figcaption span { letter-spacing: 0.14em; text-transform: uppercase; font-size: 11px; color: #ffd0e4; }
 .atom-core figcaption b { font-size: 16px; }
 @keyframes atom-travel { to { offset-distance: 100%; } }
+.year-card { display: flex; flex-direction: column; height: 100%; }
+.year-stage { flex: 1; min-height: 360px; margin: 14px -18px -16px -20px; }
+.year-stage .atom { height: 100%; min-height: 360px; margin: 0; border: 0; border-radius: 0 0 22px 22px; }
+.year-stage .atom-dot { width: 56px; height: 56px; }
+.year-stage .atom-core { width: min(230px, 72%); }
+.year-stage .atom-core figcaption b { font-size: 14px; }
 .wing-stage { display: grid; gap: 12px; margin-bottom: 16px; }
 .wing-video { width: 100%; height: auto; display: block; border-radius: 16px; background: transparent; }
 .film { position: relative; width: 100%; padding: 2px; border-radius: 18px; overflow: hidden; isolation: isolate; }
@@ -1315,7 +1324,7 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
   .phone-rail-track, .phone-rail-track img, .phone-hero::before { animation: none; }
   .phone-hero img { animation: none; opacity: 0; }
   .phone-hero img:first-child { opacity: 1; }
-  .home-card .drim-play img, .home-card .card-play[data-card-play="hubs"] img, .home-card .card-play[data-card-play="seminars"] img, .hub-reel img, .atom-core img { transition: none; animation: none; transform: none; }
+  .home-card .drim-play img, .home-card .card-play[data-card-play="hubs"] img, .home-card .card-play[data-card-play="seminars"] img, .home-card .card-play[data-card-play="mandate"] img, .hub-reel img, .atom-core img, .drim-feature img { transition: none; animation: none; transform: none; }
   .atom-dot { animation: none; offset-distance: calc(var(--d) * 100%); }
   .hub-meter, .hub-hero figcaption small::before { animation: none; }
   .globe-sheet, .globe-viewport, .globe-canvas, .roles-slide, .year-grid { transition: none; animation: none; }
