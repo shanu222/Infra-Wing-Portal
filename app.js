@@ -796,7 +796,8 @@ function mandatePage() {
   const pillars = DATA.mandate.map((item, i) => `<article class="m-card" style="--accent:${item.color};--spin:-${i * 0.8}s">${photos(item.title.toLowerCase())}<div class="m-copy"><span class="m-ico">${glyph(icons[i] || "target")}</span><div><b>0${i + 1}</b><h3>${esc(item.title)}</h3></div></div>${goMark()}</article>`).join("");
   const classes = DATA.classes.map((item, i) => `<article class="m-tile" style="--accent:${item.color};--spin:-${(i + 3) * 0.7}s">${photos(item.title.toLowerCase())}<div class="m-copy"><span class="m-ico">${glyph(classIcon[item.title.toLowerCase()] || "public")}</span><div><b>${esc(item.title)}</b><p>${esc(item.line)}</p></div></div>${goMark()}</article>`).join("");
   const videos = mediaFor("mandate", "video");
-  const film = videos.length ? `<section class="m-cinema"><div class="m-cinema-copy"><span class="k">In motion</span><h3>The wing after an early warning</h3></div>${videos.map((item) => filmTag(item.url)).join("")}</section>` : "";
+  const still = mediaFor("mandate", "image")[0];
+  const film = videos.length ? `<section class="m-cinema"><div class="m-cinema-copy"><span class="k">In motion</span><h3>The wing after an early warning</h3></div>${videos.map((item) => filmTag(item.url, still && still.url)).join("")}</section>` : "";
   return `<section class="mandate">
     <div class="m-hero"><img src="assets/home/mandate-hero.jpg" alt="" /><div><h2>Mandate</h2><p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p></div></div>
     <div class="m-three">${pillars}</div>
@@ -893,8 +894,9 @@ function cardMedia(item) {
 function homeCard(item, wide) {
   return `<article class="home-card${wide ? " wide" : ""}" style="--accent:${esc(item.color || "#1ec87a")}" data-open="${esc(item.id)}" data-home-card data-find="${esc(`${item.title} ${item.line} ${item.line2}`.toLowerCase())}">${cardMedia(item)}<footer class="card-foot"><b>${esc(item.title)}</b><span class="home-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h10v10"/><path d="M8 16 18 6"/></svg></span></footer></article>`;
 }
-function filmTag(url) {
-  return `<div class="film"><video class="wing-video" muted autoplay loop playsinline preload="auto" src="${esc(url)}"></video></div>`;
+function filmTag(url, poster) {
+  const post = poster ? ` poster="${esc(poster)}"` : "";
+  return `<div class="film"><video class="wing-video" muted autoplay loop playsinline preload="auto"${post} src="${esc(url)}"></video></div>`;
 }
 function phoneBoard() {
   const faces = Array.from({ length: 13 }, (_, index) => `assets/app360/screen-${String(index + 1).padStart(2, "0")}.png`);
@@ -922,8 +924,9 @@ function wingStage(id) {
   const videos = mediaFor(id, "video");
   const images = mediaFor(id, "image");
   if (!videos.length && !images.length) return "";
-  const video = videos.length ? `<div class="wing-videos">${videos.map((item) => filmTag(item.url)).join("")}</div>` : "";
-  const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="${esc(item.title)}">`).join("")}</div>` : "";
+  const poster = images[0] && images[0].url;
+  const video = videos.length ? `<div class="wing-videos">${videos.map((item) => filmTag(item.url, poster)).join("")}</div>` : "";
+  const strip = images.length ? `<div class="wing-strip">${images.map((item) => `<img src="${esc(item.url)}" alt="">`).join("")}</div>` : "";
   return `<div class="wing-stage">${video}${strip}</div>`;
 }
 function wingLink() {
@@ -1506,7 +1509,20 @@ function retryDisk(video) {
   if (play && play.catch) play.catch(() => {});
   return true;
 }
+function watchPictures(root) {
+  (root || document).querySelectorAll("img").forEach((img) => {
+    if (img.dataset.fallback) return;
+    img.dataset.fallback = "1";
+    img.addEventListener("error", () => {
+      const next = diskMedia(img.currentSrc || img.src);
+      if (!next || img.dataset.disk === "1") return;
+      img.dataset.disk = "1";
+      img.src = next;
+    });
+  });
+}
 function watchFrames(root) {
+  watchPictures(root);
   (root || document).querySelectorAll("video").forEach((video) => {
     video.muted = true;
     video.defaultMuted = true;
@@ -1521,12 +1537,17 @@ function watchFrames(root) {
     video.dataset.watched = "1";
     video.addEventListener("error", () => {
       if (retryDisk(video)) return;
-      const miss = video.parentElement && video.parentElement.querySelector(".portal-miss");
-      if (miss || (video.nextElementSibling && video.nextElementSibling.classList.contains("video-miss"))) return;
-      const note = document.createElement("p");
-      note.className = "video-miss";
-      note.textContent = "This video did not load.";
-      video.insertAdjacentElement("afterend", note);
+      const poster = video.getAttribute("poster");
+      if (poster) {
+        const img = document.createElement("img");
+        img.src = poster;
+        img.alt = "";
+        img.className = "wing-video";
+        video.replaceWith(img);
+        return;
+      }
+      const film = video.closest(".film");
+      if (film) film.remove();
     });
   });
 }
@@ -2014,6 +2035,10 @@ function startCardShows() {
     window.setTimeout(show, index * 500);
   });
 }
+function diskForKey(key) {
+  const url = "media/" + String(key || "").replace(/^\/+/, "");
+  return WING_FILES.some((file) => file.url === url) ? url : "";
+}
 let readExtra = [];
 async function loadWingMedia() {
   try {
@@ -2025,14 +2050,16 @@ async function loadWingMedia() {
     const merged = [];
     const seen = new Set();
     items.forEach((item) => {
-      const url = item.key ? `${base}/api/media/${item.key}` : "";
-      if (!url || seen.has(item.key)) return;
-      seen.add(item.key);
-      merged.push({ id: item.id, title: item.title, kind: item.kind, key: item.key || "", url });
+      const key = item.key || "";
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      const disk = diskForKey(key);
+      const remote = `${base}/api/media/${key}`;
+      merged.push({ id: item.id, title: item.title, kind: item.kind, key, url: item.ready || !disk ? remote : disk });
     });
     WING_FILES.forEach((file) => {
       const key = String(file.url || "").replace(/^media\//, "");
-      if (seen.has(key) || merged.some((item) => item.url === file.url)) return;
+      if (seen.has(key)) return;
       merged.push(file);
     });
     if (merged.length) wingMedia = merged;

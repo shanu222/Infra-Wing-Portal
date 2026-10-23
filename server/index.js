@@ -190,13 +190,13 @@ function wingConfig() {
 }
 
 app.get("/api/wing-media", (req, res) => {
-  const cfg = wingConfig();
   const items = mediaCatalog().map((item) => ({
     id: item.id,
     title: item.title,
     kind: item.kind,
     key: item.key,
-    url: `/api/media/${item.key}`
+    url: `/api/media/${item.key}`,
+    ready: fs.existsSync(path.join(UPLOAD_DIR, item.key))
   }));
   res.setHeader("Cache-Control", "public, max-age=60");
   res.json(items);
@@ -260,36 +260,8 @@ function openWingObject(key, range) {
 const CONTENT_KEY = "portal/content.json";
 const BUCKET_FLAG = path.join(DATA_DIR, "content.bucket-ok");
 
-async function readStoredContent() {
-  try {
-    const upstream = await openWingObject(CONTENT_KEY);
-    if (upstream.statusCode === 200) {
-      const chunks = [];
-      for await (const chunk of upstream) chunks.push(chunk);
-      const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-      if (data && typeof data === "object" && !Array.isArray(data)) return data;
-    } else {
-      upstream.resume();
-    }
-  } catch (error) {
-    /* disk copy remains available */
-  }
+function readStoredContent() {
   return readContent();
-}
-
-async function writeStoredContent(data) {
-  writeContent(data);
-  try {
-    const stored = await storeWingObject(CONTENT_KEY, "application/json", Buffer.from(JSON.stringify(data)));
-    if (stored.status === 200) {
-      fs.writeFileSync(BUCKET_FLAG, "ok");
-      return true;
-    }
-  } catch (error) {
-    /* reported to the admin as not stored in the bucket */
-  }
-  fs.rmSync(BUCKET_FLAG, { force: true });
-  return false;
 }
 
 app.post("/api/wing-media", auth, (req, res) => {
@@ -302,20 +274,10 @@ app.post("/api/wing-media", auth, (req, res) => {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.writeFileSync(dest, req.file.buffer);
     const contentType = /\.mp4$/i.test(key) ? "video/mp4" : /\.webm$/i.test(key) ? "video/webm" : /\.png$/i.test(key) ? "image/png" : /\.webp$/i.test(key) ? "image/webp" : "image/jpeg";
-    let bucket = false;
-    let status = 0;
-    let code = "";
-    try {
-      const stored = await storeWingObject(key, contentType, req.file.buffer);
-      status = stored.status;
-      code = stored.code;
-      bucket = status === 200;
-    } catch (err) {
-      bucket = false;
-      const cause = err.cause && (err.cause.code || err.cause.message);
-      code = [err.code || err.message || "request", cause].filter(Boolean).join(" ").slice(0, 140);
-    }
-    res.json({ ok: true, bucket, key, status, code });
+    res.json({ ok: true, key });
+    storeWingObject(key, contentType, req.file.buffer).then((stored) => {
+      if (stored.status === 200) fs.writeFileSync(BUCKET_FLAG, "ok");
+    }).catch(() => {});
   });
 });
 
@@ -325,11 +287,11 @@ app.get("/api/media/*", (req, res) => {
   const local = path.join(UPLOAD_DIR, key);
   if (fs.existsSync(local)) return res.sendFile(local);
   const packed = path.join(ROOT, "media", key);
+  if (fs.existsSync(packed)) return res.sendFile(packed);
   openWingObject(key, req.headers.range).then((upstream) => {
     if (upstream.statusCode !== 200 && upstream.statusCode !== 206) {
       upstream.resume();
-      if (fs.existsSync(packed)) return res.sendFile(packed);
-      return res.status(upstream.statusCode || 404).end();
+      return res.status(404).end();
     }
     res.status(upstream.statusCode);
     ["content-type", "content-length", "content-range", "accept-ranges"].forEach((name) => {
@@ -509,10 +471,14 @@ app.post("/api/login", (req, res) => {
   res.json({ token });
 });
 
-app.put("/api/content", auth, async (req, res) => {
+app.put("/api/content", auth, (req, res) => {
   try {
-    const bucket = await writeStoredContent(req.body);
-    res.json({ ok: true, bucket });
+    writeContent(req.body);
+    res.json({ ok: true });
+    const body = Buffer.from(JSON.stringify(req.body));
+    storeWingObject(CONTENT_KEY, "application/json", body).then((stored) => {
+      if (stored.status === 200) fs.writeFileSync(BUCKET_FLAG, "ok");
+    }).catch(() => {});
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

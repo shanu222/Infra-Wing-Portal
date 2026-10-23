@@ -200,8 +200,7 @@ async function save() {
   readPanel();
   const res = await api("/api/content", { method: "PUT", json: draft });
   if (!res.ok) return note("Save failed");
-  const body = await res.json();
-  note(body.bucket ? "Saved in the bucket" : "Saved on the wing server. The bucket did not accept the copy.");
+  note("Saved. It is playing on the portal.");
 }
 
 async function sendFile(key, file) {
@@ -283,7 +282,7 @@ function bind() {
       const file = form.querySelector("input[type=file]").files[0];
       if (!file) return;
       const saved = await sendFile(form.dataset.upload, file);
-      note(saved && saved.bucket ? "Film saved in the bucket" : "Film saved on the wing server. The bucket did not accept the copy.");
+      note(saved ? "Saved. It is playing on the portal." : "The file was not saved");
     };
   });
   const fresh = document.querySelector("[data-new-media]");
@@ -303,7 +302,7 @@ function bind() {
     await save();
     media = await (await api("/api/wing-media")).json();
     render();
-    note(saved.bucket ? "Film saved in the bucket" : "Film saved on the wing server. The bucket did not accept the copy.");
+    note("Saved. It is playing on the portal.");
   };
 }
 
