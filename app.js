@@ -823,6 +823,8 @@ const WING_FILES = [
   { id: "seminars", title: "Seminar", kind: "image", url: "media/portal/seminars/08.jpg" },
   { id: "portals", title: "PRIA", kind: "video", url: "media/portal/portals/pria.mp4" },
   { id: "portals", title: "Structural health monitoring", kind: "video", url: "media/portal/portals/shm.mp4" },
+  { id: "portals", title: "NIDRMP", kind: "video", url: "media/portal/portals/nidrmp.mp4" },
+  { id: "portals", title: "Built up growth", kind: "video", url: "media/portal/portals/built-up.mp4" },
   { id: "app360", title: "Resilience 360", kind: "video", url: "media/portal/app/r360.mp4" },
   { id: "advisories", title: "Infrastructure publications", kind: "video", url: "media/portal/advisories/books.mp4" },
   { id: "field", title: "Gilgit-Baltistan field visit", kind: "video", url: "media/portal/field/visit.mp4" },
@@ -1458,7 +1460,9 @@ function setFrameActions(url) {
 const PORTAL_FILM = {
   "PRIA Portal": "PRIA",
   "Infra APP": "Resilience 360",
-  "Structural health monitoring": "Structural health monitoring"
+  "Structural health monitoring": "Structural health monitoring",
+  "NIDRMP": "NIDRMP",
+  "Built up growth": "Built up growth"
 };
 function portalFilms(title) {
   const name = PORTAL_FILM[title];

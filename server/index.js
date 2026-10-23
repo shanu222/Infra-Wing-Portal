@@ -130,6 +130,8 @@ const WING_MEDIA = [
   { id: "seminars", title: "Seminar", kind: "image", key: "portal/seminars/08.jpg" },
   { id: "portals", title: "PRIA", kind: "video", key: "portal/portals/pria.mp4" },
   { id: "portals", title: "Structural health monitoring", kind: "video", key: "portal/portals/shm.mp4" },
+  { id: "portals", title: "NIDRMP", kind: "video", key: "portal/portals/nidrmp.mp4" },
+  { id: "portals", title: "Built up growth", kind: "video", key: "portal/portals/built-up.mp4" },
   { id: "app360", title: "Resilience 360", kind: "video", key: "portal/app/r360.mp4" },
   { id: "advisories", title: "Infrastructure publications", kind: "video", key: "portal/advisories/books.mp4" },
   { id: "field", title: "Gilgit-Baltistan field visit", kind: "video", key: "portal/field/visit.mp4" },
