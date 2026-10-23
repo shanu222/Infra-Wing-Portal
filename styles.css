@@ -1029,6 +1029,11 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .m-ico { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent, #1ec87a) 80%, #04140c); color: #04140c; flex: none; }
 .m-ico svg, .m-panel h3 svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .m-card .home-go, .m-tile .home-go { position: absolute; right: 12px; bottom: 12px; z-index: 1; }
+.m-cinema { display: grid; gap: 12px; padding: 16px; border-radius: 24px; background: radial-gradient(circle at 12% 0%, rgba(240,193,75,0.2), transparent 32%), linear-gradient(180deg, #182430, #0b1720); border: 1px solid rgba(240,193,75,0.32); box-shadow: 0 18px 36px rgba(0,0,0,0.28); }
+.m-cinema-copy h3 { margin: 2px 0 0; font-size: 28px; }
+.m-cinema .k { color: #f0c14b; }
+.m-cinema .film { border-radius: 20px; }
+.m-cinema .wing-video { width: 100%; height: auto; max-height: 520px; object-fit: contain; background: #071018; }
 .m-panel { min-height: 220px; }
 .m-panel div { padding: 16px; }
 .m-panel h3 { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.06em; text-transform: uppercase; font-size: 16px; }

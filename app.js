@@ -667,10 +667,13 @@ function mandatePage() {
   const classIcon = { communication: "road", public: "public", industrial: "factory", hydraulic: "water", residential: "home", commercial: "shop" };
   const pillars = DATA.mandate.map((item, i) => `<article class="m-card" style="--accent:${item.color}"><img src="${art[item.title.toLowerCase()] || ""}" alt="" /><div class="m-copy"><span class="m-ico">${glyph(icons[i] || "target")}</span><div><b>0${i + 1}</b><h3>${esc(item.title)}</h3></div></div>${goMark()}</article>`).join("");
   const classes = DATA.classes.map((item) => `<article class="m-tile" style="--accent:${item.color}"><img src="${art[item.title.toLowerCase()] || ""}" alt="" /><div class="m-copy"><span class="m-ico">${glyph(classIcon[item.title.toLowerCase()] || "public")}</span><div><b>${esc(item.title)}</b><p>${esc(item.line)}</p></div></div>${goMark()}</article>`).join("");
+  const videos = mediaFor("mandate", "video");
+  const film = videos.length ? `<section class="m-cinema"><div class="m-cinema-copy"><span class="k">In motion</span><h3>The wing after an early warning</h3></div>${videos.map((item) => filmTag(item.url)).join("")}</section>` : "";
   return `<section class="mandate">
     <div class="m-hero"><img src="assets/home/mandate-hero.jpg" alt="" /><div><h2>Mandate</h2><p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p></div></div>
     <div class="m-three">${pillars}</div>
     <div class="m-six">${classes}</div>
+    ${film}
     ${storyBoard("How preparation is used after a disaster", "Read each row from left to right. The left side is the work done before a disaster. The right side is what that work becomes after one.", [
       { color: "#3ad7f5", from: ["Infrastructure awareness advisories", "Infrastructure audit mechanism", "Cost of exposed infrastructure", "Pre-disaster damage projection"], to: ["Damage verification"] },
       { color: "#1ec87a", from: ["Material hubs", "Region-wise designs"], to: ["Reconstruction through material hubs", "Temporary camp support", "Temporary infrastructure"] },
@@ -1240,7 +1243,7 @@ function modalBody(id) {
 }
 
 function sectionBody(id) {
-  if (id === "mandate") return wingStage("mandate") + mandatePage();
+  if (id === "mandate") return mandatePage();
   if (id === "audit") {
     return `${wingStage("audit")}<div class="badges">${DATA.badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")}</div>
       <article class="card pad"><div class="k">Net valuation</div>${provinceBars()}</article>
