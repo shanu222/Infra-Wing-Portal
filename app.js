@@ -535,6 +535,7 @@ function startHubCard() {
 }
 let globeFrame = 0;
 let atomTimer = 0;
+let rolesTimer = 0;
 function stopHubShows() {
   hubShowTimer.forEach((id) => clearInterval(id));
   hubShowTimer = [];
@@ -546,6 +547,45 @@ function stopGlobe() {
 function stopAtom() {
   if (atomTimer) clearInterval(atomTimer);
   atomTimer = 0;
+}
+function stopRoles() {
+  if (rolesTimer) clearInterval(rolesTimer);
+  rolesTimer = 0;
+}
+function startRoles() {
+  stopRoles();
+  const root = document.querySelector("[data-roles]");
+  if (!root) return;
+  const view = root.querySelector(".roles-view");
+  const slides = [...root.querySelectorAll(".roles-slide")];
+  const dots = [...root.querySelectorAll("[data-role]")];
+  const meter = root.querySelector(".roles-meter");
+  if (!view || !slides.length) return;
+  let n = 0;
+  const show = (index) => {
+    const next = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("is-on", i === next);
+      slide.classList.toggle("is-out", i === n && i !== next);
+    });
+    dots.forEach((dot, i) => dot.classList.toggle("is-on", i === next));
+    n = next;
+    view.style.height = `${slides[n].offsetHeight}px`;
+    if (meter && !reduce) {
+      meter.classList.remove("run");
+      void meter.offsetWidth;
+      meter.classList.add("run");
+    }
+  };
+  dots.forEach((dot) => dot.addEventListener("click", () => show(Number(dot.dataset.role))));
+  show(0);
+  if (reduce || slides.length < 2) return;
+  root.onmouseenter = () => { root.dataset.hold = "1"; };
+  root.onmouseleave = () => { delete root.dataset.hold; };
+  rolesTimer = window.setInterval(() => {
+    if (!root.isConnected || root.dataset.hold) return;
+    show(n + 1);
+  }, 7200);
 }
 function startAtom() {
   stopAtom();
@@ -651,6 +691,56 @@ function startHubShows() {
     hubShowTimer.push(wait);
   });
 }
+function roleStage() {
+  const duties = [
+    ["Strengthen", "#2ec4b6", "Develop practical strengthening, rehabilitation and rebuild solutions"],
+    ["Innovate", "#8b6cff", "Promote an innovative response to local infrastructure resilience needs"],
+    ["Localise", "#f0a202", "Employ local skills, materials and cost-effective designs"]
+  ];
+  const pairs = [
+    ["Infrastructure awareness advisories", "Infrastructure damage verification"],
+    ["Infrastructure audit mechanism", "Quick reconstruction through material hubs"],
+    ["Establishment of material hubs", "Technical support for temporary camps"],
+    ["National seminars on resilient infrastructure", "Temporary infrastructure solutions"],
+    ["Region-wise guidance for implementable designs", "Strengthening and retrofitting with communities"]
+  ];
+  const months = [
+    ["Jan", "Snow", "1"], ["Feb", "Avalanche", "2"], ["Mar", "", ""], ["Apr", "Heatwave", "2"],
+    ["May", "Fires", ""], ["Jun", "Cyclones", "3"], ["Jul", "GLOF", ""], ["Aug", "Landslides", ""],
+    ["Sep", "Floods", "4"], ["Oct", "Smog", ""], ["Nov", "", ""], ["Dec", "Blizzards", "5"]
+  ];
+  const chain = ["Release", "Rescue", "Relief", "Recover", "Rebuild", "Rehab", "Review"];
+  const programs = ["Proactive disaster management", "NEOC · NGT · GRH · CoE", "COPs · DEWs", "Simex · CISE", "Mitigation", "Adaptation", "Management"];
+  const duty = duties.map((item, i) => `<article class="duty rise" style="--c:${item[1]};--d:${0.08 + i * 0.12}s"><b>0${i + 1} ${esc(item[0])}</b><span>${esc(item[2])}</span></article>`).join("");
+  const flow = pairs.map((pair, i) => `<div class="role-row rise" style="--d:${0.06 + i * 0.08}s"><b class="role-pre">${esc(pair[0])}</b><span class="role-go" aria-hidden="true"></span><b class="role-post">${esc(pair[1])}</b></div>`).join("");
+  const month = months.map(([name, hazard, dew]) => `<div class="year-cell${dew ? " has-dew" : ""}"><b>${name}</b><span>${esc(hazard)}</span>${dew ? `<em>DEW ${dew}</em>` : ""}</div>`).join("");
+  const steps = chain.map((name, i) => `<li class="rise" style="--d:${0.05 + i * 0.07}s"><i>${i + 1}</i>${esc(name)}</li>`).join("");
+  const chips = programs.map((name, i) => `<span class="rise" style="--d:${0.08 + i * 0.06}s">${esc(name)}</span>`).join("");
+  const nav = ["Mandate", "Roles", "The year", "The return"].map((label, i) => `<button type="button" data-role="${i}">${label}</button>`).join("");
+  return `<section class="roles" data-roles>
+    <div class="roles-head"><div><span class="k">IA&PD roles</span><h3>Before the hazard, and after it</h3></div><div class="roles-nav">${nav}<i class="roles-meter" aria-hidden="true"></i></div></div>
+    <div class="roles-view">
+      <article class="roles-slide">${duty}<p class="role-note rise" style="--d:.5s">Global practice is read for Pakistan, then turned into region-wise designs.</p></article>
+      <article class="roles-slide">
+        <div class="role-cols"><b class="role-pre head">Pre-disaster</b><span></span><b class="role-post head">Post-disaster</b></div>
+        ${flow}
+        <p class="role-note rise" style="--d:.55s">Pre-disaster damage projection sets the cost of exposed infrastructure.</p>
+      </article>
+      <article class="roles-slide">
+        <div class="year-board">
+          <div class="year-reel"><div class="year-grid">${month}${month}</div></div>
+          <ol class="year-chain">${steps}</ol>
+        </div>
+      </article>
+      <article class="roles-slide">
+        <div class="save-hero rise"><b>$1</b><span class="role-go wide" aria-hidden="true"></span><b>$6</b></div>
+        <p class="save-quote rise" style="--d:.2s">Every US$1 invested in making infrastructure disaster-resilient saves US$6 in reconstruction.</p>
+        <p class="role-note save-src rise" style="--d:.32s">UNDRR</p>
+        <div class="save-chips">${chips}</div>
+      </article>
+    </div>
+  </section>`;
+}
 function mandatePage() {
   const art = {
     strengthen: "assets/home/mandate-strengthen.jpg",
@@ -674,17 +764,7 @@ function mandatePage() {
     <div class="m-three">${pillars}</div>
     <div class="m-six">${classes}</div>
     ${film}
-    ${storyBoard("How preparation is used after a disaster", "Read each row from left to right. The left side is the work done before a disaster. The right side is what that work becomes after one.", [
-      { color: "#3ad7f5", from: ["Infrastructure awareness advisories", "Infrastructure audit mechanism", "Cost of exposed infrastructure", "Pre-disaster damage projection"], to: ["Damage verification"] },
-      { color: "#1ec87a", from: ["Material hubs", "Region-wise designs"], to: ["Reconstruction through material hubs", "Temporary camp support", "Temporary infrastructure"] },
-      { color: "#f0c14b", from: ["National seminars", "Global practice for Pakistan"], to: ["Strengthening and retrofitting"] }
-    ])}
-    ${storyBoard("What changes when a building can survive", "Each result of an exposed build is answered by the result beside it.", [
-      { color: "#ff6d6d", from: ["Infrastructure damage"], to: ["Survive the hazard"] },
-      { color: "#ff9f43", from: ["Lives disrupted"], to: ["Save lives"] },
-      { color: "#b08cff", from: ["Services halt"], to: ["Reduce losses"] },
-      { color: "#6aa4ff", from: ["Recovery delayed"], to: ["Reduce losses"] }
-    ])}
+    ${roleStage()}
   </section>`;
 }
 
@@ -1553,6 +1633,7 @@ function paintModal() {
   stopHubShows();
   stopGlobe();
   stopAtom();
+  stopRoles();
   const scene = document.getElementById("page-scene");
   if (!state.open) {
     if (scene) scene.innerHTML = "";
@@ -1585,6 +1666,7 @@ function paintModal() {
     startGlobe();
   }
   if (state.open === "seminars") startAtom();
+  if (state.open === "mandate") startRoles();
   rememberPage();
 }
 
