@@ -169,7 +169,7 @@ function tileValue(id) {
 function pictureRail() {
   const pics = (DATA.library || []).filter((item) => item.type !== "video" && /brief-/i.test(item.url));
   if (!pics.length) return "";
-  const frame = (item) => `<img src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" />`;
+  const frame = (item, index) => `<span class="book-face" style="--d:-${(index % 6) * 0.65}s"><img src="${esc(absUrl(item.url))}" alt="${esc(item.title)}" /></span>`;
   const row = pics.map(frame).join("");
   return `<section class="cover-rail"><div class="reel home-reel"><div class="reel-track">${row}${row}</div></div></section>`;
 }
@@ -533,6 +533,7 @@ function startHubCard() {
 let globeFrame = 0;
 let atomTimer = 0;
 let rolesTimer = 0;
+let mandateShowTimer = [];
 function stopHubShows() {
   hubShowTimer.forEach((id) => clearInterval(id));
   hubShowTimer = [];
@@ -548,6 +549,29 @@ function stopAtom() {
 function stopRoles() {
   if (rolesTimer) clearInterval(rolesTimer);
   rolesTimer = 0;
+}
+function stopMandateShows() {
+  mandateShowTimer.forEach((id) => clearInterval(id));
+  mandateShowTimer = [];
+}
+function startMandateShows() {
+  stopMandateShows();
+  if (reduce) return;
+  document.querySelectorAll("[data-m-play]").forEach((box, index) => {
+    const frames = [...box.querySelectorAll("img")];
+    if (frames.length < 2) return;
+    let n = 0;
+    const tick = () => {
+      if (!box.isConnected) return;
+      n = (n + 1) % frames.length;
+      frames.forEach((img, i) => img.classList.toggle("is-on", i === n));
+    };
+    const wait = window.setTimeout(() => {
+      tick();
+      mandateShowTimer.push(window.setInterval(tick, 4600));
+    }, 700 + index * 280);
+    mandateShowTimer.push(wait);
+  });
 }
 function startRoles() {
   stopRoles();
@@ -750,18 +774,35 @@ function mandatePage() {
     residential: "assets/home/mandate-residential.jpg",
     commercial: "assets/home/mandate-commercial.jpg"
   };
+  const extra = {
+    strengthen: "assets/home/mandate-strengthen-b.jpg",
+    innovate: "assets/home/mandate-innovate-b.jpg",
+    localise: "assets/home/mandate-localise-b.jpg",
+    communication: "assets/home/mandate-communication-b.jpg",
+    public: "assets/home/mandate-public-b.jpg",
+    industrial: "assets/home/mandate-industrial-b.jpg",
+    hydraulic: "assets/home/mandate-hydraulic-b.jpg",
+    residential: "assets/home/mandate-residential-b.jpg",
+    commercial: "assets/home/mandate-commercial-b.jpg"
+  };
   const icons = ["target", "bulb", "gear"];
   const classIcon = { communication: "road", public: "public", industrial: "factory", hydraulic: "water", residential: "home", commercial: "shop" };
-  const pillars = DATA.mandate.map((item, i) => `<article class="m-card" style="--accent:${item.color}"><img src="${art[item.title.toLowerCase()] || ""}" alt="" /><div class="m-copy"><span class="m-ico">${glyph(icons[i] || "target")}</span><div><b>0${i + 1}</b><h3>${esc(item.title)}</h3></div></div>${goMark()}</article>`).join("");
-  const classes = DATA.classes.map((item) => `<article class="m-tile" style="--accent:${item.color}"><img src="${art[item.title.toLowerCase()] || ""}" alt="" /><div class="m-copy"><span class="m-ico">${glyph(classIcon[item.title.toLowerCase()] || "public")}</span><div><b>${esc(item.title)}</b><p>${esc(item.line)}</p></div></div>${goMark()}</article>`).join("");
+  const photos = (key) => {
+    const first = art[key] || "";
+    const second = extra[key] || "";
+    if (!first) return "";
+    return `<span class="m-photos" data-m-play><img src="${esc(first)}" alt="" class="is-on" />${second ? `<img src="${esc(second)}" alt="" />` : ""}</span>`;
+  };
+  const pillars = DATA.mandate.map((item, i) => `<article class="m-card" style="--accent:${item.color};--spin:-${i * 0.8}s">${photos(item.title.toLowerCase())}<div class="m-copy"><span class="m-ico">${glyph(icons[i] || "target")}</span><div><b>0${i + 1}</b><h3>${esc(item.title)}</h3></div></div>${goMark()}</article>`).join("");
+  const classes = DATA.classes.map((item, i) => `<article class="m-tile" style="--accent:${item.color};--spin:-${(i + 3) * 0.7}s">${photos(item.title.toLowerCase())}<div class="m-copy"><span class="m-ico">${glyph(classIcon[item.title.toLowerCase()] || "public")}</span><div><b>${esc(item.title)}</b><p>${esc(item.line)}</p></div></div>${goMark()}</article>`).join("");
   const videos = mediaFor("mandate", "video");
   const film = videos.length ? `<section class="m-cinema"><div class="m-cinema-copy"><span class="k">In motion</span><h3>The wing after an early warning</h3></div>${videos.map((item) => filmTag(item.url)).join("")}</section>` : "";
   return `<section class="mandate">
     <div class="m-hero"><img src="assets/home/mandate-hero.jpg" alt="" /><div><h2>Mandate</h2><p>Strengthening infrastructure, enhancing resilience, and building safer communities across Pakistan.</p></div></div>
     <div class="m-three">${pillars}</div>
     <div class="m-six">${classes}</div>
-    ${film}
     ${roleStage()}
+    ${film}
   </section>`;
 }
 
@@ -1640,6 +1681,7 @@ function paintModal() {
   stopGlobe();
   stopAtom();
   stopRoles();
+  stopMandateShows();
   const scene = document.getElementById("page-scene");
   if (!state.open) {
     if (scene) scene.innerHTML = "";
@@ -1672,7 +1714,10 @@ function paintModal() {
     startGlobe();
   }
   if (state.open === "seminars") startAtom();
-  if (state.open === "mandate") startRoles();
+  if (state.open === "mandate") {
+    startRoles();
+    startMandateShows();
+  }
   rememberPage();
 }
 

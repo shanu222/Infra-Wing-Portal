@@ -961,8 +961,10 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .banner-map figcaption { margin-top: 8px; color: #f3fff9; font-weight: 650; font-size: 14px; line-height: 1.35; text-shadow: 0 2px 10px #000; }
 .cover-rail { margin: 2px 22px 18px; }
 .home-reel { margin: 0; max-width: 100%; mask-image: none; }
-.home-reel .reel-track { gap: 0; animation-duration: 48s; }
-.home-reel .reel-track img { width: 168px; height: 230px; object-fit: cover; background: transparent; border-radius: 0; padding: 0; box-shadow: none; }
+.home-reel .reel-track { gap: 18px; animation-duration: 48s; }
+.book-face { position: relative; flex: none; width: 168px; height: 230px; border-radius: 18px; overflow: hidden; isolation: isolate; }
+.book-face::before { content: ""; position: absolute; inset: -60%; background: conic-gradient(from 0deg, #3ad7f5, #1ec87a, #f0c14b, #ff6fa8, #6aa4ff, #b08cff, #3ad7f5); animation: film-spin 5.5s linear infinite; animation-delay: var(--d, 0s); }
+.book-face img { position: relative; z-index: 1; width: calc(100% - 6px); height: calc(100% - 6px); margin: 3px; object-fit: cover; border-radius: 15px; background: #071018; box-shadow: none; }
 .home-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding: 0 22px; }
 .home-card { position: relative; min-height: 188px; border-radius: 18px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 16px 30px rgba(0,0,0,0.28); }
 .home-card.wide { grid-column: span 2; min-height: 168px; }
@@ -1013,7 +1015,11 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .m-hero, .m-card, .m-tile, .m-panel { position: relative; overflow: hidden; border-radius: 18px; min-height: 148px; }
 .m-hero { min-height: 168px; }
 .m-hero img, .m-card img, .m-tile img, .m-panel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.m-hero::after, .m-card::after, .m-tile::after, .m-panel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,10,16,0.15), rgba(4,10,16,0.78)); }
+.m-hero::after, .m-photos::after, .m-panel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,10,16,0.15), rgba(4,10,16,0.78)); pointer-events: none; }
+.m-card::before, .m-tile::before { content: ""; position: absolute; inset: -62%; z-index: 0; background: conic-gradient(from 0deg, var(--accent, #1ec87a), #ffffff, #f0c14b, var(--accent, #1ec87a)); animation: film-spin 6.4s linear infinite; animation-delay: var(--spin, 0s); }
+.m-photos { position: absolute; inset: 3px; border-radius: 15px; overflow: hidden; z-index: 1; }
+.m-photos img { opacity: 0; transition: opacity 1s ease, transform 1.1s ease; }
+.m-photos img.is-on { opacity: 1; }
 .m-hero div, .m-copy, .m-panel div { position: relative; z-index: 1; }
 .m-hero div { padding: 28px 22px; max-width: 720px; }
 .m-hero h2 { margin: 0; font-family: var(--display); font-size: clamp(40px, 5vw, 64px); letter-spacing: -0.04em; }
@@ -1024,18 +1030,18 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
 .m-split { grid-template-columns: 1fr 1fr; }
 .m-card { min-height: 210px; }
 .m-tile { min-height: 132px; }
-.m-copy { position: absolute; left: 12px; right: 48px; bottom: 12px; display: flex; gap: 10px; align-items: center; z-index: 1; }
+.m-copy { position: absolute; left: 12px; right: 48px; bottom: 12px; display: flex; gap: 10px; align-items: center; z-index: 2; }
 .m-copy h3, .m-copy b { margin: 0; }
 .m-copy p { margin: 2px 0 0; color: #d5e4ec; font-size: 13px; }
 .m-copy b { display: block; font-size: 12px; letter-spacing: 0.08em; color: #c9fff0; }
 .m-ico { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent, #1ec87a) 80%, #04140c); color: #04140c; flex: none; }
 .m-ico svg, .m-panel h3 svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.m-card .home-go, .m-tile .home-go { position: absolute; right: 12px; bottom: 12px; z-index: 1; }
-.m-cinema { display: grid; gap: 12px; padding: 16px; border-radius: 24px; background: radial-gradient(circle at 12% 0%, rgba(240,193,75,0.2), transparent 32%), linear-gradient(180deg, #182430, #0b1720); border: 1px solid rgba(240,193,75,0.32); box-shadow: 0 18px 36px rgba(0,0,0,0.28); }
+.m-card .home-go, .m-tile .home-go { position: absolute; right: 12px; bottom: 12px; z-index: 2; }
+.m-cinema { display: grid; gap: 10px; padding: 0; border-radius: 0; background: transparent; border: 0; box-shadow: none; }
 .m-cinema-copy h3 { margin: 2px 0 0; font-size: 28px; }
 .m-cinema .k { color: #f0c14b; }
-.m-cinema .film { border-radius: 20px; }
-.m-cinema .wing-video { width: 100%; height: auto; max-height: 520px; object-fit: contain; background: #071018; }
+.m-cinema .film { border-radius: 18px; background: transparent; }
+.m-cinema .wing-video { width: 100%; height: auto; max-height: none; display: block; object-fit: contain; background: transparent; }
 .m-hero img { animation: hero-drift 18s ease-in-out infinite alternate; }
 .m-hero div { animation: role-rise 0.75s cubic-bezier(.2,.7,.2,1) both; }
 .m-card, .m-tile { animation: role-rise 0.7s cubic-bezier(.2,.7,.2,1) both; }
@@ -1313,7 +1319,7 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
   .finder { width: 100%; max-width: none; }
   .cover-rail, .banner { margin-left: 12px; margin-right: 12px; }
   .home-grid { padding: 0 12px; }
-  .home-reel .reel-track img { width: 120px; height: 164px; object-fit: cover; padding: 0; border-radius: 0; }
+  .home-reel .book-face { width: 120px; height: 164px; }
   .phone-board { grid-template-columns: 1fr; }
   .phone-stage { min-height: 460px; }
   .phone-hero { width: min(240px, 70%); margin-bottom: 150px; }
@@ -1328,7 +1334,9 @@ body.menu-slim .admin-side button { justify-content: center; padding-left: 8px; 
   .atom-dot { animation: none; offset-distance: calc(var(--d) * 100%); }
   .hub-meter, .hub-hero figcaption small::before { animation: none; }
   .globe-sheet, .globe-viewport, .globe-canvas, .roles-slide, .year-grid { transition: none; animation: none; }
-  .m-hero img, .m-card, .m-tile, .roles-meter, .role-go::after { animation: none; }
+  .book-face::before, .m-card::before, .m-tile::before, .m-photos img { animation: none; transition: none; }
+  .m-photos img { opacity: 0; }
+  .m-photos img.is-on { opacity: 1; }
   .rise, .roles-slide.is-on .rise { animation: none; opacity: 1; transform: none; }
   .drim-meter, .link-flow, .flow-line, .card-foot, .card-foot::before, .chain-join, .portal-open, .film::before, .portal-card::before, .lane-go::after, .map-pin i, .brand img, .sky-dash, .sky-run, .cell::after, .scale i::after, .tint, .tint::after, .range-track i::after, .vtrack, .vfill::after { animation: none; }
 }
