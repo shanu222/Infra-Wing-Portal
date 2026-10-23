@@ -473,6 +473,8 @@ const HUB_PHOTO = {
   muzaffargarh: "images/muzaffargarh-hub.jpg",
   sukkur: "images/sukkur-hub.jpg"
 };
+let hubPlaylists = [];
+let hubShowTimer = [];
 const HUB_VIDEOS = [
   "Installation videos for material/Bamboo_disaster-resilient_house_…_202607211139.mp4",
   "Installation videos for material/CGI_sheet_roofing_installation_d…_202607211148.mp4",
@@ -530,6 +532,124 @@ function startHubCard() {
     next();
   });
   next();
+}
+let globeFrame = 0;
+let atomTimer = 0;
+function stopHubShows() {
+  hubShowTimer.forEach((id) => clearInterval(id));
+  hubShowTimer = [];
+}
+function stopGlobe() {
+  if (globeFrame) cancelAnimationFrame(globeFrame);
+  globeFrame = 0;
+}
+function stopAtom() {
+  if (atomTimer) clearInterval(atomTimer);
+  atomTimer = 0;
+}
+function startAtom() {
+  stopAtom();
+  const box = document.querySelector("[data-atom]");
+  const urls = typeof SEMINAR_SHOW !== "undefined" ? SEMINAR_SHOW : [];
+  const frames = box ? [...box.querySelectorAll(".atom-core img")] : [];
+  if (!box || frames.length < 2 || urls.length < 2 || reduce) return;
+  const dots = [...box.querySelectorAll(".atom-dot img")];
+  let n = 0;
+  const tick = () => {
+    if (!box.isConnected) return;
+    n = (n + 1) % urls.length;
+    const show = frames[n % 2];
+    const hide = frames[(n + 1) % 2];
+    show.src = urls[n];
+    show.classList.add("is-on");
+    hide.classList.remove("is-on");
+    const label = box.querySelector("[data-atom-count]");
+    if (label) label.textContent = `${String(n + 1).padStart(2, "0")} / ${String(urls.length).padStart(2, "0")}`;
+    dots.forEach((img, index) => { img.src = urls[(n + index + 1) % urls.length]; });
+    window.setTimeout(() => {
+      if (hide.isConnected) hide.src = urls[(n + 1) % urls.length];
+    }, 900);
+  };
+  atomTimer = window.setInterval(tick, 3400);
+}
+function seminarAtom() {
+  const urls = typeof SEMINAR_SHOW !== "undefined" ? SEMINAR_SHOW : [];
+  if (urls.length < 2) return "";
+  const orbits = [
+    { rx: "34%", ry: "18%", spin: "22s", n: 3 },
+    { rx: "26%", ry: "32%", spin: "30s", n: 3, rev: true },
+    { rx: "44%", ry: "26%", spin: "38s", n: 4 }
+  ];
+  let cursor = 1;
+  const dots = orbits.map((orbit) => Array.from({ length: orbit.n }, (_, index) => {
+    const src = urls[cursor % urls.length];
+    cursor += 1;
+    return `<span class="atom-dot${orbit.rev ? " rev" : ""}" style="--rx:${orbit.rx};--ry:${orbit.ry};--spin:${orbit.spin};--d:${(index / orbit.n).toFixed(3)}"><img src="${esc(src)}" alt="" /></span>`;
+  }).join("")).join("");
+  const rings = orbits.map((orbit) => `<i style="width:calc(${orbit.rx} * 2);height:calc(${orbit.ry} * 2)"></i>`).join("");
+  return `<section class="atom" data-atom><div class="atom-rings">${rings}</div>${dots}<figure class="atom-core"><img src="${esc(urls[0])}" alt="" class="is-on" /><img src="${esc(urls[1])}" alt="" /><figcaption><span>Seminars</span><b data-atom-count>01 / ${String(urls.length).padStart(2, "0")}</b></figcaption></figure></section>`;
+}
+function hubSlides(hub, index) {
+  const own = HUB_PHOTO[hub.id] ? hubMedia(HUB_PHOTO[hub.id]) : "";
+  const pool = (typeof HUB_SHOW !== "undefined" ? HUB_SHOW : []).slice();
+  const shift = pool.length ? index % pool.length : 0;
+  const spun = pool.slice(shift).concat(pool.slice(0, shift));
+  return own ? [own, ...spun] : spun;
+}
+function hubReel(urls, stagger) {
+  const index = hubPlaylists.length;
+  hubPlaylists.push(urls);
+  const first = urls[0] || "";
+  const next = urls[1] || first;
+  if (!first) return "";
+  return `<span class="hub-reel" data-hub-play data-index="${index}" data-stagger="${stagger}"><img src="${esc(first)}" alt="" class="is-on" /><img src="${esc(next)}" alt="" /><i class="hub-meter" aria-hidden="true"></i></span>`;
+}
+function startHubShows() {
+  stopHubShows();
+  document.querySelectorAll("[data-hub-play]").forEach((box) => {
+    const urls = hubPlaylists[Number(box.dataset.index)] || [];
+    const frames = [...box.querySelectorAll("img")];
+    if (!urls.length || frames.length < 2) return;
+    let n = 0;
+    const labelFor = () => {
+      const label = box.parentElement && box.parentElement.querySelector("[data-hub-count]");
+      if (label) label.textContent = `${String(n + 1).padStart(2, "0")} / ${String(urls.length).padStart(2, "0")}`;
+    };
+    const paint = (advance) => {
+      if (!box.isConnected || box.dataset.hold) return;
+      if (advance) n = (n + 1) % urls.length;
+      const show = frames[n % 2];
+      const hide = frames[(n + 1) % 2];
+      show.classList.toggle("shift", n % 2 === 1);
+      show.src = urls[n];
+      show.classList.add("is-on");
+      hide.classList.remove("is-on");
+      const meter = box.querySelector(".hub-meter");
+      if (meter && !reduce) {
+        meter.classList.remove("run");
+        void meter.offsetWidth;
+        meter.classList.add("run");
+      }
+      labelFor();
+      window.setTimeout(() => {
+        if (hide.isConnected) hide.src = urls[(n + 1) % urls.length];
+      }, 1000);
+    };
+    frames[0].src = urls[0];
+    frames[0].classList.add("is-on");
+    if (urls[1]) frames[1].src = urls[1];
+    labelFor();
+    const meter = box.querySelector(".hub-meter");
+    if (meter && !reduce && urls.length > 1) meter.classList.add("run");
+    if (reduce || urls.length < 2) return;
+    box.onmouseenter = () => { box.dataset.hold = "1"; };
+    box.onmouseleave = () => { delete box.dataset.hold; };
+    const wait = window.setTimeout(() => {
+      paint(true);
+      hubShowTimer.push(window.setInterval(() => paint(true), 4600));
+    }, 4600 + Number(box.dataset.stagger || 0));
+    hubShowTimer.push(wait);
+  });
 }
 function mandatePage() {
   const art = {
@@ -618,8 +738,18 @@ function cardPlaylist(id) {
   const videos = mediaFor(id, "video").map((item) => item.url);
   if (id === "drim") models.images.forEach((item) => images.push(item.url));
   if (id === "hubs") {
-    Object.keys(HUB_PHOTO).forEach((key) => images.push(hubMedia(HUB_PHOTO[key])));
-    HUB_VIDEOS.forEach((rel) => videos.push(hubMedia(rel)));
+    const gallery = typeof HUB_SHOW !== "undefined" ? HUB_SHOW : [];
+    const list = gallery.map((url) => ({ type: "image", url }));
+    Object.keys(HUB_PHOTO).forEach((key) => list.push({ type: "image", url: hubMedia(HUB_PHOTO[key]) }));
+    HUB_VIDEOS.forEach((rel) => list.push({ type: "video", url: hubMedia(rel) }));
+    return list;
+  }
+  if (id === "seminars") {
+    const gallery = typeof SEMINAR_SHOW !== "undefined" ? SEMINAR_SHOW : [];
+    const list = gallery.map((url) => ({ type: "image", url }));
+    images.forEach((url) => list.push({ type: "image", url }));
+    videos.forEach((url) => list.push({ type: "video", url }));
+    return list;
   }
   const list = [];
   const count = Math.max(images.length, videos.length);
@@ -803,6 +933,24 @@ const HUB_PIN = {
   sukkur: [44, 69.9],
   jallozai: [56.9, 25.7]
 };
+const HUB_GEO = {
+  gilgit: [35.92, 74.31],
+  jallozai: [34.01, 71.95],
+  muzaffargarh: [30.07, 71.19],
+  sukkur: [27.7, 68.86]
+};
+const GLOBE_LAND = [
+  [[72, -156], [70, -141], [66, -168], [60, -140], [54, -131], [48, -125], [38, -123], [32, -117], [23, -110], [16, -96], [20, -87], [26, -80], [30, -84], [35, -76], [41, -70], [45, -67], [47, -53], [53, -56], [60, -64], [66, -68], [70, -90], [72, -128], [72, -156]],
+  [[12, -72], [8, -60], [5, -51], [-5, -35], [-15, -39], [-23, -43], [-35, -55], [-52, -68], [-55, -71], [-40, -73], [-18, -71], [-5, -81], [0, -78], [8, -77], [12, -72]],
+  [[37, -6], [28, -14], [16, -17], [8, -14], [5, -5], [6, 8], [12, 16], [20, 16], [31, 25], [32, 32], [12, 43], [0, 42], [-15, 40], [-26, 33], [-34, 25], [-34, 18], [-18, 12], [5, 8], [20, 0], [32, -6], [37, -6]],
+  [[71, 26], [64, 12], [58, 6], [52, -8], [43, -9], [36, -6], [36, 3], [41, 28], [46, 40], [55, 28], [62, 30], [68, 44], [71, 26]],
+  [[41, 29], [36, 36], [26, 56], [24, 68], [8, 77], [7, 98], [1, 104], [15, 109], [22, 121], [35, 129], [48, 142], [60, 163], [70, 140], [72, 100], [68, 60], [60, 40], [48, 30], [41, 29]],
+  [[-12, 131], [-18, 122], [-34, 116], [-35, 137], [-38, 146], [-28, 153], [-15, 145], [-12, 136], [-12, 131]],
+  [[83, -62], [76, -20], [68, -22], [60, -44], [66, -62], [76, -68], [83, -62]]
+];
+const PAK_RING = [
+  [37.08, 74.69], [36.2, 75.2], [35.3, 77.0], [34.3, 75.6], [33.9, 73.9], [32.5, 74.5], [31.0, 74.4], [29.8, 73.0], [28.4, 70.6], [26.6, 70.1], [24.8, 68.4], [23.8, 68.1], [25.0, 66.6], [25.3, 63.5], [26.2, 62.0], [28.6, 62.2], [29.8, 61.6], [30.3, 66.4], [31.6, 68.6], [33.0, 70.0], [34.2, 71.2], [35.3, 71.7], [36.2, 72.8], [36.9, 74.0], [37.08, 74.69]
+];
 function hubWhere(active) {
   if (!window.pakistanMap) return "";
   const marks = Object.keys(HUB_PIN).map((id) => {
@@ -811,7 +959,260 @@ function hubWhere(active) {
     const [x, y] = HUB_PIN[id];
     return `<button class="map-pin${active === id ? " is-on" : ""}" type="button" data-hub="${esc(id)}" style="left:${x}%;top:${y}%;--c:${hub.color}"><i></i><b>${esc(hub.name)}</b></button>`;
   }).join("");
-  return `<section class="hub-where"><div class="k">Hub locations</div><h3>Where the stock stands</h3><p>Gilgit, Muzaffargarh, Sukkur, and Jalozai, placed from the coordinates used by Infra Resilience 360.</p><div class="hub-where-map">${window.pakistanMap(["sindh", "punjab", "gilgit-baltistan", "khyber-pakhtunkhwa"], false)}${marks}</div></section>`;
+  const map = window.pakistanMap(["sindh", "punjab", "gilgit-baltistan", "khyber-pakhtunkhwa"], false);
+  return `<section class="hub-where"><div class="k">Hub locations</div><h3>Where the stock stands</h3><p>The globe turns to Pakistan, then zooms to each material hub.</p><div class="globe-stage" data-hub-globe data-focus="${esc(active)}"><canvas class="globe-canvas" aria-hidden="true"></canvas><div class="globe-viewport"><div class="globe-sheet">${map}${marks}</div></div><div class="globe-caption"><span data-globe-place>Material hubs</span><b data-globe-name>Pakistan</b></div></div></section>`;
+}
+function startGlobe() {
+  stopGlobe();
+  const stage = document.querySelector("[data-hub-globe]");
+  if (!stage || !window.pakistanMap) return;
+  const canvas = stage.querySelector("canvas");
+  const sheet = stage.querySelector(".globe-sheet");
+  const placeEl = stage.querySelector("[data-globe-place]");
+  const nameEl = stage.querySelector("[data-globe-name]");
+  const ctx = canvas.getContext("2d");
+  if (!ctx || !sheet) return;
+  const focus = stage.dataset.focus || "all";
+  const hubs = Object.keys(HUB_GEO).map((id) => {
+    const hub = (DATA.hubs || []).find((item) => item.id === id);
+    if (!hub || !HUB_PIN[id]) return null;
+    return { id, name: hub.name, region: hub.region, color: hub.color, geo: HUB_GEO[id], pin: HUB_PIN[id] };
+  }).filter(Boolean);
+  const aim = focus !== "all" && HUB_GEO[focus] ? { lat: HUB_GEO[focus][0], lng: HUB_GEO[focus][1] } : { lat: 30.2, lng: 69.8 };
+  const enterLng = aim.lng - 76;
+  const spin = reduce ? 0 : (focus === "all" ? 3600 : 1700);
+  const dive = reduce ? 0 : 1300;
+  const retreat = focus === "all" && !reduce ? 1100 : 0;
+  const steps = [];
+  if (focus === "all") {
+    steps.push({ id: "country", scale: 1, dur: 1500 });
+    hubs.forEach((hub) => steps.push({ id: hub.id, scale: 2.28, dur: 2500 }));
+    steps.push({ id: "country", scale: 1, dur: 1100 });
+  } else {
+    const hub = hubs.find((item) => item.id === focus);
+    steps.push(hub ? { id: hub.id, scale: 2.35, dur: 1e9 } : { id: "country", scale: 1, dur: 1e9 });
+  }
+  const mapTotal = steps.reduce((sum, step) => sum + step.dur, 0);
+  const loop = spin + dive + mapTotal + retreat;
+  const stars = Array.from({ length: 72 }, (_, i) => [(i * 53 % 100) / 100, Math.abs(Math.sin(i * 12.9898)) % 1, 0.35 + (i % 5) * 0.13]);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - ((-2 * t + 2) ** 2) / 2);
+  const clamp01 = (t) => Math.max(0, Math.min(1, t));
+  let applied = "";
+  let sized = "";
+  const fit = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    const mark = `${w}x${h}x${dpr}`;
+    if (mark !== sized) {
+      sized = mark;
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      applied = "";
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { w, h };
+  };
+  const project = (lat, lng, cam) => {
+    const φ = lat * Math.PI / 180;
+    const λ = (lng - cam.lng) * Math.PI / 180;
+    const φ0 = cam.lat * Math.PI / 180;
+    const cosc = Math.sin(φ0) * Math.sin(φ) + Math.cos(φ0) * Math.cos(φ) * Math.cos(λ);
+    const x = Math.cos(φ) * Math.sin(λ);
+    const y = Math.cos(φ0) * Math.sin(φ) - Math.sin(φ0) * Math.cos(φ) * Math.cos(λ);
+    return { x: cam.cx + x * cam.r, y: cam.cy - y * cam.r, front: cosc > 0.04 };
+  };
+  const drawRing = (ring, cam, color, glow) => {
+    ctx.beginPath();
+    let drawing = false;
+    ring.forEach((point, index) => {
+      const next = ring[(index + 1) % ring.length];
+      let lng0 = point[1];
+      let lng1 = next[1];
+      if (lng1 - lng0 > 180) lng1 -= 360;
+      if (lng0 - lng1 > 180) lng1 += 360;
+      for (let step = 0; step < 7; step += 1) {
+        const t = step / 7;
+        const p = project(point[0] + (next[0] - point[0]) * t, lng0 + (lng1 - lng0) * t, cam);
+        if (!p.front) {
+          drawing = false;
+          continue;
+        }
+        if (!drawing) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+        drawing = true;
+      }
+    });
+    ctx.fillStyle = color;
+    if (glow) {
+      ctx.save();
+      ctx.shadowColor = "rgba(61,255,176,0.85)";
+      ctx.shadowBlur = 16;
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = "rgba(223,255,241,0.9)";
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+    } else ctx.fill();
+  };
+  const drawGlobe = (cam) => {
+    const { w, h } = cam;
+    ctx.clearRect(0, 0, w, h);
+    stars.forEach(([x, y, a]) => {
+      ctx.fillStyle = `rgba(255,255,255,${a})`;
+      ctx.fillRect(x * w, y * h, a > 0.7 ? 2 : 1.4, a > 0.7 ? 2 : 1.4);
+    });
+    ctx.save();
+    ctx.translate(cam.cx, cam.cy);
+    ctx.rotate(-0.5);
+    ctx.scale(1, 0.34);
+    ctx.beginPath();
+    ctx.arc(0, 0, cam.r * 1.42, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(141,255,228,0.28)";
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 9]);
+    ctx.stroke();
+    ctx.restore();
+    const ocean = ctx.createRadialGradient(cam.cx - cam.r * 0.34, cam.cy - cam.r * 0.38, cam.r * 0.15, cam.cx, cam.cy, cam.r);
+    ocean.addColorStop(0, "#1d7c86");
+    ocean.addColorStop(0.55, "#0c4554");
+    ocean.addColorStop(1, "#082430");
+    ctx.beginPath();
+    ctx.arc(cam.cx, cam.cy, cam.r, 0, Math.PI * 2);
+    ctx.fillStyle = ocean;
+    ctx.fill();
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cam.cx, cam.cy, cam.r, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.fillStyle = "rgba(255,255,255,0.14)";
+    ctx.lineWidth = 1;
+    for (let lat = -60; lat <= 60; lat += 30) {
+      ctx.beginPath();
+      let on = false;
+      for (let lng = -180; lng <= 180; lng += 4) {
+        const p = project(lat, lng, cam);
+        if (!p.front) { on = false; continue; }
+        if (!on) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+        on = true;
+      }
+      ctx.strokeStyle = "rgba(214,244,236,0.16)";
+      ctx.stroke();
+    }
+    for (let lng = -180; lng < 180; lng += 30) {
+      ctx.beginPath();
+      let on = false;
+      for (let lat = -80; lat <= 80; lat += 4) {
+        const p = project(lat, lng, cam);
+        if (!p.front) { on = false; continue; }
+        if (!on) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+        on = true;
+      }
+      ctx.stroke();
+    }
+    GLOBE_LAND.forEach((ring) => drawRing(ring, cam, "#14685c", false));
+    drawRing(PAK_RING, cam, "#1ec87a", true);
+    hubs.forEach((hub) => {
+      const p = project(hub.geo[0], hub.geo[1], cam);
+      if (!p.front) return;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, focus === hub.id ? 6 : 4.2, 0, Math.PI * 2);
+      ctx.fillStyle = hub.color;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(255,255,255,0.85)";
+      ctx.stroke();
+    });
+    const shade = ctx.createRadialGradient(cam.cx, cam.cy, cam.r * 0.62, cam.cx, cam.cy, cam.r);
+    shade.addColorStop(0, "rgba(0,0,0,0)");
+    shade.addColorStop(1, "rgba(0,0,0,0.42)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(cam.cx - cam.r, cam.cy - cam.r, cam.r * 2, cam.r * 2);
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(cam.cx, cam.cy, cam.r + 2, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(141,255,228,0.45)";
+    ctx.lineWidth = 5;
+    ctx.setLineDash([]);
+    ctx.stroke();
+  };
+  const showStep = (step) => {
+    const key = `${step.id}:${step.scale}:${sized}`;
+    if (key === applied) return;
+    applied = key;
+    const hub = hubs.find((item) => item.id === step.id);
+    placeSheet(sheet, hub ? hub.pin : null, step.scale);
+    stage.classList.toggle("is-tight", step.scale > 1.3);
+    stage.querySelectorAll(".map-pin").forEach((btn) => btn.classList.toggle("is-hot", btn.dataset.hub === step.id));
+    if (placeEl) placeEl.textContent = hub ? hub.region : "Four material hubs";
+    if (nameEl) nameEl.textContent = hub ? hub.name : "Pakistan";
+  };
+  const t0 = performance.now();
+  const frame = (now) => {
+    if (!stage.isConnected) return;
+    const size = fit();
+    let t = now - t0;
+    if (focus === "all" && !reduce) t %= loop;
+    const diveEnd = spin + dive;
+    const mapEnd = diveEnd + mapTotal;
+    let lng = aim.lng;
+    let lat = aim.lat;
+    let zoom = focus === "all" ? 2.05 : 2.65;
+    let mapOn = reduce;
+    if (!reduce && t < spin) {
+      const e = ease(clamp01(spin ? t / spin : 1));
+      lng = lerp(enterLng, aim.lng, e);
+      lat = lerp(16, aim.lat, e);
+      zoom = 1;
+      if (placeEl) placeEl.textContent = e > 0.62 ? "In view" : "Turning";
+      if (nameEl) nameEl.textContent = "Pakistan";
+    } else if (!reduce && t < diveEnd) {
+      const e = ease(clamp01((t - spin) / dive));
+      zoom = lerp(1, focus === "all" ? 2.05 : 2.65, e);
+      mapOn = e > 0.72;
+      if (mapOn) showStep(steps[0]);
+    } else if (t < mapEnd || focus !== "all" || reduce) {
+      mapOn = true;
+      let local = Math.max(0, t - diveEnd);
+      let cursor = 0;
+      let step = steps[0];
+      steps.forEach((item) => {
+        if (local >= cursor) step = item;
+        cursor += item.dur;
+      });
+      showStep(step);
+    } else {
+      const e = ease(clamp01((t - mapEnd) / retreat));
+      lng = lerp(aim.lng, enterLng, e);
+      lat = lerp(aim.lat, 16, e);
+      zoom = lerp(2.05, 1, e);
+      mapOn = false;
+      if (placeEl) placeEl.textContent = "Material hubs";
+      if (nameEl) nameEl.textContent = "Pakistan";
+    }
+    stage.classList.toggle("is-map", mapOn);
+    if (!mapOn || t < diveEnd + 40) {
+      const base = Math.min(size.w, size.h) * 0.34;
+      drawGlobe({ w: size.w, h: size.h, cx: size.w / 2, cy: size.h * 0.46, r: base * zoom, lat, lng });
+    }
+    if ((focus === "all" && !reduce) || t < diveEnd + 160) globeFrame = requestAnimationFrame(frame);
+  };
+  globeFrame = requestAnimationFrame(frame);
+}
+function placeSheet(sheet, pin, scale) {
+  const view = sheet.parentElement;
+  const w = sheet.offsetWidth;
+  const h = sheet.offsetHeight;
+  const vw = view.clientWidth;
+  const vh = view.clientHeight;
+  if (!w || !h || !vw || !vh) return;
+  const px = ((pin ? pin[0] : 50) / 100) * w;
+  const py = ((pin ? pin[1] : 50) / 100) * h;
+  sheet.style.transformOrigin = "0 0";
+  sheet.style.transform = `translate(${vw / 2 - px * scale}px, ${vh / 2 - py * scale}px) scale(${scale})`;
 }
 function hubViz(id) {
   if (id === "all") {
@@ -858,17 +1259,19 @@ function sectionBody(id) {
   }
   if (id === "hubs") {
     const active = state.hub;
-    const photo = (hub) => HUB_PHOTO[hub.id] ? hubMedia(HUB_PHOTO[hub.id]) : "";
+    hubPlaylists = [];
     const chosen = DATA.hubs.find((hub) => hub.id === active);
-    const shots = DATA.hubs.map((hub) => {
-      const src = photo(hub);
-      const media = src ? `<img src="${esc(src)}" alt="" />` : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
+    const shots = DATA.hubs.map((hub, index) => {
+      const urls = hubSlides(hub, index);
+      const media = urls.length ? hubReel(urls, index * 900) : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
       return `<button class="hub-shot${active === hub.id ? " is-on" : ""}" type="button" data-hub="${esc(hub.id)}">${media}<span class="hub-shot-copy"><b>${esc(hub.name)}</b><em>${esc(hub.region)}</em><strong>${fmt(hubTotal(hub))} units</strong></span></button>`;
     }).join("");
     const one = (hub) => {
-      const src = photo(hub);
-      const picture = src ? `<img src="${esc(src)}" alt="" />` : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
-      return `<figure class="hub-hero hub-one">${picture}<figcaption><em>${esc(hub.region)}</em><strong>${esc(hub.name)} Material Hub</strong><span>${fmt(hubTotal(hub))} units</span></figcaption></figure>`;
+      const index = Math.max(0, DATA.hubs.findIndex((item) => item.id === hub.id));
+      const urls = hubSlides(hub, index);
+      const picture = urls.length ? hubReel(urls, 0) : `<span class="hub-fallback" style="--c:${hub.color}">${esc(hub.name.slice(0, 1))}</span>`;
+      const count = urls.length ? `<small data-hub-count>01 / ${String(urls.length).padStart(2, "0")}</small>` : "";
+      return `<figure class="hub-hero hub-one">${picture}<figcaption><em>${esc(hub.region)}</em><strong>${esc(hub.name)} Material Hub</strong><span>${fmt(hubTotal(hub))} units</span>${count}</figcaption></figure>`;
     };
     const side = chosen ? one(chosen) : `<div class="hub-row">${shots}</div>`;
     return `<div class="switch" id="hubSwitch"><button class="btn ${active === "all" ? "violet is-on" : "ghost"}" type="button" data-hub="all">All hubs</button>${DATA.hubs.map((h) => `<button class="btn ${active === h.id ? "violet is-on" : "ghost"}" type="button" data-hub="${h.id}">${esc(h.name)}</button>`).join("")}</div><div class="hub-top">${hubWhere(active)}<div class="hub-gallery">${side}</div></div><div class="hub-stats" id="hubViz">${hubViz(active)}</div>`;
@@ -895,7 +1298,7 @@ function sectionBody(id) {
     const max = Math.max(...DATA.seminars.map((s) => Number(s.n)), 1);
     const colors = { 2024: "#f0c14b", 2025: "#3ad7f5", 2026: "#1ec87a" };
     const years = [2024, 2025, 2026].map((y) => ({ name: String(y), value: DATA.seminars.filter((s) => Number(s.y) === y).reduce((a, s) => a + Number(s.n), 0), color: colors[y] }));
-    return `${wingStage("seminars")}<div class="grid-2"><article class="card pad"><div class="k">Participants</div><h3>${fmt(seminarTotal())}</h3>${DATA.seminars.map((s) => `<div class="sem-row"><span>${esc(s.d)}</span><div class="meta"><strong>${esc(s.t)}</strong><span>${esc(s.loc)}</span><div class="track" style="margin-top:4px"><i class="fill" style="--w:${(s.n / max) * 100}%;--c:${colors[s.y] || "#1ec87a"}"></i></div></div><em class="delta">${s.n}</em></div>`).join("")}</article><article class="card pad"><div class="k">By year</div>${donut(years, fmt(seminarTotal()), "People")}</article></div>`;
+    return `${seminarAtom()}${wingStage("seminars")}<div class="grid-2"><article class="card pad"><div class="k">Participants</div><h3>${fmt(seminarTotal())}</h3>${DATA.seminars.map((s) => `<div class="sem-row"><span>${esc(s.d)}</span><div class="meta"><strong>${esc(s.t)}</strong><span>${esc(s.loc)}</span><div class="track" style="margin-top:4px"><i class="fill" style="--w:${(s.n / max) * 100}%;--c:${colors[s.y] || "#1ec87a"}"></i></div></div><em class="delta">${s.n}</em></div>`).join("")}</article><article class="card pad"><div class="k">By year</div>${donut(years, fmt(seminarTotal()), "People")}</article></div>`;
   }
   if (id === "response") {
     return `<div class="grid-6 steps-grid">${DATA.response.map((item, i) => `<article class="card step" style="--accent:${item.color}"><b class="n">${String(i + 1).padStart(2, "0")}</b><div>${esc(item.title)}</div></article>`).join("")}</div>`;
@@ -1144,6 +1547,9 @@ function paintModal() {
   const body = document.getElementById("modal-body");
   setFrameActions("");
   stopModelShow();
+  stopHubShows();
+  stopGlobe();
+  stopAtom();
   const scene = document.getElementById("page-scene");
   if (!state.open) {
     if (scene) scene.innerHTML = "";
@@ -1161,7 +1567,7 @@ function paintModal() {
   modal.classList.add("is-on");
   document.body.style.overflow = "hidden";
   const sheet = modal.querySelector(".sheet");
-  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals" || state.open === "drim" || state.open === "mandate" || state.open === "hubs");
+  if (sheet) sheet.classList.toggle("is-wide", state.open === "app360" || state.open === "portals" || state.open === "drim" || state.open === "mandate" || state.open === "hubs" || state.open === "seminars");
   playDonuts(body);
   runCounters(body);
   watchFrames(body);
@@ -1171,6 +1577,11 @@ function paintModal() {
     showModel(0);
     startModelShow();
   }
+  if (state.open === "hubs") {
+    startHubShows();
+    startGlobe();
+  }
+  if (state.open === "seminars") startAtom();
   rememberPage();
 }
 
